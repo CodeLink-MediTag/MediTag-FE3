@@ -48,6 +48,7 @@ class _LandingState extends State<Landing> {
                 padding: const EdgeInsets.only(top: 60, left: 20, right: 20),
                 child: Column(
                   children: [
+                    // 탑바
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -75,6 +76,7 @@ class _LandingState extends State<Landing> {
                       ],
                     ),
                     const SizedBox(height: 16),
+                    // 약복용 알림창
                     Container(
                       width: double.infinity,
                       height: 120,
@@ -123,7 +125,8 @@ class _LandingState extends State<Landing> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          Container(height: 20,),
+          // 주요버튼 5개
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),

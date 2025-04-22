@@ -1,5 +1,5 @@
-/*
 
+/*
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medife/medication/MediMain.dart';
 import 'package:medife/screens/landing.dart';
-import 'package:medife/features/sign/signup.dart';
+import 'package:medife/features/sign/old_sign_up.dart';
 
 // 전역에서 사용할 라우터 옵저버
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -320,4 +320,4 @@ class _Input extends StatelessWidget{
 }
 
 
- */
+*/
