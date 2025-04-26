@@ -48,7 +48,6 @@
 
      ```bash
      git checkout feat/기능명
-     git pull origin dev
      git merge dev
      ```
 
