@@ -21,9 +21,9 @@
 **브랜치 생성 시**  
 - 항상 `dev` 최신 상태에서 브랜치를 파고 작업합니다.  
 - 명령어:
-`git checkout dev  `
-`git pull  `
-`git checkout -b feat/기능명  `
+- `git checkout dev  `
+- `git pull  `
+- `git checkout -b feat/기능명  `
 
 
 ### 3. 작업 흐름
@@ -50,12 +50,12 @@
 ---
 
 ### 🛠️ 요약 플로우
-`git checkout dev`
-`git pull origin dev`
-`git checkout -b feat/로그인페이지`
+- `git checkout dev`
+- `git pull origin dev`
+- `git checkout -b feat/로그인페이지`
 
 작업
-`git add .`
-`git commit -m "[feat] 로그인 페이지 UI 완성"`
-`git push origin feat/로그인페이지`
+- `git add .`
+- `git commit -m "[feat] 로그인 페이지 UI 완성"`
+- `git push origin feat/로그인페이지`
 
