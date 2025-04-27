@@ -2,14 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../model/login_request_model.dart';
-import '../repository/auth_repository.dart';
+import '../repository/login_auth_repository.dart';
 import 'login_custom_button.dart';
 import 'login_custom_text_field.dart';
 
 class LoginFields extends StatelessWidget {
 
   // 요청 보내는 로직이 있는 리포지토리
-  final repository = AuthRepository();
+  final repository = LoginAuthRepository();
 
   final _formKey = GlobalKey<FormState>();
   String _username = '';

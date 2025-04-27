@@ -4,7 +4,7 @@ import 'package:medife/main.dart';
 
 import '../component/login_fields.dart';
 import '../component/login_logo.dart';
-import '../repository/auth_repository.dart';
+import '../repository/login_auth_repository.dart';
 
 void main (){
   runApp(MaterialApp(

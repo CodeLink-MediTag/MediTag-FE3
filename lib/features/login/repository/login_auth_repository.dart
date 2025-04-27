@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:medife/ip/ip_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/login_request_model.dart';
 
 
-class AuthRepository {
+class LoginAuthRepository {
   Future<String?> login(LoginRequestModel request) async {
     final response = await http.post(
-      Uri.parse('http://192.168.0.11:8080/api/auth/login'),
+      Uri.parse('http://$ipAddress:8080/api/auth/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(request.toJson()),
     );
