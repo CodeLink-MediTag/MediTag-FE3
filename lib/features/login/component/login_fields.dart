@@ -57,15 +57,15 @@ class LoginFields extends StatelessWidget {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
                   final request = LoginRequestModel(username: _username, password: _password);
-                  final token = await repository.login(request);
-                  if (token != null) {
-                    // 로그인 성공 시 처리
-                    // Navigator.pushNamed(context, '/home');
-                    print(token);
-                  } else {
-                    // 로그인 실패 처리
+
+                  try {
+                    final token = await repository.login(request);
+                    print('로그인 성공 $token');
+                    Navigator.pushNamed(context, '/landing'); // 홈 화면으로 이동
+                  } catch(e){
+                    // 로그인 실패 시 처리
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('로그인 실패')),
+                      SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
                     );
                   }
                 }

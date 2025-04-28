@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => LoginScreen(),      // 첫 화면
         '/login': (context) => LoginScreen(), // 로그인 화면
         '/signup': (context) => SignupScreen(),   // 회원가입 화면
+        '/landing': (context) => Landing(), // 홈 화면
         // 추가 화면들도 여기에 등록
       },      debugShowCheckedModeBanner: false,
     );
