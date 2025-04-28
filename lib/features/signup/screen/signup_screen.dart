@@ -7,14 +7,10 @@ import '../component/signup_app_bar.dart';
 import '../component/signup_button.dart';
 import '../component/signup_text_field.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: SignupPage(),
-  ));
-}
 
-class SignupPage extends StatelessWidget {
-  const SignupPage({Key? key}) : super(key: key);
+
+class SignupScreen extends StatelessWidget {
+  const SignupScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

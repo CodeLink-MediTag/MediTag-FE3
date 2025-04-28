@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:medife/features/signup/screen/signup_screen.dart';
 
 import '../model/login_request_model.dart';
 import '../repository/login_auth_repository.dart';
@@ -73,7 +74,9 @@ class LoginFields extends StatelessWidget {
             const SizedBox(height: 12),
             LoginCustomButton(
               text: '회원가입',
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/signup');
+              },
             ),
           ],
         )

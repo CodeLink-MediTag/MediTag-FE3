@@ -6,12 +6,6 @@ import '../component/login_fields.dart';
 import '../component/login_logo.dart';
 import '../repository/login_auth_repository.dart';
 
-void main (){
-  runApp(MaterialApp(
-    home: LoginScreen(),
-  ));
-}
-
 class LoginScreen extends StatelessWidget{
 
   @override

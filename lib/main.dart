@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:medife/features/signup/old_sign_up.dart';
 import 'package:medife/screens/landing.dart'; // 시작화면
 import 'package:medife/routes/route_observer.dart';
+
+import 'features/login/screen/login_screen.dart';
+import 'features/signup/screen/signup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +24,13 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         primarySwatch: Colors.blue,
       ),
-      home: const Landing(),
-      navigatorObservers: [routeObserver], // ✅ 이 줄 추가: RouteObserver 등록
-      debugShowCheckedModeBanner: false,
+      initialRoute: '/', // 시작화면
+      routes: {
+        '/': (context) => LoginScreen(),      // 첫 화면
+        '/login': (context) => LoginScreen(), // 로그인 화면
+        '/signup': (context) => SignupScreen(),   // 회원가입 화면
+        // 추가 화면들도 여기에 등록
+      },      debugShowCheckedModeBanner: false,
     );
   }
 }
