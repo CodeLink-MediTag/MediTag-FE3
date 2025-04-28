@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:medife/ip/ip_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../model/kakao_login_request_model.dart';
 import '../model/login_request_model.dart';
 
 
