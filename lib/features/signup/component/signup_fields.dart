@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:medife/common/common_dialog.dart';
 import 'package:medife/features/signup/component/signup_button.dart';
 import 'package:medife/features/signup/component/signup_text_field.dart';
 
@@ -7,6 +8,8 @@ import '../model/signup_request_model.dart';
 import '../repository/signup_auth_repository.dart';
 
 class SignupFields extends StatelessWidget {
+  final repository = SignupAuthRepository();
+
   final _formKey = GlobalKey<FormState>();
   String _username = '';
   String _password = '';
@@ -63,18 +66,24 @@ class SignupFields extends StatelessWidget {
                   firebaseToken: "" // 아직 파이어베이스 토큰 받는 기능이 없음으로 빈 문자열 삽입
                 );
 
-                final repository = SignupAuthRepository();
-                final result = await repository.signup(request);
-
-                if (result == true) {
-                  // 회원가입 성공 시
-                  print('회원가입 성공: $result');
-                } else {
-                  // 회원가입 실패 시
+                try{
+                  await repository.signup(request);
+                  CommonDialog.showCompletedDialog(
+                    context: context,
+                    title: '회원가입 성공',
+                    content: '회원가입이 완료되었습니다.',
+                    onConfirm: (){
+                      Navigator.of(context).pop(); // 팝업창 pop
+                      Navigator.of(context).pop(); // 회원가입 페이지 pop
+                    }
+                  );
+                } catch(e){
+                  // 회원가입 실패 처리
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('회원가입 실패')),
                   );
                 }
+
               }
             },
           ),
