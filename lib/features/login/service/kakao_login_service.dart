@@ -6,20 +6,30 @@ class KakaoLoginService {
       nativeAppKey: '0294f90ad4d3deac240d0065da6d5c5f', // 카카오 네이티브 앱 키
     );
   }
-  Future<OAuthToken?> login() async {
+  Future<String?> login() async {
+    String returnToken;
     try {
       bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
 
       if (isInstalled) {
-        // 카카오톡으로 로그인
-        token = await UserApi.instance.loginWithKakaoTalk();
-        print('✅ 카카오톡으로 로그인 성공: ${token.accessToken}');
+        try {
+          // 카카오톡으로 로그인
+          token = await UserApi.instance.loginWithKakaoTalk();
+          print('✅ 카카오톡으로 로그인 성공: ${token.accessToken}');
+        } catch(e){
+          print('⚠️ 카카오톡 로그인 실패, 카카오계정으로 로그인 시도: $e');
+          // 카카오톡 로그인 실패하면 카카오 계정으로 로그인
+          token = await UserApi.instance.loginWithKakaoAccount();
+          print('✅ 카카오 계정으로 로그인 성공: ${token.accessToken}');
+        }
       } else {
         // 카카오 계정으로 로그인
         token = await UserApi.instance.loginWithKakaoAccount();
         print('✅ 카카오 계정으로 로그인 성공: ${token.accessToken}');
       }
+
+      returnToken = token.accessToken;
 
       // 사용자 정보 가져오기
       User user = await UserApi.instance.me();
@@ -29,7 +39,7 @@ class KakaoLoginService {
       print('🔹 성별: ${user.kakaoAccount?.gender}');
       print('🔹 연령대: ${user.kakaoAccount?.ageRange}');
 
-      return token;
+      return returnToken;
     } catch (e) {
       print('❌ 카카오 로그인 실패: $e');
       return null;

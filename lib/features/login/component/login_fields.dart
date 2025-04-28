@@ -86,6 +86,18 @@ class LoginFields extends StatelessWidget {
               onPressed: () async {
                 final kakaoService = KakaoLoginService();
                 final token = await kakaoService.login();
+                final request = KakaoLoginRequestModel(accessToken: token.toString());
+                try {
+                  final token = await repository.kakaoLogin(request);
+                  print('로그인 성공 $token');
+                  Navigator.pushNamed(context, '/landing'); // 홈 화면으로 이동
+                } catch(e){
+                  // 로그인 실패 시 처리
+                  print(e);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                  );
+                }
 
               },
             ),
