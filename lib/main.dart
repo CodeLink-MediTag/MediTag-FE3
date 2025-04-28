@@ -6,6 +6,7 @@ import 'package:medife/routes/route_observer.dart';
 
 import 'features/login/screen/login_screen.dart';
 import 'features/signup/screen/signup_screen.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
