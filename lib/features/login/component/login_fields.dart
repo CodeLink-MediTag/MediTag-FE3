@@ -4,6 +4,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:medife/features/login/service/kakao_login_service.dart';
 import 'package:medife/features/signup/screen/signup_screen.dart';
 
+import '../model/kakao_login_request_model.dart';
 import '../model/login_request_model.dart';
 import '../repository/login_auth_repository.dart';
 import 'login_custom_button.dart';
