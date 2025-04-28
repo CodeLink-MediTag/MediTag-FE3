@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:medife/features/login/service/kakao_login_service.dart';
 import 'package:medife/features/signup/screen/signup_screen.dart';
 
 import '../model/login_request_model.dart';
@@ -76,6 +78,27 @@ class LoginFields extends StatelessWidget {
               text: '회원가입',
               onPressed: () {
                 Navigator.pushNamed(context, '/signup');
+              },
+            ),
+            const SizedBox(height: 12),
+            LoginCustomButton(
+              text: '카카오 로그인',
+              onPressed: () async {
+                final kakaoService = KakaoLoginService();
+                final token = await kakaoService.login();
+                final request = KakaoLoginRequestModel(accessToken: token.toString());
+                try {
+                  final token = await repository.kakaoLogin(request);
+                  print('로그인 성공 $token');
+                  Navigator.pushNamed(context, '/landing'); // 홈 화면으로 이동
+                } catch(e){
+                  // 로그인 실패 시 처리
+                  print(e);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                  );
+                }
+
               },
             ),
           ],
