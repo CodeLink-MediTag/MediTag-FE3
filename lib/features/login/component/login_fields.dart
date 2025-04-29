@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:medife/features/login/service/kakao_login_service.dart';
-import 'package:medife/features/signup/screen/signup_screen.dart';
 
 import '../model/kakao_login_request_model.dart';
 import '../model/login_request_model.dart';
@@ -15,17 +13,16 @@ class LoginFields extends StatelessWidget {
   // 요청 보내는 로직이 있는 리포지토리
   final repository = LoginAuthRepository();
 
-  final _formKey = GlobalKey<FormState>();
-  String _username = '';
-  String _password = '';
+  final formKey = GlobalKey<FormState>();
+  String username = '';
+  String password = '';
   LoginFields({
     super.key,
   });
-
   @override
   Widget build(BuildContext context) {
     return Form(
-        key: _formKey,
+        key: formKey,
         child: Column(
           children: [
             LoginCustomTextField(
@@ -37,7 +34,7 @@ class LoginFields extends StatelessWidget {
                     : null;
               },
               onSaved: (value){
-                _username = value!;
+                username = value!;
               },
             ),
             const SizedBox(height: 12),
@@ -51,15 +48,15 @@ class LoginFields extends StatelessWidget {
                     : null;
               },
               onSaved: (value){
-                _password = value!;
+                password = value!;
               },
             ),
             LoginCustomButton(
               text: '로그인',
               onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  final request = LoginRequestModel(username: _username, password: _password);
+                if (formKey.currentState!.validate()) {
+                  formKey.currentState!.save();
+                  final request = LoginRequestModel(username: username, password: password);
 
                   try {
                     final token = await repository.login(request);
@@ -85,8 +82,7 @@ class LoginFields extends StatelessWidget {
             LoginCustomButton(
               text: '카카오 로그인',
               onPressed: () async {
-                final kakaoService = KakaoLoginService();
-                final token = await kakaoService.login();
+                final token = await handleKakaoLogin(context);
                 final request = KakaoLoginRequestModel(accessToken: token.toString());
                 try {
                   final token = await repository.kakaoLogin(request);
@@ -105,5 +101,45 @@ class LoginFields extends StatelessWidget {
           ],
         )
     );
+  }
+
+  Future<String?> handleKakaoLogin(BuildContext context) async {
+    String returnToken;
+    KakaoSdk.init(
+      nativeAppKey: '0294f90ad4d3deac240d0065da6d5c5f', // 카카오 네이티브 앱 키
+    );
+    try {
+      bool isInstalled = await isKakaoTalkInstalled();
+      OAuthToken token;
+
+      if (isInstalled) {
+        try {
+          // 카카오톡으로 로그인
+          token = await UserApi.instance.loginWithKakaoTalk();
+          print('✅ 카카오톡으로 로그인 성공: ${token.accessToken}');
+        } catch(e){
+          print('⚠️ 카카오톡 로그인 실패, 카카오계정으로 로그인 시도: $e');
+          // 카카오톡 로그인 실패하면 카카오 계정으로 로그인
+          token = await UserApi.instance.loginWithKakaoAccount();
+          print('✅ 카카오 계정으로 로그인 성공: ${token.accessToken}');
+        }
+      } else {
+        // 카카오 계정으로 로그인
+        token = await UserApi.instance.loginWithKakaoAccount();
+        print('✅ 카카오 계정으로 로그인 성공: ${token.accessToken}');
+      }
+      // 사용자 정보 가져오기
+      User user = await UserApi.instance.me();
+      print('🔹 닉네임: ${user.kakaoAccount?.profile?.nickname}');
+      print('🔹 이메일: ${user.kakaoAccount?.email}');
+      print('🔹 프로필 사진: ${user.kakaoAccount?.profile?.profileImageUrl}');
+      print('🔹 성별: ${user.kakaoAccount?.gender}');
+      print('🔹 연령대: ${user.kakaoAccount?.ageRange}');
+      returnToken = token.accessToken;
+      return returnToken;
+    } catch (e) {
+      print('❌ 카카오 로그인 실패: $e');
+      return null;
+    }
   }
 }
