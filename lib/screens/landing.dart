@@ -8,6 +8,8 @@ import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/setting/mypage.dart';
 
+import '../features/chatbot/screen/chatbot_screen.dart';
+
 class Landing extends StatefulWidget {
   const Landing({super.key});
 
@@ -134,7 +136,7 @@ class _LandingState extends State<Landing> {
                 children: [
                   _menuCard('챗봇', Icons.smart_toy, () {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ChatBot()));
+                        MaterialPageRoute(builder: (context) => ChatBotScreen()));
                   }, fullWidth: true, height: 100),
                   const SizedBox(height: 16),
                   GridView.count(

@@ -42,6 +42,8 @@ dependencies:
   http: ^0.13.6
   shared_preferences: ^2.0.6
   kakao_flutter_sdk_user: ^1.4.3
+  speech_to_text: ^7.0.0
+
 
 
 dev_dependencies:
