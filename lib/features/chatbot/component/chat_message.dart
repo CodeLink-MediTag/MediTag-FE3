@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Message extends StatelessWidget{
   // true이면 왼쪽 false면 오른쪽 정렬
@@ -18,6 +19,8 @@ class Message extends StatelessWidget{
     final alignment = alignLeft ? Alignment.centerLeft : Alignment.centerRight;
     // 챗봇 답변과 사용자 질문 배경 색 지정
     final bgColor = alignLeft ? Color(0xFF547EE8) : Color(0xFFDADADA);
+    // 폰트 색
+    final ftColor = alignLeft ? Colors.white : Colors.black;
 
     return Align(
       alignment: alignment,
@@ -30,7 +33,11 @@ class Message extends StatelessWidget{
         ),
         child: Text(
           message,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: ftColor
+          ),
         ),
       ),
     );

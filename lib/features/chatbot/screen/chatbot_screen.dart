@@ -6,13 +6,8 @@ import 'package:medife/features/chatbot/component/chat_voice_record_button.dart'
 import 'package:medife/features/chatbot/model/send_message_request_model.dart';
 import 'package:medife/features/chatbot/model/session_creation_request_model.dart';
 import 'package:medife/features/chatbot/repository/chat_repository.dart';
-import 'package:medife/ip/ip_address.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-
 
 class ChatBotScreen extends StatefulWidget {
   @override
@@ -94,6 +89,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
   }
 
+  // 채팅 시작
   Future<void> chatStart() async {
     // 로그인 확인하기
     final prefs = await SharedPreferences.getInstance();
@@ -109,6 +105,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     }
   }
 
+  // 사용자 질문 서버에 전송 및 응답 받기
   Future<void> sendMessageToServer(String userMessage) async {
     final answer;
 
@@ -125,6 +122,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       return null;
     }
     setState(() {
+      controller.text = "";
       messages.add({'type': 'user', 'text': userMessage});        // 사용자 메시지를 저장
       messages.add({'type': 'bot', 'text': answer});        // 사용자 메시지를 저장
     });
@@ -137,7 +135,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       );
     });
   }
-
+  // 음성녹음
   void listen() async {
     if (!isListening) {
       bool available = await speech.initialize();      // 마이크 접근 권한 확인
