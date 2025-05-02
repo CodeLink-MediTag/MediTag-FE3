@@ -28,8 +28,11 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_plugin_android_lifecycle: ^2.0.28
+  permission_handler: ^11.0.0
   flutter:
     sdk: flutter
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -40,9 +43,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   http: ^0.13.6
-  shared_preferences: ^2.0.6
+  shared_preferences: ^2.2.2
   kakao_flutter_sdk_user: ^1.4.3
   speech_to_text: ^7.0.0
+
 
 
 
@@ -100,3 +104,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+

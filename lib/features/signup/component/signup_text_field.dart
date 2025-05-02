@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SignupTextField extends StatelessWidget {
@@ -8,7 +7,6 @@ class SignupTextField extends StatelessWidget {
   final FormFieldSetter<String> onSaved;
   final FormFieldValidator<String> validator;
   final TextEditingController? controller;
-
 
   const SignupTextField({
     Key? key,
@@ -22,16 +20,30 @@ class SignupTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      onSaved: onSaved,
-      validator: validator,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          onSaved: onSaved,
+          validator: validator,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: const Color(0xFFF5F7FA),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            hintText: label,
+            hintStyle: const TextStyle(color: Colors.grey),
+          ),
+        ),
+      ],
     );
   }
 }

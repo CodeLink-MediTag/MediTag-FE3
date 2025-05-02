@@ -38,7 +38,7 @@ class _MediStartState extends State<MediStart> {
           // 🔵 상단 헤더
           Container(
             padding: const EdgeInsets.only(top: 50, bottom: 12),
-            color: const Color(0xFF7D8FF7),
+            color: const Color(0xFF547EE8),
             child: Row(
               children: [
                 IconButton(
@@ -170,7 +170,7 @@ class _MediStartState extends State<MediStart> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7D8FF7),
+                backgroundColor: const Color(0xFF547EE8),
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),

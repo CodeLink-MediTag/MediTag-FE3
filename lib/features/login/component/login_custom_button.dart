@@ -1,37 +1,36 @@
-import 'package:flutter/cupertino.dart';
+// login_custom_button.dart
 import 'package:flutter/material.dart';
 
 class LoginCustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final Color backgroundColor;
+  final Color textColor;
 
   const LoginCustomButton({
     super.key,
     required this.text,
     required this.onPressed,
+    this.backgroundColor = const Color(0xFF547EE8),
+    this.textColor = Colors.white,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
+      width: double.infinity,
       child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF547EE8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            minimumSize: Size(double.infinity, 50),
-
-            textStyle: TextStyle(
-                fontSize: 20
-            ),
-            foregroundColor: Colors.white
-        ),
         onPressed: onPressed,
-        child: Text(
-          text,
-
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: textColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          minimumSize: const Size.fromHeight(50),
+          textStyle: const TextStyle(fontSize: 18),
         ),
+        child: Text(text),
       ),
     );
   }
