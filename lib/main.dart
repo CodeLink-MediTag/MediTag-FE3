@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/landing', // 시작화면
+      initialRoute: '/', // 시작화면
       routes: {
         '/': (context) => LoginScreen(),      // 첫 화면
         '/login': (context) => LoginScreen(), // 로그인 화면
