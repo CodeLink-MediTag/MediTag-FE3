@@ -41,46 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA8Vfiz2K96oLmh6nUo073dr19HtJqpRt4',
-    appId: '1:163722133960:web:d8b35262bdea3af9dd80fd',
-    messagingSenderId: '163722133960',
-    projectId: 'meditag-2c5ce',
-    authDomain: 'meditag-2c5ce.firebaseapp.com',
-    storageBucket: 'meditag-2c5ce.firebasestorage.app',
+    apiKey: 'AIzaSyDaRZWkZg5lzMbuSn2j2zuxH2rkiT-kj_I',
+    appId: '1:558677571325:web:30abf1ed7f39a45ef13094',
+    messagingSenderId: '558677571325',
+    projectId: 'meditag-fea95',
+    authDomain: 'meditag-fea95.firebaseapp.com',
+    storageBucket: 'meditag-fea95.firebasestorage.app',
+    measurementId: 'G-MBKXNHDJDQ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBKhra670hr78QBYN31SP-N_Irs91-wFfU',
-    appId: '1:163722133960:android:519609755c589050dd80fd',
-    messagingSenderId: '163722133960',
-    projectId: 'meditag-2c5ce',
-    storageBucket: 'meditag-2c5ce.firebasestorage.app',
+    apiKey: 'AIzaSyApPkbS06ujVr6JzDcS8hC-x0GjCui3WuM',
+    appId: '1:558677571325:android:b3f40a7c3acb1018f13094',
+    messagingSenderId: '558677571325',
+    projectId: 'meditag-fea95',
+    storageBucket: 'meditag-fea95.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBXsXgTUdhdTS35YJzro5tslsTDK2ELD-s',
-    appId: '1:163722133960:ios:7b14b9ee0aa784dddd80fd',
-    messagingSenderId: '163722133960',
-    projectId: 'meditag-2c5ce',
-    storageBucket: 'meditag-2c5ce.firebasestorage.app',
+    apiKey: 'AIzaSyAOWdx0-2gr6xPOBk0evMlHqX3vUWzVAXw',
+    appId: '1:558677571325:ios:fb661d7ca6d039c6f13094',
+    messagingSenderId: '558677571325',
+    projectId: 'meditag-fea95',
+    storageBucket: 'meditag-fea95.firebasestorage.app',
     iosBundleId: 'com.codelink.medife',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBXsXgTUdhdTS35YJzro5tslsTDK2ELD-s',
-    appId: '1:163722133960:ios:7b14b9ee0aa784dddd80fd',
-    messagingSenderId: '163722133960',
-    projectId: 'meditag-2c5ce',
-    storageBucket: 'meditag-2c5ce.firebasestorage.app',
+    apiKey: 'AIzaSyAOWdx0-2gr6xPOBk0evMlHqX3vUWzVAXw',
+    appId: '1:558677571325:ios:fb661d7ca6d039c6f13094',
+    messagingSenderId: '558677571325',
+    projectId: 'meditag-fea95',
+    storageBucket: 'meditag-fea95.firebasestorage.app',
     iosBundleId: 'com.codelink.medife',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyA8Vfiz2K96oLmh6nUo073dr19HtJqpRt4',
-    appId: '1:163722133960:web:84a2613245385fa7dd80fd',
-    messagingSenderId: '163722133960',
-    projectId: 'meditag-2c5ce',
-    authDomain: 'meditag-2c5ce.firebaseapp.com',
-    storageBucket: 'meditag-2c5ce.firebasestorage.app',
+    apiKey: 'AIzaSyDaRZWkZg5lzMbuSn2j2zuxH2rkiT-kj_I',
+    appId: '1:558677571325:web:a62a8eb0494639c1f13094',
+    messagingSenderId: '558677571325',
+    projectId: 'meditag-fea95',
+    authDomain: 'meditag-fea95.firebaseapp.com',
+    storageBucket: 'meditag-fea95.firebasestorage.app',
+    measurementId: 'G-9Z2977FK91',
   );
 }

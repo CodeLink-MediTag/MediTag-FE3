@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "163722133960",
-    "project_id": "meditag-2c5ce",
-    "storage_bucket": "meditag-2c5ce.firebasestorage.app"
+    "project_number": "558677571325",
+    "project_id": "meditag-fea95",
+    "storage_bucket": "meditag-fea95.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:163722133960:android:519609755c589050dd80fd",
+        "mobilesdk_app_id": "1:558677571325:android:b3f40a7c3acb1018f13094",
         "android_client_info": {
           "package_name": "com.codelink.medife"
         }
@@ -15,7 +15,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBKhra670hr78QBYN31SP-N_Irs91-wFfU"
+          "current_key": "AIzaSyApPkbS06ujVr6JzDcS8hC-x0GjCui3WuM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558677571325:android:39c50b5d42656fc9f13094",
+        "android_client_info": {
+          "package_name": "com.example.untitled9"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApPkbS06ujVr6JzDcS8hC-x0GjCui3WuM"
         }
       ],
       "services": {
