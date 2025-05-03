@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:medife/features/chatbot/chatbot.dart';
+import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
 import 'package:medife/features/medication/MediMain.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/setting/mypage.dart';
-
-import '../features/chatbot/screen/chatbot_screen.dart';
 
 class Landing extends StatefulWidget {
   const Landing({super.key});
@@ -19,6 +17,7 @@ class Landing extends StatefulWidget {
 
 class _LandingState extends State<Landing> {
   String _nickname = '000';
+  bool _taken = false;
 
   @override
   void initState() {
@@ -44,41 +43,41 @@ class _LandingState extends State<Landing> {
               Container(
                 height: 200,
                 width: double.infinity,
-                color: const Color(0xFF7D8FF7),
+                color: const Color(0xFF547EE8),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 60, left: 20, right: 20),
                 child: Column(
                   children: [
-                    // 탑바
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // 상단바
+                    Stack(
                       children: [
-                        const Expanded(
-                          child: Center(
-                            child: Text(
-                              'MediTag',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        const Center(
+                          child: Text(
+                            'MediTag',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.settings, color: Colors.white),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SettingScreen()),
-                            );
-                          },
+                        Positioned(
+                          right: 0,
+                          child: IconButton(
+                            icon: const Icon(Icons.settings, color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => SettingScreen()),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    // 약복용 알림창
+                    // 약 복용 알림 카드
                     Container(
                       width: double.infinity,
                       height: 120,
@@ -104,21 +103,36 @@ class _LandingState extends State<Landing> {
                             children: [
                               Text('안녕하세요, $_nickname님',
                                   style: const TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold)),
+                                      fontSize: 20, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 4),
                               const Text('00약 복용 하셨나요?'),
                             ],
                           ),
                           ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                                _taken = !_taken;
+                              });
+                            },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7D8FF7),
+                              backgroundColor:
+                              _taken ? const Color(0xFFFFA4A5) : const Color(0xFF547EE8),
+                              fixedSize: const Size(100, 40), // ✅ 버튼 크기 고정
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            child: const Text('00약'),
+                            child: Text(
+                              _taken ? '복용 완료!' : '00약',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
+
                         ],
                       ),
                     ),
@@ -127,16 +141,18 @@ class _LandingState extends State<Landing> {
               ),
             ],
           ),
-          Container(height: 20,),
-          // 주요버튼 5개
+          const SizedBox(height: 20),
+          // 주요 메뉴 버튼들
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ListView(
                 children: [
                   _menuCard('챗봇', Icons.smart_toy, () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ChatBotScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChatBotScreen()),
+                    );
                   }, fullWidth: true, height: 100),
                   const SizedBox(height: 16),
                   GridView.count(
@@ -147,20 +163,28 @@ class _LandingState extends State<Landing> {
                     crossAxisSpacing: 16,
                     children: [
                       _menuCard('주의사항 녹음', Icons.mic, () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => RecordingScreen()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => RecordingScreen()),
+                        );
                       }),
                       _menuCard('복약 알림 등록', Icons.notifications_active, () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => MediMain()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MediMain()),
+                        );
                       }),
                       _menuCard('복용 기록', Icons.edit_note, () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => EatList()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => EatList()),
+                        );
                       }),
                       _menuCard('복약 달력', Icons.calendar_today, () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Calendar()));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Calendar()),
+                        );
                       }),
                     ],
                   ),
@@ -171,25 +195,48 @@ class _LandingState extends State<Landing> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFF7D8FF7),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MyPage()),
-            ).then((_) => _loadNickname()); // ✅ 뒤에서 닉네임 변경 후 돌아올 때 다시 로딩
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.credit_card), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.camera_alt), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
+      bottomNavigationBar: SizedBox(
+        height: 114,
+        child: BottomNavigationBar(
+          backgroundColor: const Color(0xFF547EE8),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          currentIndex: 0,
+          onTap: (index) {
+            if (index == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MyPage()),
+              ).then((_) => _loadNickname());
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Icon(Icons.credit_card, size: 35),
+              ),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Icon(Icons.camera_alt, size: 35),
+              ),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Icon(Icons.person, size: 35),
+              ),
+              label: '',
+            ),
+          ],
+        ),
       ),
+
+
     );
   }
 
@@ -213,15 +260,30 @@ class _LandingState extends State<Landing> {
           ],
         ),
         padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Stack(
           children: [
-            Text(title,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            Icon(icon, color: const Color(0xFF7D8FF7), size: 28),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Icon(
+                icon,
+                color: const Color(0xFF547EE8),
+                size: 40,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+
 }

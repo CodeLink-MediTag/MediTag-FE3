@@ -27,7 +27,6 @@ class AppRoute {
     switch (settings.name) {
       case RouteName.landing:
         return MaterialPageRoute(builder: (_) => const Landing());
-
       case RouteName.chatbot:
         return MaterialPageRoute(builder: (_) => ChatBot());
       case RouteName.calendar:
