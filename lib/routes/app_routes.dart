@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:medife/features/login/login.dart';
-//import 'package:medife/features/sign_up/sign_up.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/chatbot/chatbot.dart';
 import 'package:medife/features/eatlist/eatlist.dart';
@@ -28,8 +27,6 @@ class AppRoute {
     switch (settings.name) {
       case RouteName.landing:
         return MaterialPageRoute(builder: (_) => const Landing());
-      case RouteName.signup:
-        //return MaterialPageRoute(builder: (_) => Signup());
       case RouteName.chatbot:
         return MaterialPageRoute(builder: (_) => ChatBot());
       case RouteName.calendar:

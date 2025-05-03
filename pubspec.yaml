@@ -46,7 +46,8 @@ dependencies:
   shared_preferences: ^2.2.2
   kakao_flutter_sdk_user: ^1.4.3
   speech_to_text: ^7.0.0
-
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.5
 
 
 

@@ -41,3 +41,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+#파이어 베이스 google-services.json 경로 (깃헙에 올라라가면 안됨)
+android/app/google-services.json
