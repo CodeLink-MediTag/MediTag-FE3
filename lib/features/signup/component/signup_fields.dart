@@ -28,18 +28,21 @@ class SignupFields extends StatelessWidget {
         children: [
           SignupTextField(
             label: '아이디',
+            controller: TextEditingController(text: "test@gmail.com"),
             validator: (value) => value!.isEmpty ? '아이디를 입력해주세요' : null,
             onSaved: (value) => _username = value!,
           ),
           const SizedBox(height: 20),
           SignupTextField(
             label: '이름',
+            controller: TextEditingController(text: "회원1"),
             validator: (value) => value!.isEmpty ? '이름을 입력해주세요' : null,
             onSaved: (value) => _name = value!,
           ),
           const SizedBox(height: 20),
           SignupTextField(
             label: '전화번호',
+            controller: TextEditingController(text: "010-1234-5678"),
             keyboardType: TextInputType.phone,
             validator: (value) => value!.isEmpty ? '전화번호를 입력해주세요' : null,
             onSaved: (value) => _phoneNumber = value!,
@@ -47,6 +50,7 @@ class SignupFields extends StatelessWidget {
           const SizedBox(height: 20),
           SignupTextField(
             label: '비밀번호',
+            controller: TextEditingController(text: "test12345"),
             obscureText: true,
             validator: (value) => value!.isEmpty ? '비밀번호를 입력해주세요' : null,
             onSaved: (value) => _password = value!,

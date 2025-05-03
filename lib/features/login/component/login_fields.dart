@@ -51,6 +51,7 @@ class _LoginFieldsState extends State<LoginFields> {
           const Text('아이디', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 8),
           LoginCustomTextField(
+            controller: TextEditingController(text: "test@gmail.com"),
             hintText: 'ID',
             validator: (value) => value!.isEmpty ? '아이디를 입력해주세요' : null,
             onSaved: (value) => username = value!,
@@ -60,6 +61,7 @@ class _LoginFieldsState extends State<LoginFields> {
           const Text('비밀번호', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 8),
           LoginCustomTextField(
+            controller: TextEditingController(text: "test12345"),
             hintText: 'password',
             obscureText: true,
             validator: (value) => value!.isEmpty ? '비밀번호를 입력해주세요' : null,
