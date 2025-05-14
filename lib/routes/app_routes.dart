@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:medife/features/login/login.dart';
-import 'package:medife/features/sign_up/sign_up.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/chatbot/chatbot.dart';
 import 'package:medife/features/eatlist/eatlist.dart';
-import 'package:medife/features/medication/MediDetail.dart';
-import 'package:medife/features/medication/MediEdit.dart';
-import 'package:medife/features/medication/MediEnd.dart';
-import 'package:medife/features/medication/MediMain.dart';
-import 'package:medife/features/medication/MediMiddle.dart';
-import 'package:medife/features/medication/MediStart.dart';
+import 'package:medife/features/medication/MediDetail/MediDetail.dart';
+import 'package:medife/features/medication/MediEdit/MediEdit.dart';
+import 'package:medife/features/medication/MediEnd/MediEnd.dart';
+import 'package:medife/features/medication/MediMain/MediMain.dart';
+import 'package:medife/features/medication/MediMiddle/MediMiddle.dart';
+import 'package:medife/features/medication/MediStart/MediStart.dart';
 import 'package:medife/features/ocr/ocr.dart';
 import 'package:medife/features/recording/recording.dart';
 import 'package:medife/features/recording/recordlist.dart';
@@ -28,18 +27,12 @@ class AppRoute {
     switch (settings.name) {
       case RouteName.landing:
         return MaterialPageRoute(builder: (_) => const Landing());
-      case RouteName.signup:
-        return MaterialPageRoute(builder: (_) => Signup());
       case RouteName.chatbot:
         return MaterialPageRoute(builder: (_) => ChatBot());
       case RouteName.calendar:
         return MaterialPageRoute(builder: (_) => Calendar());
       case RouteName.eatlist:
         return MaterialPageRoute(builder: (_) => EatList());
-      case RouteName.mediDetail:
-        return MaterialPageRoute(builder: (_) => MediDetail());
-      case RouteName.mediMain:
-        return MaterialPageRoute(builder: (_) => MediMain());
       case RouteName.recording:
         return MaterialPageRoute(builder: (_) => const RecordingScreen());
       case RouteName.recordlist:

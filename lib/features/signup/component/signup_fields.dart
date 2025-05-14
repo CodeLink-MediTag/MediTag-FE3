@@ -6,6 +6,7 @@ import 'package:medife/features/signup/component/signup_text_field.dart';
 
 import '../model/signup_request_model.dart';
 import '../repository/signup_auth_repository.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class SignupFields extends StatelessWidget {
   final repository = SignupAuthRepository();
@@ -15,8 +16,20 @@ class SignupFields extends StatelessWidget {
   String _password = '';
   String _name = '';
   String _phoneNumber = '';
+  String? firebaseToken;
 
   SignupFields({super.key});
+
+  Future<String?> getFirebaseToken() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      final token = await messaging.getToken();
+      return token;
+    } catch (e) {
+      print('Firebase 토큰 가져오기 실패: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +70,8 @@ class SignupFields extends StatelessWidget {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
+                firebaseToken = await getFirebaseToken();
+                print('파이어베이스 토큰 : $firebaseToken'); //확인 해야돼서 넣어야함
 
                 final request = SignupRequestModel(
                   username: _username,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:medife/features/medication/MediMain/screen/medimain_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medife/features/chatbot/chatbot.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
-import 'package:medife/features/medication/MediMain.dart';
+import 'package:medife/features/medication/MediMain/MediMain.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/setting/mypage.dart';
@@ -152,7 +153,7 @@ class _LandingState extends State<Landing> {
                       }),
                       _menuCard('복약 알림 등록', Icons.notifications_active, () {
                         Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => MediMain()));
+                            MaterialPageRoute(builder: (context) => MediMainScreen()));
                       }),
                       _menuCard('복용 기록', Icons.edit_note, () {
                         Navigator.push(context,
