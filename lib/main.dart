@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:medife/features/signup/old_sign_up.dart';
@@ -8,18 +9,14 @@ import 'features/login/screen/login_screen.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';//firebase messaging
-import 'package:medife/firebase_options.dart';
-
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await initializeDateFormatting('ko_KR', null);
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);// firebase 토큰 가져오기
-  //FirebaseMessaging 초기화 추가
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission();
   runApp(const MyApp());
 }
 

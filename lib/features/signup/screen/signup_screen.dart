@@ -7,32 +7,24 @@ import '../component/signup_app_bar.dart';
 import '../component/signup_button.dart';
 import '../component/signup_text_field.dart';
 
-
-
 class SignupScreen extends StatelessWidget {
   const SignupScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // ✅ 배경을 흰색으로 지정
       appBar: const SignupAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-          children:  [
-            SignupTitle(),
-            SizedBox(height: 24),
-            SignupFields()
+          children: [
+            const SignupTitle(),
+            const SizedBox(height: 24),
+            SignupFields(),
           ],
         ),
       ),
     );
   }
 }
-
-
-
-
-
-
-
