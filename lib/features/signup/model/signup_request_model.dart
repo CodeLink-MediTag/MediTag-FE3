@@ -3,7 +3,7 @@ class SignupRequestModel {
   final String password;
   final String name;
   final String phoneNumber;
-  final String firebaseToken;
+  final String? firebaseToken;
 
   SignupRequestModel({
     required this.username,
@@ -12,6 +12,7 @@ class SignupRequestModel {
     required this.phoneNumber,
     required this.firebaseToken
   });
+
 
   /// JSON으로 변환 (서버 요청용)
   Map<String, dynamic> toJson() {

@@ -7,6 +7,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medife/components/custom_app_bar.dart'; // 커스텀 앱바 경로 맞게 수정
 
+// calendar.dart 를 import 해야 할 때는
+import 'package:medife/features/calendar/calendar.dart' hide Medicine, Alarm;
+
+
 class Calendar extends StatefulWidget {
   const Calendar({super.key});
 
