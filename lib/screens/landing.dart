@@ -64,14 +64,18 @@ class _LandingState extends State<Landing> {
                         ),
                         Positioned(
                           right: 0,
-                          child: IconButton(
-                            icon: const Icon(Icons.settings, color: Colors.white),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => SettingScreen()),
-                              );
-                            },
+                          child: Semantics(
+                            label: '환경설정',
+                            button: true,
+                            child: IconButton(
+                              icon: const Icon(Icons.settings, color: Colors.white),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => SettingScreen()),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -210,33 +214,43 @@ class _LandingState extends State<Landing> {
               ).then((_) => _loadNickname());
             }
           },
-          items: const [
+          items: [
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Icon(Icons.credit_card, size: 35),
+                padding: const EdgeInsets.only(top: 20),
+                child: Semantics(
+                  label: 'NFC 카드',
+                  selected: false,
+                  child: Icon(Icons.credit_card, size: 35),
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Icon(Icons.camera_alt, size: 35),
+                padding: const EdgeInsets.only(top: 20),
+                child: Semantics(
+                  label: '약 아침 점심 저녁 구분 카메라',
+                  selected: false,
+                  child: Icon(Icons.camera_alt, size: 35),
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Icon(Icons.person, size: 35),
+                padding: const EdgeInsets.only(top: 20),
+                child: Semantics(
+                  label: '마이페이지',
+                  selected: false,
+                  child: Icon(Icons.person, size: 35),
+                ),
               ),
               label: '',
             ),
           ],
         ),
       ),
-
-
     );
   }
 
