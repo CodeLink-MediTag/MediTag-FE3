@@ -15,7 +15,6 @@ class ChatBotScreen extends StatefulWidget {
 }
 
 class _ChatBotScreenState extends State<ChatBotScreen> {
-
   ChatRepository chatRepository = ChatRepository();
 
   final TextEditingController controller = TextEditingController();
@@ -28,6 +27,8 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   String? accessToken;
   int? sessionId;
 
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
   @override
   void initState() {
     super.initState();
@@ -38,55 +39,52 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return
-      Scaffold(
-        backgroundColor: Color(0xFFF6F6F6),
-        body: Stack(
-          children: [
-            Column(
-              children: [
+    return Scaffold(
+      backgroundColor: Color(0xFFF6F6F6),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              // 상단 바
+              ChatTopBar(
+                onBack: () {
+                  Navigator.pop(context); // 현재 화면 종료 (이전 화면으로 돌아감)
+                },
+                onHome: () {},
+              ),
 
-                // 상단 바
-                ChatTopBar(
-                  onBack: (){
-                    Navigator.pop(context); // 현재 화면 종료 (이전 화면으로 돌아감)
+              // 메시지 리스트
+              Expanded(
+                child: AnimatedList(
+                  key: _listKey,
+                  controller: scrollController,
+                  padding: EdgeInsets.all(16),
+                  initialItemCount: messages.length,
+                  itemBuilder: (context, index, animation) {
+                    final msg = messages[index];
+                    return SizeTransition(
+                      sizeFactor: animation,
+                      child: msg['type'] == 'user'
+                          ? Message(message: msg['text']!, alignLeft: false)
+                          : Message(message: msg['text']!),
+                    );
                   },
-                  onHome: (){
-                  }
                 ),
+              ),
 
-                // 메시지 리스트
-                Expanded(
-                  child: ListView.builder(
-                    controller: scrollController,
-                    padding: EdgeInsets.all(16),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final msg = messages[index];
-                      return msg['type'] == 'user'
-                          ? Message(message: msg['text']!, alignLeft: false,)
-                          : Message(message: msg['text']!);
-                    },
-                  ),
-                ),
+              // 입력창 & 버튼
+              ChatInputField(controller: controller, onSend: sendMessageToServer),
+            ],
+          ),
 
-                // 입력창 & 버튼
-                ChatInputField(
-                  controller: controller,
-                  onSend: sendMessageToServer
-                )
-              ],
-            ),
-
-            // 중앙 음성 녹음 아이콘
-            VoiceRecordButton(
-              isListening: isListening,
-              onPressed: listen
-            )
-          ],
-        ),
-      );
-
+          // 중앙 음성 녹음 아이콘
+          VoiceRecordButton(
+            isListening: isListening,
+            onPressed: listen,
+          ),
+        ],
+      ),
+    );
   }
 
   // 채팅 시작
@@ -100,7 +98,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     // 생성한 세션 id 를 저장해놓기
     try {
       sessionId = await chatRepository.sessionCreation(request);
-    }catch(e){
+    } catch (e) {
       print('채팅 생성 오류$e');
     }
   }
@@ -113,19 +111,25 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
     try {
       answer = await chatRepository.sendMessage(SendMessageRequestModel(
-          accessToken: accessToken!,
-          sessionId: sessionId!,
-          content: userMessage)
-      );
-    } catch (e){
+        accessToken: accessToken!,
+        sessionId: sessionId!,
+        content: userMessage,
+      ));
+    } catch (e) {
       print('채팅 오류: $e');
       return null;
     }
+
+    // 메시지 추가 후 애니메이션 적용
     setState(() {
       controller.text = "";
-      messages.add({'type': 'user', 'text': userMessage});        // 사용자 메시지를 저장
-      messages.add({'type': 'bot', 'text': answer});        // 사용자 메시지를 저장
+      messages.add({'type': 'user', 'text': userMessage}); // 사용자 메시지 추가
+      messages.add({'type': 'bot', 'text': answer}); // 봇 응답 메시지 추가
     });
+
+    // 애니메이션으로 새로운 항목 삽입
+    _listKey.currentState?.insertItem(messages.length - 1, duration: Duration(milliseconds: 300));
+
     // 화면 아래로 내리기
     Future.delayed(Duration(milliseconds: 100), () {
       scrollController.animateTo(
@@ -135,14 +139,16 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       );
     });
   }
+
   // 음성녹음
   void listen() async {
     if (!isListening) {
-      bool available = await speech.initialize();      // 마이크 접근 권한 확인
+      bool available = await speech.initialize(); // 마이크 접근 권한 확인
       if (available) {
         setState(() => isListening = true);
         speech.listen(
-          onResult: (val) async {           // val에 음성인식 결과 담김
+          onResult: (val) async {
+            // val에 음성인식 결과 담김
             if (val.hasConfidenceRating && val.confidence > 0) {
               setState(() {
                 isListening = false;
@@ -152,9 +158,9 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
             }
           },
           localeId: 'ko_KR',
-          listenMode: stt.ListenMode.dictation, // 🔥 연속 듣기 모드
-          pauseFor: Duration(seconds: 3),       // 🔥 3초 이상 정적이면 멈춤
-          partialResults: false,                // 🔥 부분 결과 무시
+          listenMode: stt.ListenMode.dictation, // 연속 듣기 모드
+          pauseFor: Duration(seconds: 3), // 3초 이상 정적이면 멈춤
+          partialResults: false, // 부분 결과 무시
         );
       }
     } else {
