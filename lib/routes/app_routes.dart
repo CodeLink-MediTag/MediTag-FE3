@@ -20,46 +20,54 @@ import 'package:medife/features/setting/protectorAlert.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/setting/username.dart';
 import 'route_names.dart';
-
+import 'animations/slide_transition_page_route.dart'; // 애니메이션 파일 import
 
 class AppRoute {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RouteName.landing:
-        return MaterialPageRoute(builder: (_) => const Landing());
+        return _buildRoute(const Landing());
       case RouteName.chatbot:
-        return MaterialPageRoute(builder: (_) => ChatBot());
+        return _buildRoute(ChatBot());
       case RouteName.calendar:
-        return MaterialPageRoute(builder: (_) => Calendar());
+        return _buildRoute(Calendar());
       case RouteName.eatlist:
-        return MaterialPageRoute(builder: (_) => EatList());
+        return _buildRoute(EatList());
       case RouteName.mediDetail:
-        return MaterialPageRoute(builder: (_) => MediDetail());
+        return _buildRoute(MediDetail());
       case RouteName.mediMain:
-        return MaterialPageRoute(builder: (_) => MediMain());
+        return _buildRoute(MediMain());
       case RouteName.recording:
-        return MaterialPageRoute(builder: (_) => const RecordingScreen());
+        return _buildRoute(const RecordingScreen());
       case RouteName.recordlist:
-        return MaterialPageRoute(builder: (_) => const RecordList());
+        return _buildRoute(const RecordList());
       case RouteName.alertsound:
-        return MaterialPageRoute(builder: (_) => AlertSound());
+        return _buildRoute(AlertSound());
       case RouteName.mypage:
-        return MaterialPageRoute(builder: (_) => const MyPage());
+        return _buildRoute(const MyPage());
       case RouteName.protectorEdit:
-        return MaterialPageRoute(builder: (_) => const ProtectorEdit());
+        return _buildRoute(const ProtectorEdit());
+      case RouteName.protectorAlert:
+        final args = settings.arguments as Map<String, String>;
+        return _buildRoute(ProtectorAlert(
+          userName: args['userName']!,
+          phoneNumber: args['phoneNumber']!,
+          guardianName: args['guardianName']!,
+        ));
       case RouteName.setting:
-        return MaterialPageRoute(builder: (_) => SettingScreen());
+        return _buildRoute(SettingScreen());
       case RouteName.username:
-        return MaterialPageRoute(
-            builder: (_) => const Username(currentNickname: '000',));
-
+        return _buildRoute(const Username(currentNickname: '000'));
       default:
-        return MaterialPageRoute(
-          builder: (_) =>
-              Scaffold(
-                body: Center(child: Text('잘못된 경로: ${settings.name}')),
-              ),
+        return _buildRoute(
+          Scaffold(
+            body: Center(child: Text('잘못된 경로: ${settings.name}')),
+          ),
         );
     }
+  }
+
+  static Route<dynamic> _buildRoute(Widget page) {
+    return SlideTransitionPageRoute(page: page); // 슬라이드 애니메이션을 사용하도록 수정
   }
 }

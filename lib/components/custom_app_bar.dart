@@ -27,13 +27,14 @@ class CustomAppBar extends StatelessWidget {
                 ),
               ),
             ),
-            // 왼쪽 아이콘
+            // 왼쪽 아이콘 (뒤로 가기)
             Align(
               alignment: Alignment.centerLeft,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  Navigator.pop(context);
+                  // 커스텀 라우트를 사용하여 뒤로 가는 애니메이션을 적용
+                  Navigator.of(context).pop(); // 기존 뒤로가기 대신 커스텀 라우트를 사용해야 합니다.
                 },
               ),
             ),
