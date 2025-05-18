@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:medife/features/medication/MediMain/screen/medimain_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
-import 'package:medife/features/medication/MediMain.dart';
+import 'package:medife/features/medication/MediMain/MediMain.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/setting/mypage.dart';
@@ -64,14 +65,18 @@ class _LandingState extends State<Landing> {
                         ),
                         Positioned(
                           right: 0,
-                          child: IconButton(
-                            icon: const Icon(Icons.settings, color: Colors.white),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => SettingScreen()),
-                              );
-                            },
+                          child: Semantics(
+                            label: '환경설정',
+                            button: true,
+                            child: IconButton(
+                              icon: const Icon(Icons.settings, color: Colors.white),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => SettingScreen()),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ],
@@ -132,7 +137,6 @@ class _LandingState extends State<Landing> {
                               ),
                             ),
                           ),
-
                         ],
                       ),
                     ),
@@ -171,7 +175,7 @@ class _LandingState extends State<Landing> {
                       _menuCard('복약 알림 등록', Icons.notifications_active, () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MediMain()),
+                          MaterialPageRoute(builder: (context) => MediMainScreen()),
                         );
                       }),
                       _menuCard('복용 기록', Icons.edit_note, () {
@@ -210,33 +214,43 @@ class _LandingState extends State<Landing> {
               ).then((_) => _loadNickname());
             }
           },
-          items: const [
+          items: [
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Icon(Icons.credit_card, size: 35),
+                padding: const EdgeInsets.only(top: 20),
+                child: Semantics(
+                  label: 'NFC 카드',
+                  selected: false,
+                  child: Icon(Icons.credit_card, size: 35),
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Icon(Icons.camera_alt, size: 35),
+                padding: const EdgeInsets.only(top: 20),
+                child: Semantics(
+                  label: '약 아침 점심 저녁 구분 카메라',
+                  selected: false,
+                  child: Icon(Icons.camera_alt, size: 35),
+                ),
               ),
               label: '',
             ),
             BottomNavigationBarItem(
               icon: Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Icon(Icons.person, size: 35),
+                padding: const EdgeInsets.only(top: 20),
+                child: Semantics(
+                  label: '마이페이지',
+                  selected: false,
+                  child: Icon(Icons.person, size: 35),
+                ),
               ),
               label: '',
             ),
           ],
         ),
       ),
-
-
     );
   }
 

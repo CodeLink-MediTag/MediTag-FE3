@@ -6,9 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medife/components/custom_app_bar.dart';
-import 'package:medife/features/medication/MediDetail.dart';
+import 'package:medife/features/medication/MediDetail/MediDetail.dart';
 import 'package:medife/routes/animations/slide_transition_page_route.dart';
 import 'package:medife/screens/landing.dart'; // Landing 추가
+
+// calendar.dart 를 import 해야 할 때는
+import 'package:medife/features/calendar/calendar.dart' hide Medicine, Alarm;
+
 
 class Calendar extends StatefulWidget {
   const Calendar({super.key});
@@ -23,6 +27,7 @@ class _CalendarState extends State<Calendar> {
   String? token;
   List<Medicine> selectedMedicines = [];
   Set<DateTime> medicationDays = {};
+
 
   @override
   void initState() {
@@ -155,7 +160,9 @@ class _CalendarState extends State<Calendar> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          SlideTransitionPageRoute(page: MediDetail()),
+                          SlideTransitionPageRoute(
+                            page: MediDetail(medicine: null),  // 필수 medicine 인자 전달
+                          ),
                         );
                       },
                       child: Card(

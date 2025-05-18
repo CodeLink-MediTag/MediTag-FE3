@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:medife/components/custom_app_bar.dart';
-import 'package:medife/features/medication/MediStart.dart';
+import 'package:medife/features/medication/MediStart/MediStart.dart';
 import 'package:medife/models/selection_data.dart';
 import 'package:medife/routes/animations/slide_transition_page_route.dart'; // 애니메이션을 위한 라우트 추가
 import 'package:intl/intl.dart';
-import 'package:medife/screens/landing.dart'; // 뒤로 갈 화면
+import 'package:medife/screens/landing.dart';
+
+import 'MediStart/screen/medistart_screen.dart'; // 뒤로 갈 화면
 
 class MediMain extends StatefulWidget {
   final SelectionData? selectionData;
@@ -156,7 +158,7 @@ class _MediMainState extends State<MediMain> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          SlideTransitionPageRoute(page: MediStart(selectionData: null)), // 애니메이션을 사용한 페이지 이동
+                          SlideTransitionPageRoute(page: MediStartScreen(selectionData: null)), // 애니메이션을 사용한 페이지 이동
                         );
                       },
                       child: const Text('알림 받을 약 추가', style: TextStyle(fontSize: 18, color: Colors.white)),

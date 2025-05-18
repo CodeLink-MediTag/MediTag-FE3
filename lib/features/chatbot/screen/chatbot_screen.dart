@@ -28,6 +28,8 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   String? accessToken;
   int? sessionId;
 
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +45,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           context,
           SlideTransitionPageRoute(page: Landing()),
         );
-        return false; // 기본 pop 방지
+        return false;
       },
       child: Scaffold(
         backgroundColor: Color(0xFFF6F6F6),
@@ -61,22 +63,29 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                   onHome: () {},
                 ),
                 Expanded(
-                  child: ListView.builder(
+                  child: AnimatedList(
+                    key: _listKey,
                     controller: scrollController,
                     padding: EdgeInsets.all(16),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
+                    initialItemCount: messages.length,
+                    itemBuilder: (context, index, animation) {
                       final msg = messages[index];
-                      return msg['type'] == 'user'
-                          ? Message(message: msg['text']!, alignLeft: false)
-                          : Message(message: msg['text']!);
+                      return SizeTransition(
+                        sizeFactor: animation,
+                        child: msg['type'] == 'user'
+                            ? Message(message: msg['text']!, alignLeft: false)
+                            : Message(message: msg['text']!),
+                      );
                     },
                   ),
                 ),
                 ChatInputField(controller: controller, onSend: sendMessageToServer),
               ],
             ),
-            VoiceRecordButton(isListening: isListening, onPressed: listen),
+            VoiceRecordButton(
+              isListening: isListening,
+              onPressed: listen,
+            ),
           ],
         ),
       ),
@@ -113,6 +122,11 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
         messages.add({'type': 'bot', 'text': answer});
       });
 
+      // 애니메이션 효과 삽입
+      _listKey.currentState?.insertItem(messages.length - 2, duration: Duration(milliseconds: 300));
+      _listKey.currentState?.insertItem(messages.length - 1, duration: Duration(milliseconds: 300));
+
+      // 스크롤 아래로 이동
       Future.delayed(Duration(milliseconds: 100), () {
         scrollController.animateTo(
           scrollController.position.maxScrollExtent,

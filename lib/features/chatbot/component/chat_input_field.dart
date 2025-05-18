@@ -33,11 +33,15 @@ class ChatInputField extends StatelessWidget {
             ),
           ),
           SizedBox(width: 10),
-          IconButton(
-            icon: Icon(Icons.send, color: Color(0xFF547EE8)),
-            onPressed: (){
-              onSend(controller.text);
-            },
+          Semantics(
+            label: '메시지 전송',
+            button: true,
+            child: IconButton(
+              icon: Icon(Icons.send, color: Color(0xFF547EE8)),
+              onPressed: () {
+                onSend(controller.text);
+              },
+            ),
           ),
         ],
       ),
