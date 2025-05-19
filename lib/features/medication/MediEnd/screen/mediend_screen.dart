@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
+import 'package:medife/ip/ip_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/mediend_selection_data.dart';
@@ -100,7 +101,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       }).toList(),
     };
 
-    final uri = Uri.parse('http://localhost:8080/api/medicines');
+    final uri = Uri.parse('http://$ipAddress:8080/api/medicines');
     final req = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $token';
 

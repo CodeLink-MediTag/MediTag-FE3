@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:medife/ip/ip_address.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,7 +49,7 @@ class _CalendarState extends State<Calendar> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/medicines?date=$formattedDate'),
+        Uri.parse('http://$ipAddress:8080/api/medicines?date=$formattedDate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
