@@ -36,10 +36,14 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
     }
   }
 
-  Future<void> _setGuidelineSeen(bool value) async {
+  Future<void> _setGuidelineSeen() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenGuideline', value);
+    await prefs.setBool('hasSeenGuideline', true);
     if (!mounted) return;
+    Navigator.pushReplacementNamed(context, RouteName.landing);
+  }
+
+  void _closeGuideline() {
     Navigator.pushReplacementNamed(context, RouteName.landing);
   }
 
@@ -68,9 +72,11 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
               });
             },
             itemBuilder: (context, index) {
-              return Image.asset(
-                _images[index],
-                fit: BoxFit.cover,
+              return IgnorePointer(
+                child: Image.asset(
+                  _images[index],
+                  fit: BoxFit.cover,
+                ),
               );
             },
           ),
@@ -82,21 +88,27 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () => _setGuidelineSeen(true),
+                    onPressed: _setGuidelineSeen,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    child: const Text('다시 보지 않기', style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      '다시 보지 않기',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () => _setGuidelineSeen(false),
+                    onPressed: _closeGuideline,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
+                      backgroundColor: Colors.grey,
                       minimumSize: const Size.fromHeight(50),
                     ),
-                    child: const Text('닫기', style: TextStyle(color: Colors.black)),
+                    child: const Text(
+                      '닫기',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ),
                 ],
               ),
