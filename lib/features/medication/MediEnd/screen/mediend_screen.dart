@@ -100,7 +100,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       }).toList(),
     };
 
-    final uri = Uri.parse('http://localhost:8080/api/medicines');
+    final uri = Uri.parse('http://$ipAdress:8080/api/medicines');
     final req = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $token';
 

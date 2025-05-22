@@ -12,7 +12,7 @@ class LoginAuthRepository {
   Future<String?> login(LoginRequestModel request) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/api/auth/login'),
+        Uri.parse('http://$ipAddress:8080/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );

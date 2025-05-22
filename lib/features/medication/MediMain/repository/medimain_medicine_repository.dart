@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 
 
 class MedicineRepository {
-  final String baseUrl = 'http://localhost:8080/api/medicines';
+  final String baseUrl = 'http://$ipAdress:8080/api/medicines';
 
   Future<List<Medicine>> fetchMedicines(String token, String date) async {
     final res = await http.get(
