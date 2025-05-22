@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../ip/ip_address.dart';
 import '../model/medimain_medicine.dart';
 import '../model/medimain_alarm.dart';
 import 'package:flutter/foundation.dart';
 
 
 class MedicineRepository {
-  final String baseUrl = 'http://$ipAdress:8080/api/medicines';
+  final String baseUrl = 'http://$ipAddress:8080/api/medicines';
 
   Future<List<Medicine>> fetchMedicines(String token, String date) async {
     final res = await http.get(

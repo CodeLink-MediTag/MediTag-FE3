@@ -10,6 +10,8 @@ import 'package:medife/components/custom_app_bar.dart'; // 커스텀 앱바 경�
 // calendar.dart 를 import 해야 할 때는
 import 'package:medife/features/calendar/calendar.dart' hide Medicine, Alarm;
 
+import '../../ip/ip_address.dart';
+
 
 class Calendar extends StatefulWidget {
   const Calendar({super.key});
@@ -48,7 +50,7 @@ class _CalendarState extends State<Calendar> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://$ipAdress:8080/api/medicines?date=$formattedDate'),
+        Uri.parse('http://$ipAddress:8080/api/medicines?date=$formattedDate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
