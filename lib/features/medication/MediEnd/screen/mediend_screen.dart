@@ -5,6 +5,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../ip/ip_address.dart';
 import '../model/mediend_selection_data.dart';
 import '../component/mediend_app_bar.dart';
 import '../component/mediend_dosage_selector.dart';
@@ -100,7 +101,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       }).toList(),
     };
 
-    final uri = Uri.parse('http://$ipAdress:8080/api/medicines');
+    final uri = Uri.parse('http://$ipAddress:8080/api/medicines');
     final req = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $token';
 
