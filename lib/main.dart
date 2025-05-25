@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MediTag',
       theme: ThemeData(
-        fontFamily: 'Pretendard',
+        fontFamily: 'SEBANGGothic',
         primarySwatch: Colors.blue,
       ),
       initialRoute: '/', // 시작화면
