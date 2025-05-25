@@ -122,7 +122,7 @@ class _LandingState extends State<Landing> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
                               _taken ? const Color(0xFFFFA4A5) : const Color(0xFF547EE8),
-                              fixedSize: const Size(100, 40), // ✅ 버튼 크기 고정
+                              fixedSize: const Size(100, 40),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -220,7 +220,7 @@ class _LandingState extends State<Landing> {
                 padding: const EdgeInsets.only(top: 20),
                 child: Semantics(
                   label: 'NFC 카드',
-                  selected: false,
+                  button: true,
                   child: Icon(Icons.credit_card, size: 35),
                 ),
               ),
@@ -230,8 +230,8 @@ class _LandingState extends State<Landing> {
               icon: Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Semantics(
-                  label: '약 아침 점심 저녁 구분 카메라',
-                  selected: false,
+                  label: '아침 점심 저녁 약 구분 카메라',
+                  button: true,
                   child: Icon(Icons.camera_alt, size: 35),
                 ),
               ),
@@ -242,7 +242,7 @@ class _LandingState extends State<Landing> {
                 padding: const EdgeInsets.only(top: 20),
                 child: Semantics(
                   label: '마이페이지',
-                  selected: false,
+                  button: true,
                   child: Icon(Icons.person, size: 35),
                 ),
               ),
@@ -299,5 +299,4 @@ class _LandingState extends State<Landing> {
       ),
     );
   }
-
 }
