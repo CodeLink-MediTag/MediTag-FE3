@@ -1,5 +1,6 @@
 // login_fields.dart
 import 'package:flutter/material.dart';
+import 'package:medife/screens/landing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:medife/screens/guideline/guideline_screen.dart';
@@ -27,6 +28,13 @@ class _LoginFieldsState extends State<LoginFields> {
   String password = '';
 
   Future<void> _handleLoginSuccess() async {
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Landing()),
+    );
+
+    /*
     final prefs = await SharedPreferences.getInstance();
     bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
@@ -38,6 +46,8 @@ class _LoginFieldsState extends State<LoginFields> {
         MaterialPageRoute(builder: (_) => const GuidelineScreen()),
       );
     }
+
+     */
   }
 
   @override
