@@ -1,2 +1,2 @@
-final ipAddress = "여기에 주소 입력";
-
+const String ipAddress = 'localhost';
+// const String ipAddress = '10.0.2.2';

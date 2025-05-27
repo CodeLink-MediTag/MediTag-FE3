@@ -92,6 +92,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       'characteristic': sel.characteristic,
       'startDate'    : sel.startDate,
       'duration'     : sel.duration,
+      'frequency'    : _frequency,
       'prescribed'   : sel.prescribed,
       'dosageTimes'  : dosage,
       'alarmTimes'   : _alarmTimes.map((t) {
