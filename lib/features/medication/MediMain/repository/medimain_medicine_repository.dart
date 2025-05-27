@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:medife/ip/ip_address.dart';
+import '../../../../ip/ip_address.dart';
 import '../model/medimain_medicine.dart';
 import '../model/medimain_alarm.dart';
 import 'package:flutter/foundation.dart';

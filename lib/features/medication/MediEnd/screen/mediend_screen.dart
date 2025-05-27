@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:medife/ip/ip_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../ip/ip_address.dart';
 import '../model/mediend_selection_data.dart';
 import '../component/mediend_app_bar.dart';
 import '../component/mediend_dosage_selector.dart';
