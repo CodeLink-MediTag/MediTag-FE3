@@ -68,6 +68,12 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  fonts:
+    - family: SEBANGGothic  # 폰트 family 이름, 쌍따옴표 없이 붙여 쓰는 게 좋음
+      fonts:
+        - asset: assets/fonts/SEBANG-Gothic.otf  # SEBANG Gothic OFT 파일명으로 바꿔주세요
+        - asset: assets/fonts/SEBANG-Gothic-Bold.otf
+          weight: 700
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

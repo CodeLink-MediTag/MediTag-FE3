@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MediTag',
       theme: ThemeData(
-        fontFamily: 'Pretendard',
+        fontFamily: 'SEBANGGothic',
         primarySwatch: Colors.blue,
         textTheme: Theme.of(context).textTheme.apply(
           fontSizeFactor: textSize / 14.0,
