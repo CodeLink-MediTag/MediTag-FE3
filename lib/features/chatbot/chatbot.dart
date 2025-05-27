@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../components/custom_app_bar.dart'; // 커스텀 앱바 import
 
+
 class ChatBot extends StatefulWidget {
   const ChatBot({super.key});
 
@@ -36,9 +37,7 @@ class _ChatBotPageState extends State<ChatBot> {
 
     final res = await http.post(
       Uri.parse('http://$ipAddress:8080/api/chat/session'),
-      headers: {
-        'Authorization': 'Bearer $_accessToken',
-      },
+      headers: {'Authorization': 'Bearer $_accessToken'},
     );
 
     if (res.statusCode == 200) {
@@ -89,10 +88,7 @@ class _ChatBotPageState extends State<ChatBot> {
         'Authorization': 'Bearer $_accessToken',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({
-        'sender': 'USER',
-        'content': userMessage,
-      }),
+      body: jsonEncode({'sender': 'USER', 'content': userMessage}),
     );
 
     if (res.statusCode == 200) {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:medife/features/setting/alertsound.dart';
 import 'package:medife/nfc/nfcAdd.dart';
 import '../../components/custom_app_bar.dart'; // CustomAppBar import 추가
+import 'package:medife/providers/text_size_provider.dart';
 
 class SettingScreen extends StatefulWidget {
   @override
@@ -10,10 +12,7 @@ class SettingScreen extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingScreen> {
   bool notifications = true;
-  bool sound = true;
-  bool vibration = true;
-  bool showNotifications = false;
-  double textSize = 14.0;
+  bool isDarkMode = false;  // 다크모드 토글 상태 변수
 
   @override
   Widget build(BuildContext context) {
@@ -116,8 +115,8 @@ class _SettingsPageState extends State<SettingScreen> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -125,7 +124,7 @@ class _SettingsPageState extends State<SettingScreen> {
     );
   }
 
-  Widget _buildSettingTile(String title, Widget trailing) {
+  Widget _buildSettingTile(String title, Widget trailing, double fontSize) {
     return Container(
       color: Color(0xFFFDFDFD),
       child: ListTile(
@@ -138,13 +137,13 @@ class _SettingsPageState extends State<SettingScreen> {
     );
   }
 
-  Widget _buildNavigationButton(String title, VoidCallback onPressed) {
+  Widget _buildNavigationButton(String title, VoidCallback onPressed, double fontSize) {
     return Container(
       color: Color(0xFFFDFDFD),
       child: ListTile(
         title: Text(
           title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w400),
         ),
         trailing: Icon(Icons.arrow_forward_ios, color: Colors.black, size: 20),
         onTap: onPressed,

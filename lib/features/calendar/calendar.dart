@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:medife/ip/ip_address.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -126,13 +127,13 @@ class _CalendarState extends State<Calendar> {
               fetchMedicinesForDate(selectedDay);
             },
             eventLoader: _getEventsForDay,
-            calendarStyle: const CalendarStyle(
+            calendarStyle: CalendarStyle(
               todayDecoration:
-              BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+              BoxDecoration(color: Colors.pink[200], shape: BoxShape.circle),
               selectedDecoration:
-              BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
+              const BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
               markerDecoration:
-              BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
+              const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
             ),
             headerStyle: const HeaderStyle(
                 titleCentered: true, formatButtonVisible: false),
