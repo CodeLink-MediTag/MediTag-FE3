@@ -6,8 +6,9 @@ import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
 import 'package:medife/features/medication/MediMain/MediMain.dart';
 import 'package:medife/features/calendar/calendar.dart';
-import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/setting/mypage.dart';
+
+import '../features/eatlist/component/eat-list.dart';
 
 class Landing extends StatefulWidget {
   const Landing({super.key});

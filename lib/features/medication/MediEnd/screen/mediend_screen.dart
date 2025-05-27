@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
+import 'package:medife/ip/ip_address.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../ip/ip_address.dart';
@@ -92,6 +93,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       'characteristic': sel.characteristic,
       'startDate'    : sel.startDate,
       'duration'     : sel.duration,
+      'frequency'    : _frequency,
       'prescribed'   : sel.prescribed,
       'dosageTimes'  : dosage,
       'alarmTimes'   : _alarmTimes.map((t) {
