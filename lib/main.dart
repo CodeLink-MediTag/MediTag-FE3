@@ -41,7 +41,6 @@ class MyApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/landing', // 시작화면
-
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),

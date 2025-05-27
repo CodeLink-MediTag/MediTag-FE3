@@ -4,9 +4,12 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:medife/components/custom_app_bar.dart';
+import '../../components/custom_app_bar.dart'; // 커스텀 앱바 import
+
 
 class ChatBot extends StatefulWidget {
+  const ChatBot({super.key});
+
   @override
   _ChatBotPageState createState() => _ChatBotPageState();
 }
@@ -18,7 +21,6 @@ class _ChatBotPageState extends State<ChatBot> {
 
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  String _text = '말을 시작해보세요!';
   String? _accessToken;
   int? _chatSessionId;
 
@@ -114,87 +116,75 @@ class _ChatBotPageState extends State<ChatBot> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF6F6F6),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
-            children: [
-              CustomAppBar(title: '챗봇'),
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: EdgeInsets.all(16),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = messages[index];
-                    return msg['type'] == 'user'
-                        ? _buildUserMessage(msg['text']!)
-                        : _buildBotMessage(msg['text']!);
-                  },
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: Colors.white,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Semantics(
-                        textField: true,
-                        label: '메시지 입력 필드',
-                        child: TextField(
-                          controller: _controller,
-                          decoration: InputDecoration(
-                            hintText: '메시지 입력...',
-                            filled: true,
-                            fillColor: Color(0xFFF6F6F6),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                          onSubmitted: (value) {
-                            _sendMessageToServer(value);
-                            _controller.clear();
-                          },
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Semantics(
-                      button: true,
-                      label: '메시지 보내기',
-                      child: IconButton(
-                        icon: Icon(Icons.send, color: Color(0xFF547EE8)),
-                        onPressed: () {
-                          _sendMessageToServer(_controller.text);
-                          _controller.clear();
-                        },
-                        tooltip: '메시지 보내기',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            bottom: 70,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: FloatingActionButton(
-                tooltip: _isListening ? '음성입력하기 취소' : '음성입력하기',
-                backgroundColor: Color(0xFF547EE8),
-                onPressed: _listen,
-                child: Icon(
-                  _isListening ? Icons.mic_off : Icons.mic,
-                  color: Colors.white,
-                ),
-              ),
+          // 커스텀 앱바 사용
+          const CustomAppBar(title: '챗봇'),
+
+          // 메시지 리스트
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final msg = messages[index];
+                return msg['type'] == 'user'
+                    ? _buildUserMessage(msg['text']!)
+                    : _buildBotMessage(msg['text']!);
+              },
             ),
           ),
+
+          // 입력창 & 버튼
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            color: Colors.white,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: '메시지 입력...',
+                      filled: true,
+                      fillColor: Color(0xFFF6F6F6),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onSubmitted: (value) {
+                      _sendMessageToServer(value);
+                      _controller.clear();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Color(0xFF547EE8)),
+                  onPressed: () {
+                    _sendMessageToServer(_controller.text);
+                    _controller.clear();
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // 중앙 음성 녹음 아이콘
+          const SizedBox(height: 10),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF547EE8),
+        onPressed: _listen,
+        child: Icon(
+          _isListening ? Icons.mic_off : Icons.mic,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -202,15 +192,15 @@ class _ChatBotPageState extends State<ChatBot> {
     return Align(
       alignment: Alignment.centerRight,
       child: Container(
-        margin: EdgeInsets.only(bottom: 10),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: Color(0xFFDADADA),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           message,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -220,8 +210,8 @@ class _ChatBotPageState extends State<ChatBot> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.only(bottom: 10),
-        padding: EdgeInsets.all(12),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Color(0xFF547EE8),
           borderRadius: BorderRadius.circular(20),
@@ -229,7 +219,7 @@ class _ChatBotPageState extends State<ChatBot> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               '음성답변',
               style: TextStyle(
                 fontSize: 16,
@@ -237,10 +227,10 @@ class _ChatBotPageState extends State<ChatBot> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               message,
-              style: TextStyle(fontSize: 14, color: Colors.white),
+              style: const TextStyle(fontSize: 14, color: Colors.white),
             ),
           ],
         ),
