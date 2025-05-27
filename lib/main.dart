@@ -40,7 +40,8 @@ class MyApp extends StatelessWidget {
           fontSizeFactor: textSize / 14.0,
         ),
       ),
-      initialRoute: '/landing',
+      initialRoute: '/landing', // 시작화면
+
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),

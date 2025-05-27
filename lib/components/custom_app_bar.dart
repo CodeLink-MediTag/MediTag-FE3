@@ -14,7 +14,6 @@ class CustomAppBar extends StatelessWidget {
         height: 50,
         child: Stack(
           children: [
-            // 가운데 텍스트 - 절대 중앙
             Positioned.fill(
               child: Center(
                 child: Text(
@@ -27,21 +26,21 @@ class CustomAppBar extends StatelessWidget {
                 ),
               ),
             ),
-            // 왼쪽 아이콘
             Align(
               alignment: Alignment.centerLeft,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
+                tooltip: '뒤로가기',
                 onPressed: () {
                   Navigator.pop(context);
                 },
               ),
             ),
-            // 오른쪽 아이콘
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
                 icon: const Icon(Icons.home, color: Colors.white),
+                tooltip: '홈으로 가기',
                 onPressed: () {
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
