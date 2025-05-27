@@ -5,8 +5,9 @@ import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
 import 'package:medife/features/calendar/calendar.dart';
-import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/setting/mypage.dart';
+
+import '../features/eatlist/component/eat-list.dart';
 
 class Landing extends StatefulWidget {
   const Landing({super.key});
@@ -228,7 +229,7 @@ class _LandingState extends State<Landing> {
                 padding: const EdgeInsets.only(top: 20),
                 child: Semantics(
                   label: 'NFC 카드',
-                  selected: false,
+                  button: true,
                   child: Icon(Icons.credit_card, size: 35),
                 ),
               ),
@@ -238,8 +239,8 @@ class _LandingState extends State<Landing> {
               icon: Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Semantics(
-                  label: '약 아침 점심 저녁 구분 카메라',
-                  selected: false,
+                  label: '아침 점심 저녁 약 구분 카메라',
+                  button: true,
                   child: Icon(Icons.camera_alt, size: 35),
                 ),
               ),
@@ -250,7 +251,7 @@ class _LandingState extends State<Landing> {
                 padding: const EdgeInsets.only(top: 20),
                 child: Semantics(
                   label: '마이페이지',
-                  selected: false,
+                  button: true,
                   child: Icon(Icons.person, size: 35),
                 ),
               ),

@@ -1,2 +1,2 @@
-final ipAddress = "112.148.168.171";
 
+final ipAddress = "여기에 주소 입력";

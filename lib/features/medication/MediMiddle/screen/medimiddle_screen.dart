@@ -24,6 +24,9 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
   int? selectedPeriod;               // 1=특정일, 2=매일
   final TextEditingController customDaysController = TextEditingController();
 
+  // → 새로 추가한 변수: 처방약 체크 여부
+  bool _isPrescribed = false;
+
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -37,6 +40,7 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
   }
 
   Future<void> _onNext() async {
+    // 주기 선택을 안 했으면 스낵바
     if (selectedPeriod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('복용 주기를 선택해주세요.')),
@@ -44,9 +48,8 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
       return;
     }
 
-    // 기간(days)와 prescribed 여부 계산
+    // 복용 기간(days) 계산
     late int days;
-    late bool prescribed;
     if (selectedPeriod == 1) {
       final parsed = int.tryParse(customDaysController.text);
       if (parsed == null || parsed <= 0) {
@@ -56,37 +59,38 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
         return;
       }
       days = parsed;
-      prescribed = true;
     } else {
       days = 30;
-      prescribed = false;
     }
 
-    // Start → End 로 데이터 매핑
+    // checkbox 로 넘어온 처방약 여부 사용
+    final prescribed = _isPrescribed;
+
+    // MediEndScreen 으로 보낼 데이터 준비
     final mid = widget.selectionData;
     final endData = MediEndSelectionData(
       name:           mid.name,
       characteristic: mid.characteristic,
       startDate:      DateFormat('yyyy-MM-dd').format(selectedDate),
       duration:       days,
-      frequency:      prescribed ? 3 : days,
+      frequency:      // 처방약이면 고정 3회, 아니면 일단 빈 값(EndScreen 에서 사용자가 선택)
+      prescribed ? 3 : 0,
       imageUrl:       mid.imageUrl,
       prescribed:     prescribed,
-      dosageTimes:    prescribed ? ['아침','점심','저녁'] : [],
-      alarmTimes:     [], // 나중에 EndScreen 에서 채워질 거예요
+      dosageTimes:    // 처방약이면 기본 ['아침','점심','저녁'], 아니면 빈 리스트
+      prescribed ? ['아침','점심','저녁'] : [],
+      alarmTimes:     [], // EndScreen 에서 채워짐
     );
 
-    final endResult = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => MediEndScreen(selectionData: endData),
-      ),
+    final bool? endResult = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => MediEndScreen(selectionData: endData)),
     );
 
-    // EndScreen이 true를 pop 했다면, MiddleScreen도 true로 pop
     if (endResult == true) {
       Navigator.of(context).pop(true);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,6 +125,15 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
                   visible: selectedPeriod == 1,
                   controller: customDaysController,
                 ),
+
+                const SizedBox(height: 20),
+                // ★ 추가: 처방약 체크박스
+                CheckboxListTile(
+                  title: const Text('처방약인가요?'),
+                  value: _isPrescribed,
+                  onChanged: (v) => setState(() => _isPrescribed = v!),
+                  controlAffinity: ListTileControlAffinity.leading,
+                ),
               ],
             ),
           ),
@@ -131,3 +144,4 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
     );
   }
 }
+

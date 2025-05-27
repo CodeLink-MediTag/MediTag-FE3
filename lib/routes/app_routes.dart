@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:medife/screens/landing.dart';
-import 'package:medife/features/login/login.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/chatbot/chatbot.dart';
-import 'package:medife/features/eatlist/eatlist.dart';
 import 'package:medife/features/medication/MediDetail/MediDetail.dart';
 import 'package:medife/features/medication/MediEdit/MediEdit.dart';
 import 'package:medife/features/medication/MediEnd/MediEnd.dart';
@@ -19,6 +17,7 @@ import 'package:medife/features/setting/protectorEdit.dart';
 import 'package:medife/features/setting/protectorAlert.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/setting/username.dart';
+import '../features/eatlist/component/eat-list.dart';
 import 'route_names.dart';
 
 
