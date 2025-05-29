@@ -33,13 +33,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final textSize = context.watch<TextSizeProvider>().textSize;
 
+    // 기본 텍스트 테마 (Light 모드용)
+    final baseTextTheme = Typography.blackMountainView;
+
     return MaterialApp(
       title: 'MediTag',
       theme: ThemeData(
-        fontFamily: 'SEBANGGothic',
+        fontFamily: 'SEBANG',
         primarySwatch: Colors.blue,
-        textTheme: Theme.of(context).textTheme.apply(
-          fontSizeFactor: textSize / 14.0,  // textSize 14 기준 배율 적용
+        textTheme: baseTextTheme.apply(
+          fontSizeFactor: textSize / 14.0,
         ),
       ),
       initialRoute: '/landing',
