@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';  // provider 패키지 추가
+import 'package:medife/providers/text_size_provider.dart';
 
-import 'providers/text_size_provider.dart';
 import 'features/login/screen/login_screen.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'screens/landing.dart';
@@ -15,7 +15,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await initializeDateFormatting('ko_KR', null);
+  await initializeDateFormatting('ko_KR', null);  // 한국어 날짜 포맷 초기화
+  KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');  // 카카오 SDK 초기화 (KEY 넣어야 함)
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => TextSizeProvider(),
@@ -37,10 +39,10 @@ class MyApp extends StatelessWidget {
         fontFamily: 'SEBANGGothic',
         primarySwatch: Colors.blue,
         textTheme: Theme.of(context).textTheme.apply(
-          fontSizeFactor: textSize / 14.0,
+          fontSizeFactor: textSize / 14.0,  // textSize 14 기준 배율 적용
         ),
       ),
-      initialRoute: '/landing', // 시작화면
+      initialRoute: '/landing',
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),

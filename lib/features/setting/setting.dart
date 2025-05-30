@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:medife/features/setting/alertsound.dart';
 import 'package:medife/nfc/nfcAdd.dart';
-import '../../components/custom_app_bar.dart'; // CustomAppBar import 추가
-import 'package:medife/providers/text_size_provider.dart';
+import '../../components/custom_app_bar.dart';
 
 class SettingScreen extends StatefulWidget {
   @override
@@ -12,7 +10,10 @@ class SettingScreen extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingScreen> {
   bool notifications = true;
-  bool isDarkMode = false;  // 다크모드 토글 상태 변수
+  bool sound = true;
+  bool vibration = true;
+  bool showNotifications = true;
+  double textSize = 14;  // 글자 크기 상태 변수
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +102,9 @@ class _SettingsPageState extends State<SettingScreen> {
                   Padding(
                     padding: EdgeInsets.only(bottom: 20),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // 로그아웃 처리 로직 추가 가능
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF547EE8),
                         minimumSize: Size(358, 48),
@@ -115,8 +118,8 @@ class _SettingsPageState extends State<SettingScreen> {
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -124,20 +127,21 @@ class _SettingsPageState extends State<SettingScreen> {
     );
   }
 
-  Widget _buildSettingTile(String title, Widget trailing, double fontSize) {
+  // fontSize를 선택적으로 지정할 수 있도록 기본값 20 지정
+  Widget _buildSettingTile(String title, Widget trailing, [double fontSize = 20]) {
     return Container(
       color: Color(0xFFFDFDFD),
       child: ListTile(
         title: Text(
           title,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w400),
         ),
         trailing: trailing,
       ),
     );
   }
 
-  Widget _buildNavigationButton(String title, VoidCallback onPressed, double fontSize) {
+  Widget _buildNavigationButton(String title, VoidCallback onPressed, [double fontSize = 20]) {
     return Container(
       color: Color(0xFFFDFDFD),
       child: ListTile(
