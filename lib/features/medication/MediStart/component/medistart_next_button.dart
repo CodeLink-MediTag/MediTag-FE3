@@ -11,7 +11,7 @@ class MediStartNextButton extends StatelessWidget {
       height: 48,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF7D9DFF),
+          backgroundColor: const Color(0xFF547EE8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         onPressed: onPressed,

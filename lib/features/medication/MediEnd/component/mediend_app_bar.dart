@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
 
 class MediEndAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final VoidCallback? onBack;
+
+  const MediEndAppBar({
+    Key? key,
+    this.title = '복약 알림 등록',
+    this.onBack,
+  }) : super(key: key);
+
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize => const Size.fromHeight(60);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFF547EE8),
-      padding: const EdgeInsets.only(top: 37, bottom: 12, left: 16, right: 16),
-      child: Row(
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
-            onPressed: () => Navigator.pop(context),
-          ),
-          const Expanded(
-            child: Center(
-              child: Text(
-                '복약 알림 등록',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-            ),
-          ),
-          const SizedBox(width: 40),
-        ],
+    return AppBar(
+      backgroundColor: const Color(0xFF547EE8),
+      automaticallyImplyLeading: false,
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 26,
+          color: Colors.white,
+        ),
       ),
+      centerTitle: true,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+        tooltip: '뒤로가기',
+        onPressed: onBack ?? () => Navigator.of(context).pop(),
+      ),
+      elevation: 0,
     );
   }
 }

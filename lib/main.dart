@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
           fontSizeFactor: textSize / 14.0,
         ),
       ),
-      initialRoute: '/landing',
+      initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),

@@ -4,11 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:medife/features/eatlist/model/medicine.dart';
 import 'package:medife/features/eatlist/repository/eat-list-repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-
-// import '../../../routes/animations/slide_transition_page_route.dart';
-import '../../../screens/landing.dart';
 import 'eat-card.dart';
+import 'package:medife/components/custom_app_bar.dart'; // 커스텀 앱바 경로 맞게 수정
 
 class EatList extends StatefulWidget {
   const EatList({super.key});
@@ -18,13 +15,10 @@ class EatList extends StatefulWidget {
 }
 
 class _EatListState extends State<EatList> {
-  
-  // 약 목록
-  // 복용 상태
+
   List<Medicine> medicines = [];
   Map<int, Map<String, bool>> takenStatus = {};
-  
-  // 리포지토리
+
   EatListRepository eatListRepository = EatListRepository();
 
   @override
@@ -65,13 +59,9 @@ class _EatListState extends State<EatList> {
 
   String getTimeLabel(DateTime time, bool isPrescribed) {
     if (!isPrescribed) {
-      // return "${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
-
       final formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
       return formatter.format(time);
-
     }
-
     if (time.hour == 8) return "아침";
     if (time.hour == 12) return "점심";
     if (time.hour == 18) return "저녁";
@@ -139,71 +129,23 @@ class _EatListState extends State<EatList> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // 뒤로 가기 시 Landing 화면으로 이동
-        /*
-        Navigator.push(
-          context,
-          SlideTransitionPageRoute(page: const Landing()), // 슬라이드 전환 애니메이션 적용
-        );
-
-         */
-        return false; // 기본 동작인 pop을 방지
+        // 뒤로 가기 막고 직접 처리하거나 그대로 pop 허용 가능
+        return true;
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: Column(
-          children: [
-            // ✅ 상단 AppBar 스타일
-            Container(
-              color: const Color(0xFF547EE8),
-              padding: const EdgeInsets.only(top: 50, bottom: 16, left: 16, right: 16),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () {
-
-                        Navigator.pop(context);
-
-                        // 뒤로 가기 시 Landing 화면으로 이동
-                        /*
-                        Navigator.push(
-                          context,
-                          SlideTransitionPageRoute(page: const Landing()), // 슬라이드 전환
-                        );
-
-                         */
-                      },
-                    ),
-                  ),
-                  const Center(
-                    child: Text(
-                      '복용 기록',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            Expanded(
-              child: ListView(
-                children: buildEatCards(medicines, takenStatus, onTaken),
-              ),
-            ),
-
-            // const Spacer(),
-
-          ],
+        appBar: CustomAppBar(
+          title: '복용 기록',
+          onBack: () {
+            Navigator.pop(context);
+          },
+          // 필요하면 onHome 콜백 추가 가능
+        ),
+        body: Padding(
+          padding: const EdgeInsets.only(top: 30), // 앱바 밑 공간 조정
+          child: ListView(
+            children: buildEatCards(medicines, takenStatus, onTaken),
+          ),
         ),
       ),
     );
