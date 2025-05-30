@@ -12,7 +12,6 @@ import '../component/medimain_app_bar.dart';
 import '../component/medimain_medication_card.dart';
 import 'package:medife/features/medication/MediStart/screen/medistart_screen.dart';
 
-
 class MediMainScreen extends StatefulWidget {
   const MediMainScreen({Key? key}) : super(key: key);
 
@@ -110,10 +109,7 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
     return Scaffold(
       appBar: MediMainAppBar(
         onBack: () => Navigator.of(context).pop(),
-        onCalendar: () =>
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const Calendar()),
-            ),
+        onCalendar: () => Navigator.of(context).pushNamed('/calendar'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -134,21 +130,30 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context)
-                .push<bool>(
-              MaterialPageRoute(builder: (_) => const MediStartScreen()),
-            )
-                .then((startResult) {
-              if (startResult == true) {
-                // Start → Middle → End 까지 모두 true를 돌려줬다면
-                // 새로 등록된 약을 다시 불러옵니다.
-                _fetchMedicines();
-              }
-            });
-          },
-          child: const Text('알림 받을 약 추가'),
+        child: SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF547EE8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.of(context)
+                  .push<bool>(
+                MaterialPageRoute(builder: (_) => const MediStartScreen()),
+              )
+                  .then((startResult) {
+                if (startResult == true) {
+                  _fetchMedicines();
+                }
+              });
+            },
+            child: const Text(
+              '알림 받을 약 추가',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
         ),
       ),
     );
