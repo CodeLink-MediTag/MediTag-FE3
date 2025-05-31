@@ -103,10 +103,26 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     }
   }
 
-  // 사용자 질문 서버에 전송 및 응답 받기
   Future<void> sendMessageToServer(String userMessage) async {
     if (sessionId == null || accessToken == null) return;
 
+    // 사용자 메시지 추가
+    setState(() {
+      controller.text = "";
+      messages.add({'type': 'user', 'text': userMessage});
+      _listKey.currentState?.insertItem(messages.length - 1, duration: const Duration(milliseconds: 300));
+    });
+
+    // 사용자 메시지 후 바로 스크롤 다운
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+
+    // 서버로 메시지 전송
     String? answer;
     try {
       answer = await chatRepository.sendMessage(SendMessageRequestModel(
@@ -119,22 +135,23 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       return;
     }
 
-    setState(() {
-      controller.text = "";
-      messages.add({'type': 'user', 'text': userMessage});
-      messages.add({'type': 'bot', 'text': answer ?? ''});
-    });
-
-    _listKey.currentState?.insertItem(messages.length - 1, duration: const Duration(milliseconds: 300));
-
+    // 약간의 지연 후 봇 응답 추가 및 스크롤 다운
     Future.delayed(const Duration(milliseconds: 100), () {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      setState(() {
+        messages.add({'type': 'bot', 'text': answer ?? ''});
+        _listKey.currentState?.insertItem(messages.length - 1, duration: const Duration(milliseconds: 300));
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
     });
   }
+
 
   // 음성녹음
   void listen() async {
