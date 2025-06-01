@@ -1,5 +1,3 @@
-/*
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,19 +8,27 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../MediMain/model/medimain_medicine.dart';
-import '../MediMain/model/medimain_alarm.dart';
+import '../component/mediedit_name_field.dart';
+import '../component/mediedit_startdate_field.dart';
+import '../component/mediedit_duration_field.dart';
+import '../component/mediedit_dosageselector_field.dart';
+import '../component/mediedit_alarmtime_list.dart';
+import '../component/mediedit_imagepicker_field.dart';
+import '../component/mediedit_submit_button.dart';
+import '../../MediMain/model/medimain_alarm.dart';
+import '../../MediMain/model/medimain_medicine.dart';
 import 'package:medife/ip/ip_address.dart';
 
-class MediEdit extends StatefulWidget {
+
+class MediEditScreen extends StatefulWidget {
   final Medicine medicine;
-  const MediEdit({Key? key, required this.medicine}) : super(key: key);
+  const MediEditScreen({Key? key, required this.medicine}) : super(key: key);
 
   @override
-  _MediEditState createState() => _MediEditState();
+  _MediEditScreenState createState() => _MediEditScreenState();
 }
 
-class _MediEditState extends State<MediEdit> {
+class _MediEditScreenState extends State<MediEditScreen> {
   late TextEditingController _nameCtrl;
   late TextEditingController _durationCtrl;
   late DateTime _startDate;
@@ -39,7 +45,6 @@ class _MediEditState extends State<MediEdit> {
     // 1) 약 이름 컨트롤러
     _nameCtrl = TextEditingController(text: widget.medicine.medicineName);
 
-
     // 2) 복용 기간 컨트롤러: (처방약이면 서버의 duration, 일반약이면 alarms.length)로 초기값 세팅
     _durationCtrl = TextEditingController(
       text: widget.medicine.prescribed
@@ -47,20 +52,18 @@ class _MediEditState extends State<MediEdit> {
           : widget.medicine.alarms.length.toString(),
     );
 
-
     // 3) 처방약 여부
     _prescribed = widget.medicine.prescribed;
 
-    // 4) 시작 날짜: alarms 첫 번째 요소에서 연월일만 가져오기
+    // 4) 시작 날짜: alarms 첫 번째 요소에서 연/월/일만 가져오기
     final firstAlarm = widget.medicine.alarms.first.alarmTime;
     _startDate = DateTime(firstAlarm.year, firstAlarm.month, firstAlarm.day);
 
     // 5) 알림 시간 리스트(TimeOfDay)
-    _alarmTimes = widget.medicine.alarms
-        .map((a) => TimeOfDay.fromDateTime(a.alarmTime))
-        .toList();
+    _alarmTimes =
+        widget.medicine.alarms.map((a) => TimeOfDay.fromDateTime(a.alarmTime)).toList();
 
-    // 6) 복용 시간대(ChoiceChip) 선택 초기 상태
+    // 6) 복용 시간대(ChoiceChip) 선택 초기 상태 (처방약일 때만)
     _selectedDosage = widget.medicine.alarms.map((a) {
       final hour = TimeOfDay.fromDateTime(a.alarmTime).hour;
       if (hour < 12) return '아침';
@@ -90,13 +93,13 @@ class _MediEditState extends State<MediEdit> {
   }
 
   /// 시간 선택 다이얼로그 (알림 시간)
-  Future<void> _pickTime(int idx) async {
+  void _pickTime(int idx, TimeOfDay t) async {
     final t = await showTimePicker(
       context: context,
       initialTime: _alarmTimes[idx],
     );
     if (t != null) {
-      // 중복 체크를 하자
+      // 중복 체크
       bool alreadyExists = _alarmTimes.any((existing) {
         return existing.hour == t.hour && existing.minute == t.minute;
       });
@@ -109,9 +112,7 @@ class _MediEditState extends State<MediEdit> {
         );
         return;
       }
-      setState(() {
-        _alarmTimes[idx] = t;
-      });
+      setState(() => _alarmTimes[idx] = t);
     }
   }
 
@@ -126,7 +127,7 @@ class _MediEditState extends State<MediEdit> {
     }
   }
 
-  /// 저장 (PATCH 요청) ─────────────────────────────────────────────────────────
+  /// 저장 (PATCH 요청)
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
@@ -138,11 +139,7 @@ class _MediEditState extends State<MediEdit> {
     }
 
     // 1) TimeOfDay 리스트 → Alarm 객체 리스트
-    final baseDate = DateTime(
-      _startDate.year,
-      _startDate.month,
-      _startDate.day,
-    );
+    final baseDate = DateTime(_startDate.year, _startDate.month, _startDate.day);
     final newAlarms = _alarmTimes
         .map((tod) => Alarm(
       alarmTime: DateTime(
@@ -156,7 +153,7 @@ class _MediEditState extends State<MediEdit> {
     ))
         .toList();
 
-    // 2) 알림 시간을 서버에 보낼 문자열 리스트 ("HH:mm:ss" 형식)
+    // 2) 알림 시간을 서버에 보낼 문자열 리스트 ("HH:mm:ss")
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final alarmStrings = _alarmTimes.map((tod) {
       final h = twoDigits(tod.hour);
@@ -169,7 +166,6 @@ class _MediEditState extends State<MediEdit> {
       'name': _nameCtrl.text,
       'characteristic': widget.medicine.characteristic,
       'startDate': DateFormat('yyyy-MM-dd').format(_startDate),
-      // 처방약이면 duration, 일반약이면 frequency (둘 중 하나만 null 처리)
       'duration': _prescribed ? int.parse(_durationCtrl.text) : null,
       'frequency': !_prescribed ? int.parse(_durationCtrl.text) : null,
       'prescribed': _prescribed,
@@ -184,20 +180,20 @@ class _MediEditState extends State<MediEdit> {
     final req = http.MultipartRequest('PATCH', uri)
       ..headers['Authorization'] = 'Bearer $token';
 
-    // 5) JSON 데이터 파트 추가 (@RequestPart("data"))
+    // 5) JSON 데이터 파트 추가
     req.files.add(
       http.MultipartFile.fromString(
-        'data', // 백엔드 @RequestPart("data") 와 동일해야 함
+        'data',
         jsonEncode(bodyJson),
         contentType: MediaType('application', 'json'),
       ),
     );
 
-    // 6) 이미지 파일 파트 추가(선택사항) (@RequestPart("file"))
+    // 6) 이미지 파일 파트 추가(선택사항)
     if (_pickedImage != null) {
       req.files.add(
         await http.MultipartFile.fromPath(
-          'file', // 백엔드 @RequestPart("file") 와 동일해야 함
+          'file',
           _pickedImage!.path,
           contentType: MediaType('image', 'jpeg'),
         ),
@@ -210,9 +206,7 @@ class _MediEditState extends State<MediEdit> {
       final res = await http.Response.fromStream(streamed);
 
       if (res.statusCode == 200) {
-        // 8) 응답이 JSON이면 파싱해서 Medicine 객체 생성 후 pop, 아니면 로컬 객체 그대로 pop
-
-        // 8-1) 서버가 JSON 형태(수정된 Medicine 전체 데이터)를 리턴하는 경우
+        // (8-1) JSON으로 수정된 Medicine을 리턴받는 경우
         try {
           final updatedJson = jsonDecode(res.body) as Map<String, dynamic>;
           final updatedModel = Medicine.fromJson(updatedJson);
@@ -222,8 +216,7 @@ class _MediEditState extends State<MediEdit> {
           // JSON 파싱 실패 → plain-text 응답으로 간주
         }
 
-        // 8-2) 서버가 plain-text("약 정보와 알림이 성공적으로 수정되었습니다.")를 리턴하는 경우:
-        // 이미 로컬에 맞게 만든 newAlarms를 이용해서 새 모델을 만들어서 pop
+        // (8-2) plain-text("성공") 응답인 경우
         final updatedMedicine = Medicine(
           medicineId: widget.medicine.medicineId,
           medicineName: _nameCtrl.text,
@@ -231,16 +224,13 @@ class _MediEditState extends State<MediEdit> {
           imageUrl: widget.medicine.imageUrl,
           prescribed: _prescribed,
           duration: int.parse(_durationCtrl.text),
-          frequency: _prescribed
-              ? null
-              : int.parse(_durationCtrl.text),
+          frequency: _prescribed ? null : int.parse(_durationCtrl.text),
           alarms: newAlarms,
           isFavorite: widget.medicine.isFavorite,
         );
         Navigator.pop(context, updatedMedicine);
-
       } else {
-        // HTTP 200이 아니면 에러 처리
+        // HTTP 200 이외 → 에러
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -273,143 +263,61 @@ class _MediEditState extends State<MediEdit> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ─ 약 이름 입력
-            TextField(
-              controller: _nameCtrl,
-              decoration: const InputDecoration(labelText: '약 이름'),
-            ),
+            // 1) 약 이름
+            NameField(controller: _nameCtrl),
 
             const SizedBox(height: 24),
 
-            // ─ 복용 시작 날짜
-            ListTile(
-              title: Text(
-                '복용 시작 날짜: ${DateFormat('yyyy-MM-dd').format(_startDate)}',
-              ),
-              trailing: const Icon(Icons.calendar_today),
-              onTap: _pickDate,
-            ),
+            // 2) 복용 시작 날짜
+            StartDateField(startDate: _startDate, onTap: _pickDate),
 
             const SizedBox(height: 24),
 
-            // ─ 복용 기간 (일) 또는 복용 횟수 (일반약)
-            TextField(
-              controller: _durationCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: '복용 기간 (일)'),
-            ),
+            // 3) 복용 기간
+            DurationField(controller: _durationCtrl),
 
             const SizedBox(height: 24),
 
-            // ─ 처방약일 때만 “복용 시간대” 선택
+            // 4) 처방약일 때만 “복용 시간대” 선택
             if (_prescribed) ...[
-              const Text(
-                '복용 시간대',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: _dosageOptions.map((opt) {
-                  return ChoiceChip(
-                    label: Text(opt),
-                    selected: _selectedDosage.contains(opt),
-                    onSelected: (sel) {
-                      setState(() {
-                        if (sel) {
-                          _selectedDosage.add(opt);
-                        } else {
-                          _selectedDosage.remove(opt);
-                        }
-
-                        // 복용 시간대 개수에 맞게 알림 시간 개수 조절
-                        if (_selectedDosage.length > _alarmTimes.length) {
-                          // 새로 추가할 때 기본 시간 08:00 으로 세팅
-                          _alarmTimes.add(const TimeOfDay(hour: 8, minute: 0));
-                        } else if (_selectedDosage.length < _alarmTimes.length) {
-                          _alarmTimes.removeLast();
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+              DosageSelectorField(
+                options: _dosageOptions,
+                selected: _selectedDosage,
+                onChanged: (newList) {
+                  setState(() {
+                    _selectedDosage = newList;
+                    if (_selectedDosage.length > _alarmTimes.length) {
+                      _alarmTimes.add(const TimeOfDay(hour: 8, minute: 0));
+                    } else if (_selectedDosage.length < _alarmTimes.length) {
+                      _alarmTimes.removeLast();
+                    }
+                  });
+                },
               ),
               const SizedBox(height: 24),
             ],
 
-            // ─ 알림 시간 (선택된 복용 시간대 수만큼 ListTile 생성)
-            const Text(
-              '알림 시간',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ...List.generate(_alarmTimes.length, (i) {
-              final label = _prescribed
-                  ? _selectedDosage[i] + ':'
-                  : '시간 ${i + 1}:';
-              return ListTile(
-                title: Text('$label ${_alarmTimes[i].format(context)}'),
-                trailing: const Icon(Icons.access_time),
-                onTap: () => _pickTime(i),
-              );
-            }),
+            // 5) 알림 시간 리스트
+            AlarmTimeListField(times: _alarmTimes, onTimeChanged: _pickTime),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
-            // ─ 이미지 선택 (선택사항)
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _pickImageFromGallery,
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('이미지 선택'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade200,
-                    foregroundColor: Colors.black,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (_pickedImage != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      _pickedImage!,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-              ],
+            // 6) 이미지 선택
+            ImagePickerField(
+              pickedImage: _pickedImage,
+              onPickImage: _pickImageFromGallery,
             ),
 
             const SizedBox(height: 32),
 
-            // ─ 저장 버튼
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _save,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF547EE8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  '저장',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
+            // 7) 저장 버튼
+            SubmitButton(onPressed: _save),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 }
-
-
-
-
- */

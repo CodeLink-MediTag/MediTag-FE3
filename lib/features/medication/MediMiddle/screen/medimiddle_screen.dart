@@ -43,7 +43,7 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
     // 주기 선택을 안 했으면 스낵바
     if (selectedPeriod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('복용 주기를 선택해주세요.')),
+        const SnackBar(content: Text('복용 기간을 선택해주세요.')),
       );
       return;
     }
@@ -103,12 +103,12 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
               padding: const EdgeInsets.all(24),
               children: [
                 const Text(
-                  '복용 주기, 시작 날짜, 기간을 입력해주세요!',
+                  '복용 기간, 시작 날짜를 입력해주세요!',
                   style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 20),
 
-                const Text('복용 주기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text('복용 기간', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 MediMiddlePeriodSelector(
                   selectedPeriod: selectedPeriod,
