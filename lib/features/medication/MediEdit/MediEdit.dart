@@ -14,6 +14,9 @@ import '../MediMain/model/medimain_medicine.dart';
 import '../MediMain/model/medimain_alarm.dart';
 import 'package:medife/ip/ip_address.dart';
 
+// 커스텀 앱바 임포트 (경로 맞게 수정하세요)
+import 'package:medife/components/custom_app_bar.dart';
+
 class MediEdit extends StatefulWidget {
   final Medicine medicine;
   const MediEdit({Key? key, required this.medicine}) : super(key: key);
@@ -264,9 +267,11 @@ class _MediEditState extends State<MediEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('정보 수정'),
-        backgroundColor: const Color(0xFF547EE8),
+      appBar: CustomAppBar(
+        title: '정보 수정',
+        onBack: () {
+          Navigator.pop(context);
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

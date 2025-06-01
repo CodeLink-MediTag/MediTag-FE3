@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:medife/components/custom_app_bar.dart'; // CustomAppBar 경로 맞게 수정하세요
 import 'package:medife/features/chatbot/component/chat_input_field.dart';
-import 'package:medife/features/chatbot/component/chat_top_bar.dart';
 import 'package:medife/features/chatbot/component/chat_message.dart';
 import 'package:medife/features/chatbot/component/chat_voice_record_button.dart';
 import 'package:medife/features/chatbot/model/send_message_request_model.dart';
@@ -40,17 +40,20 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF6F6F6),
+      backgroundColor: const Color(0xFFF6F6F6),
       body: Stack(
         children: [
           Column(
             children: [
-              // 상단 바
-              ChatTopBar(
+              // 커스텀 앱바
+              CustomAppBar(
+                title: '챗봇',
                 onBack: () {
-                  Navigator.pop(context); // 현재 화면 종료 (이전 화면으로 돌아감)
+                  Navigator.pop(context);
                 },
-                onHome: () {},
+                onHome: () {
+                  Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
+                },
               ),
 
               // 메시지 리스트
@@ -58,7 +61,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                 child: AnimatedList(
                   key: _listKey,
                   controller: scrollController,
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   initialItemCount: messages.length,
                   itemBuilder: (context, index, animation) {
                     final msg = messages[index];
@@ -89,13 +92,10 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
   // 채팅 시작
   Future<void> chatStart() async {
-    // 로그인 확인하기
     final prefs = await SharedPreferences.getInstance();
     accessToken = prefs.getString('accessToken');
 
-    // 토큰 서버로 보내서 세션 생성하고 id 받아오기
     final request = SessionCreationRequestModel(accessToken: accessToken!);
-    // 생성한 세션 id 를 저장해놓기
     try {
       sessionId = await chatRepository.sessionCreation(request);
     } catch (e) {
@@ -103,12 +103,27 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     }
   }
 
-  // 사용자 질문 서버에 전송 및 응답 받기
   Future<void> sendMessageToServer(String userMessage) async {
-    final answer;
-
     if (sessionId == null || accessToken == null) return;
 
+    // 사용자 메시지 추가
+    setState(() {
+      controller.text = "";
+      messages.add({'type': 'user', 'text': userMessage});
+      _listKey.currentState?.insertItem(messages.length - 1, duration: const Duration(milliseconds: 300));
+    });
+
+    // 사용자 메시지 후 바로 스크롤 다운
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+
+    // 서버로 메시지 전송
+    String? answer;
     try {
       answer = await chatRepository.sendMessage(SendMessageRequestModel(
         accessToken: accessToken!,
@@ -117,38 +132,35 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
       ));
     } catch (e) {
       print('채팅 오류: $e');
-      return null;
+      return;
     }
 
-    // 메시지 추가 후 애니메이션 적용
-    setState(() {
-      controller.text = "";
-      messages.add({'type': 'user', 'text': userMessage}); // 사용자 메시지 추가
-      messages.add({'type': 'bot', 'text': answer}); // 봇 응답 메시지 추가
-    });
+    // 약간의 지연 후 봇 응답 추가 및 스크롤 다운
+    Future.delayed(const Duration(milliseconds: 100), () {
+      setState(() {
+        messages.add({'type': 'bot', 'text': answer ?? ''});
+        _listKey.currentState?.insertItem(messages.length - 1, duration: const Duration(milliseconds: 300));
+      });
 
-    // 애니메이션으로 새로운 항목 삽입
-    _listKey.currentState?.insertItem(messages.length - 1, duration: Duration(milliseconds: 300));
-
-    // 화면 아래로 내리기
-    Future.delayed(Duration(milliseconds: 100), () {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
     });
   }
+
 
   // 음성녹음
   void listen() async {
     if (!isListening) {
-      bool available = await speech.initialize(); // 마이크 접근 권한 확인
+      bool available = await speech.initialize();
       if (available) {
         setState(() => isListening = true);
         speech.listen(
           onResult: (val) async {
-            // val에 음성인식 결과 담김
             if (val.hasConfidenceRating && val.confidence > 0) {
               setState(() {
                 isListening = false;
@@ -158,9 +170,9 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
             }
           },
           localeId: 'ko_KR',
-          listenMode: stt.ListenMode.dictation, // 연속 듣기 모드
-          pauseFor: Duration(seconds: 3), // 3초 이상 정적이면 멈춤
-          partialResults: false, // 부분 결과 무시
+          listenMode: stt.ListenMode.dictation,
+          pauseFor: const Duration(seconds: 3),
+          partialResults: false,
         );
       }
     } else {

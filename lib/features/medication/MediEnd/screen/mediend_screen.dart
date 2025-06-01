@@ -164,7 +164,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
     final pres = widget.selectionData.prescribed;
 
     return Scaffold(
-      appBar: MediEndAppBar(),
+      appBar: MediEndAppBar(), // 커스텀 앱바 적용
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: ListView(

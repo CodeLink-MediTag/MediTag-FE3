@@ -108,10 +108,9 @@ class _CalendarState extends State<Calendar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(title: '복약기록 캘린더'),
       body: Column(
         children: [
-          const CustomAppBar(title: '복약기록 캘린더'),
-
           TableCalendar(
             locale: 'ko_KR',
             firstDay: DateTime.utc(2020, 1, 1),
@@ -127,13 +126,13 @@ class _CalendarState extends State<Calendar> {
               fetchMedicinesForDate(selectedDay);
             },
             eventLoader: _getEventsForDay,
-            calendarStyle: const CalendarStyle(
+            calendarStyle: CalendarStyle(
               todayDecoration:
-              BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
+              BoxDecoration(color: Colors.pink[200], shape: BoxShape.circle),
               selectedDecoration:
-              BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
+              const BoxDecoration(color: Colors.blue, shape: BoxShape.circle),
               markerDecoration:
-              BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
+              const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
             ),
             headerStyle: const HeaderStyle(
                 titleCentered: true, formatButtonVisible: false),

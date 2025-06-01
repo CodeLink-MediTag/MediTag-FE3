@@ -7,7 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:medife/features/calendar/calendar.dart' hide Medicine, Alarm;
 
 import '../MediMain/model/medimain_medicine.dart';
+<<<<<<< HEAD
 import '../MediEdit/MediEdit.dart';
+=======
+import '../MediMain/model/medimain_alarm.dart';
+import 'package:medife/features/medication/MediEdit/MediEdit.dart';
+import 'package:medife/components/custom_app_bar.dart';
+>>>>>>> a2ca3c3c32efd5bba7fab38087c5b6845f99635a
 
 class MediDetail extends StatefulWidget {
   final Medicine medicine;
@@ -64,9 +70,11 @@ class _MediDetailState extends State<MediDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('상세페이지'),
-        backgroundColor: const Color(0xFF547EE8),
+      appBar: CustomAppBar(
+        title: '상세페이지',
+        onBack: () {
+          Navigator.pop(context);
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
