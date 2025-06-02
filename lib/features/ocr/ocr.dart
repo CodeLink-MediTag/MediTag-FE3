@@ -1,71 +1,109 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:flutter_tts/flutter_tts.dart';
-import 'dart:io';
 
-void main(){
-  runApp(MaterialApp(
-    home: Scaffold(
-      body: OcrCheckPage(),
-    ),
-  ));
-}
+import '../../components/custom_app_bar.dart';
 
-class OcrCheckPage extends StatefulWidget {
+
+class OcrScreen extends StatefulWidget {
   @override
-  State<OcrCheckPage> createState() => _OcrCheckPageState();
+  _OcrScreenState createState() => _OcrScreenState();
 }
 
-class _OcrCheckPageState extends State<OcrCheckPage> {
-  final picker = ImagePicker();
-  final FlutterTts tts = FlutterTts();
+class _OcrScreenState extends State<OcrScreen> {
+  String _resultText = '약 봉투를 앞에 두고 사진을 촬영해주세요.';
 
-  String resultText = "";
+  Future<void> _captureImageAndCheckText() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
-  Future<void> pickImageAndDetectText() async {
-    final picked = await picker.pickImage(source: ImageSource.gallery); // or camera
-    if (picked == null) return;
-
-    final inputImage = InputImage.fromFile(File(picked.path));
+    final imageFile = File(pickedFile.path);
+    final inputImage = InputImage.fromFile(imageFile);
     final textRecognizer = TextRecognizer(script: TextRecognitionScript.korean);
-    final RecognizedText recognizedText = await textRecognizer.processImage(inputImage);
+    final recognizedText = await textRecognizer.processImage(inputImage);
+    await textRecognizer.close();
 
     final text = recognizedText.text;
-    print("전체 텍스트: $text");
 
-    final timeKeywords = ["아침", "점심", "저녁"];
-    final detected = timeKeywords.where((keyword) => text.contains(keyword)).toList();
+    // 아침, 점심, 저녁 중 포함된 단어 추출
+    List<String> keywords = [];
+    if (text.contains('아침')) keywords.add('아침');
+    if (text.contains('점심')) keywords.add('점심');
+    if (text.contains('저녁')) keywords.add('저녁');
 
-    if (detected.isNotEmpty) {
-      final detectedStr = detected.join(", ");
-      resultText = "$detectedStr 복용 시간이 감지되었습니다.";
-      await tts.speak(resultText);
-    } else {
-      resultText = "약 복용 시간이 감지되지 않았습니다.";
-      await tts.speak(resultText);
-    }
-
-    setState(() {});
+    setState(() {
+      _resultText = keywords.isNotEmpty
+          ? '${keywords.join(' ')} 약입니다'
+          : '약봉투를 카메라 앞에 두고 촬영해주세요';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("약 복용 시간 OCR")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: pickImageAndDetectText,
-              child: Text("약 봉투 이미지 선택"),
+
+      body: Column(
+        children: [
+          CustomAppBar(
+            title: '약 시간 확인기',
+            onBack: () {
+              Navigator.pop(context);
+            },
+            onHome: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
+            },
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    // 안내 문구
+                    Text(
+                      '약봉투에 적힌\n아침, 점심, 저녁 중 하나를 인식합니다.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                    ),
+
+                    SizedBox(height: 40),
+
+                    // 촬영 버튼
+                    ElevatedButton.icon(
+                      onPressed: _captureImageAndCheckText,
+                      icon: Icon(Icons.camera_alt, size: 32),
+                      label: Text(
+                        '약 시간 확인하기',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        elevation: 5,
+                      ),
+                    ),
+
+                    SizedBox(height: 40),
+
+                    // 결과 텍스트
+                    Text(
+                      _resultText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            Text(resultText, textAlign: TextAlign.center),
-          ],
-        ),
+          ),
+        ],
       ),
+
     );
   }
 }

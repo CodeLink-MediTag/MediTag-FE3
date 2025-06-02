@@ -229,6 +229,9 @@ class _LandingState extends State<Landing> {
               MaterialPageRoute(builder: (context) => const MyPage()),
             ).then((_) => _loadNickname());
           }
+          if (index == 1) {
+            Navigator.pushNamed(context, '/ocr'); // OCR 화면으로 이동
+          }
         },
         type: BottomNavigationBarType.fixed,
         selectedFontSize: 0,

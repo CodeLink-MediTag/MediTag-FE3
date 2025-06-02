@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medife/features/ocr/ocr.dart';
 import 'package:provider/provider.dart';  // provider 패키지 추가
 import 'package:medife/providers/text_size_provider.dart';
 
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
         '/landing': (context) => Landing(),
+        '/ocr' : (context) => OcrScreen()
       },
       debugShowCheckedModeBanner: false,
     );
