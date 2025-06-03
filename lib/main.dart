@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';  // provider 패키지 추가
+import 'package:provider/provider.dart';
 import 'package:medife/providers/text_size_provider.dart';
-
 import 'features/login/screen/login_screen.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'screens/landing.dart';
@@ -15,8 +14,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await initializeDateFormatting('ko_KR', null);  // 한국어 날짜 포맷 초기화
-  KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');  // 카카오 SDK 초기화 (KEY 넣어야 함)
+  await initializeDateFormatting('ko_KR', null);
+  KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');
 
   runApp(
     ChangeNotifierProvider(
@@ -31,20 +30,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textSize = context.watch<TextSizeProvider>().textSize;
-
-    // 기본 텍스트 테마 (Light 모드용)
-    final baseTextTheme = Typography.blackMountainView;
-
     return MaterialApp(
       title: 'MediTag',
       theme: ThemeData(
         fontFamily: 'SEBANG',
         primarySwatch: Colors.blue,
-        textTheme: baseTextTheme.apply(
-          fontSizeFactor: textSize / 14.0,
-        ),
       ),
+      builder: (context, child) {
+        final textSizeProvider = context.watch<TextSizeProvider>();
+
+        final double textSize = (textSizeProvider.textSize != null && textSizeProvider.textSize > 0)
+            ? textSizeProvider.textSize
+            : 14.0;
+
+        // textScaleFactor로 전체 텍스트 크기 조정
+        final double textScaleFactor = textSize / 14.0;
+
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaleFactor: textScaleFactor,
+          ),
+          child: child!,
+        );
+      },
       initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),
