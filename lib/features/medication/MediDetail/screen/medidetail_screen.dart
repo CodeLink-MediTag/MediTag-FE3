@@ -34,17 +34,14 @@ class _MediDetailScreenState extends State<MediDetailScreen> {
     final firstAlarm = m.alarms.first.alarmTime;
     _startDate = DateTime(firstAlarm.year, firstAlarm.month, firstAlarm.day);
 
-    if (m.prescribed) {
-      _duration = m.duration;
-    } else {
-      _duration = m.alarms.length;
-    }
+    _duration = m.duration;
 
     _dosageTimes = m.alarms
         .map((a) => DateFormat('a hh:mm', 'ko_KR').format(a.alarmTime))
         .toList();
 
     _frequency = '${m.alarms.length}번';
+
     _alarmTime = TimeOfDay.fromDateTime(firstAlarm);
   }
 
