@@ -1,128 +1,109 @@
-/*
-import 'dart:typed_data';
-import 'dart:io' as io show File;
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
-void main() => runApp(const MyApp());
+import '../../components/custom_app_bar.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
 
+class OcrScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'OCR + TTS 데모 (웹 호환)',
-      home: const OCRScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  _OcrScreenState createState() => _OcrScreenState();
 }
 
-class OCRScreen extends StatefulWidget {
-  const OCRScreen({super.key});
+class _OcrScreenState extends State<OcrScreen> {
+  String _resultText = '약 봉투를 앞에 두고 사진을 촬영해주세요.';
 
-  @override
-  State<OCRScreen> createState() => _OCRScreenState();
-}
+  Future<void> _captureImageAndCheckText() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    if (pickedFile == null) return;
 
-class _OCRScreenState extends State<OCRScreen> {
-  final ImagePicker _picker = ImagePicker();
-  final FlutterTts flutterTts = FlutterTts();
-  String scannedText = '';
-  Uint8List? imageBytes;
-  bool isLoading = false;
-
-  Future<void> _getImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(source: source);
-    if (pickedFile != null) {
-      setState(() {
-        scannedText = '';
-        isLoading = true;
-      });
-
-      final bytes = await pickedFile.readAsBytes();
-      setState(() => imageBytes = bytes);
-
-      if (kIsWeb) {
-        setState(() {
-          isLoading = false;
-          scannedText = '⚠️ 웹에서는 OCR 기능이 지원되지 않습니다.';
-        });
-        return;
-      } else {
-        final file = io.File(pickedFile.path);
-        await _processInputImage(InputImage.fromFile(file));
-      }
-    }
-  }
-
-  Future<void> _processInputImage(InputImage image) async {
+    final imageFile = File(pickedFile.path);
+    final inputImage = InputImage.fromFile(imageFile);
     final textRecognizer = TextRecognizer(script: TextRecognitionScript.korean);
-    final recognizedText = await textRecognizer.processImage(image);
+    final recognizedText = await textRecognizer.processImage(inputImage);
     await textRecognizer.close();
 
+    final text = recognizedText.text;
+
+    // 아침, 점심, 저녁 중 포함된 단어 추출
+    List<String> keywords = [];
+    if (text.contains('아침')) keywords.add('아침');
+    if (text.contains('점심')) keywords.add('점심');
+    if (text.contains('저녁')) keywords.add('저녁');
+
     setState(() {
-      scannedText = recognizedText.text;
-      isLoading = false;
+      _resultText = keywords.isNotEmpty
+          ? '${keywords.join(' ')} 약입니다'
+          : '약봉투를 카메라 앞에 두고 촬영해주세요';
     });
-
-    if (scannedText.isNotEmpty) {
-      String spoken = '해당 약은 일반 약입니다';
-      if (scannedText.contains('아침')) {
-        spoken = '해당 약은 아침약입니다';
-      } else if (scannedText.contains('저녁')) {
-        spoken = '해당 약은 저녁약입니다';
-      }
-
-      await flutterTts.setLanguage("ko-KR");
-      await flutterTts.setSpeechRate(0.5);
-      await flutterTts.speak(spoken);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('OCR + 음성출력 (웹 호환)')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (imageBytes != null)
-              Image.memory(imageBytes!, height: 250),
-            const SizedBox(height: 16),
-            if (isLoading)
-              const CircularProgressIndicator()
-            else if (scannedText.isNotEmpty)
-              Text('인식된 텍스트: $scannedText')
-            else
-              const Text('이미지를 선택하거나 촬영해주세요'),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _getImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('카메라'),
+
+      body: Column(
+        children: [
+          CustomAppBar(
+            title: '약 시간 확인기',
+            onBack: () {
+              Navigator.pop(context);
+            },
+            onHome: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
+            },
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+
+                    // 안내 문구
+                    Text(
+                      '약봉투에 적힌\n아침, 점심, 저녁 중 하나를 인식합니다.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                    ),
+
+                    SizedBox(height: 40),
+
+                    // 촬영 버튼
+                    ElevatedButton.icon(
+                      onPressed: _captureImageAndCheckText,
+                      icon: Icon(Icons.camera_alt, size: 32),
+                      label: Text(
+                        '약 시간 확인하기',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
+                        elevation: 5,
+                      ),
+                    ),
+
+                    SizedBox(height: 40),
+
+                    // 결과 텍스트
+                    Text(
+                      _resultText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                ElevatedButton.icon(
-                  onPressed: () => _getImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo),
-                  label: const Text('갤러리'),
-                ),
-              ],
-            )
-          ],
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
+
     );
   }
 }
-
-
- */

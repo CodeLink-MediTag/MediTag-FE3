@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:medife/features/ocr/ocr.dart';
+import 'package:medife/providers/text_size_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -96,11 +98,12 @@ class MyApp extends StatelessWidget {
       },
       initialRoute: hasSeenGuideline ? '/landing' : '/guideline',
       routes: {
+        '/': (context) => LoginScreen(),
+        '/login': (context) => LoginScreen(),
+        '/signup': (context) => SignupScreen(),
+        '/landing': (context) => Landing(),
+        '/ocr' : (context) => OcrScreen()
         '/guideline': (context) => const GuidelineScreen(),
-        '/': (context) => const LoginScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/landing': (context) => const Landing(),
       },
       debugShowCheckedModeBanner: false,
     );
