@@ -11,15 +11,15 @@ class TextSizeProvider extends ChangeNotifier {
 
   Future<void> _loadTextSize() async {
     final prefs = await SharedPreferences.getInstance();
-    _textSize = prefs.getDouble('textSize') ?? 14.0;
+    final loadedSize = prefs.getDouble('textSize') ?? 14.0;
+    _textSize = (loadedSize > 0) ? loadedSize : 14.0; // 0 이하 방지
     notifyListeners();
   }
 
   Future<void> setTextSize(double size) async {
-    _textSize = size;
+    _textSize = (size > 0) ? size : 14.0; // 0 이하 방지
     notifyListeners();
-
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('textSize', size);
+    await prefs.setDouble('textSize', _textSize);
   }
 }

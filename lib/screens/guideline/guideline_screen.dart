@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:medife/routes/route_names.dart';
+import 'package:medife/screens/landing.dart';
 
 class GuidelineScreen extends StatefulWidget {
   const GuidelineScreen({super.key});
@@ -24,29 +23,22 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_handleSwipeBeyondLastPage);
+    // ✅ _controller 리스너 제거, onPageChanged로 대체
   }
 
-  void _handleSwipeBeyondLastPage() {
-    if (_controller.page != null &&
-        _controller.page! >= (_images.length - 1) + 0.4 &&
-        !_showButtons) {
-      setState(() {
-        _showButtons = true;
-      });
-    }
-  }
-
-  Future<void> _setGuidelineSeen(bool value) async {
+  Future<void> _setGuidelineSeen(bool neverShowAgain) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('hasSeenGuideline', value);
+    // neverShowAgain == true: 다시 보지 않기, false: 닫기
+    await prefs.setBool('hasSeenGuideline', neverShowAgain);
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, RouteName.landing);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Landing()),
+    );
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_handleSwipeBeyondLastPage);
     _controller.dispose();
     super.dispose();
   }
@@ -63,9 +55,7 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
             onPageChanged: (index) {
               setState(() {
                 _currentPage = index;
-                if (_showButtons && index < _images.length - 1) {
-                  _showButtons = false;
-                }
+                _showButtons = index == _images.length - 1; // ✅ 마지막 페이지에서 버튼 표시
               });
             },
             itemBuilder: (context, index) {
@@ -83,7 +73,7 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () => _setGuidelineSeen(true),
+                    onPressed: () => _setGuidelineSeen(true), // 다시 보지 않기
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       minimumSize: const Size.fromHeight(50),
@@ -92,7 +82,7 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () => _setGuidelineSeen(false),
+                    onPressed: () => _setGuidelineSeen(false), // 닫기
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[300],
                       minimumSize: const Size.fromHeight(50),
@@ -107,4 +97,3 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
     );
   }
 }
-

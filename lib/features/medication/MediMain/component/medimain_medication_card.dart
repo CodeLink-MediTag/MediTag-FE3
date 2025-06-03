@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:medife/features/medication/MediDetail/MediDetail.dart';
+import 'package:medife/features/medication/MediDetail/screen/medidetail_screen.dart';
 import 'package:medife/features/medication/MediMain/model/medimain_medicine.dart';
 import 'package:medife/features/medication/MediMain/model/medimain_alarm.dart';
-import 'package:medife/features/medication/MediMain/component/medimain_time_button.dart';
+//import 'package:medife/features/medication/MediMain/component/medimain_time_button.dart';
 
 
 class MedicationCard extends StatelessWidget {
@@ -74,7 +74,7 @@ class MedicationCard extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => MediDetail(medicine: medicine)),
+                    MaterialPageRoute(builder: (_) => MediDetailScreen(medicine: medicine)),
                   );
                 },
               ),
@@ -87,11 +87,18 @@ class MedicationCard extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: medicine.alarms.map((alarm) {
-                return TimeButton(
-                  medicine: medicine,
-                  alarm: alarm,
-                  onToggleTaking:  () => onToggleTaking(alarm),
-                  onAskConfirm:    () => onAskConfirm(alarm),
+                final formattedTime = TimeOfDay.fromDateTime(alarm.alarmTime).format(context);
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    formattedTime,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
                 );
               }).toList(),
             ),
