@@ -1,2 +1,2 @@
-final ipAddress = "여기에 주소 입력";
+final ipAddress = "localhost";
 
