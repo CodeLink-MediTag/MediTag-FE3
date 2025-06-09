@@ -96,13 +96,14 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      initialRoute: hasSeenGuideline ? '/landing' : '/guideline',
+      //initialRoute: hasSeenGuideline ? '/landing' : '/guideline',
+      initialRoute: '/login',
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
         '/landing': (context) => Landing(),
-        '/ocr' : (context) => OcrScreen()
+        '/ocr' : (context) => OcrScreen(),
         '/guideline': (context) => const GuidelineScreen(),
       },
       debugShowCheckedModeBanner: false,

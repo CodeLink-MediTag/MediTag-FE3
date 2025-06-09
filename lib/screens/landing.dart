@@ -7,7 +7,7 @@ import 'package:medife/features/medication/MediMain/screen/medimain_screen.dart'
 import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
-import 'package:medife/features/calendar/calendar.dart';
+import 'package:medife/features/calendar/screen/calendar_screen.dart';
 import 'package:medife/features/setting/mypage.dart';
 import '../features/eatlist/component/eat-list.dart';
 
@@ -205,7 +205,7 @@ class _LandingState extends State<Landing> {
                         _menuCard('복약 달력', Icons.calendar_today, () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => Calendar()),
+                            MaterialPageRoute(builder: (context) => CalendarScreen()),
                           );
                         }, textSize: textSize),
                       ],

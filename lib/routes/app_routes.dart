@@ -28,8 +28,6 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => const Landing());
       case RouteName.chatbot:
         return MaterialPageRoute(builder: (_) => ChatBot());
-      case RouteName.calendar:
-        return MaterialPageRoute(builder: (_) => Calendar());
       case RouteName.eatlist:
         return MaterialPageRoute(builder: (_) => EatList());
       case RouteName.recording:

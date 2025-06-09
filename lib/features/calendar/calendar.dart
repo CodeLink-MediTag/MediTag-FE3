@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:medife/ip/ip_address.dart';
@@ -7,11 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medife/components/custom_app_bar.dart'; // 커스텀 앱바 경로 맞게 수정
-
+import 'package:medife/features/medication/MediStart/screen/medistart_screen.dart';
 // calendar.dart 를 import 해야 할 때는
 import 'package:medife/features/calendar/calendar.dart' hide Medicine, Alarm;
 
 import '../../ip/ip_address.dart';
+
 
 
 class Calendar extends StatefulWidget {
@@ -38,7 +40,7 @@ class _CalendarState extends State<Calendar> {
   Future<void> _loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      token = prefs.getString('token');
+      token = prefs.getString('accessToken');
     });
 
     fetchMedicinesForDate(_selectedDay!);
@@ -142,51 +144,94 @@ class _CalendarState extends State<Calendar> {
           const Text("약 목록",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
 
-          Expanded(
-            child: selectedMedicines.isEmpty
-                ? const Center(child: Text("선택 날짜에 복용 약이 없어요"))
-                : ListView.builder(
-                itemCount: selectedMedicines.length,
-                itemBuilder: (context, index) {
-                  final medicine = selectedMedicines[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(medicine.medicineName,
-                              style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold)),
-                          ...medicine.alarms.map((alarm) {
-                            String time = DateFormat('HH:mm')
-                                .format(alarm.alarmTime);
-                            return Row(
-                              children: [
-                                Text(time,
-                                    style: const TextStyle(fontSize: 16)),
-                                const SizedBox(width: 12),
-                                Text(
-                                  alarm.taking ? "복용" : "미복용",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: alarm.taking
-                                        ? Colors.green
-                                        : Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList()
-                        ],
+          // 1) 약이 없을 때: 텍스트 + 버튼
+          if (selectedMedicines.isEmpty)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("선택 날짜에 복용 약이 없어요",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push<bool>(
+                        MaterialPageRoute(
+                          builder: (_) => MediStartScreen(
+                            initialDate: _selectedDay!, // 선택된 날짜 전달
+                          ),
+                        ),
+                      ).then((startResult) {
+                        if (startResult == true) {
+                          fetchMedicinesForDate(_selectedDay!); // 다시 불러오기
+                        }
+                      });
+                    },
+                    child: const Text("복용중인 약 추가"),
+                  ),
+                ],
+              ),
+            )
+          else
+            // 2) 약이 있을 때: 가로로 스크롤 되는 카드
+            SizedBox(
+              height: 200, // 카드 높이에 맞춰 조정
+              child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: selectedMedicines.length,
+                  itemBuilder: (context, index) {
+                    final medicine = selectedMedicines[index];
+                    return Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 4,
+                        child: Container(
+                          width: 150, // 카드 너비
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // (원하시면 아이콘도 추가하세요)
+                              // Row(
+                              //   children: [
+                              //     Icon(Icons.medical_services, size: 20),
+                              //     SizedBox(width: 4),
+                              //     Text(medicine.medicineName, style: TextStyle(...)),
+                              //   ],
+                              // ),
+                              Text(medicine.medicineName,
+                                style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 8),
+                              // 시간 + 복용 여부
+                              ...medicine.alarms.map((alarm) {
+                                final time = DateFormat('HH:mm').format(alarm.alarmTime);
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(time, style: const TextStyle(fontSize: 14)),
+                                    Text(
+                                      alarm.taking ? '복용' : '미복용',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: alarm.taking ? Colors.green : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList()
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                }),
-          ),
+                    );
+                  },
+              ),
+            ),
         ],
       ),
     );
@@ -223,3 +268,5 @@ class Alarm {
     );
   }
 }
+
+ */

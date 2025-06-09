@@ -141,7 +141,12 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
             onPressed: () {
               Navigator.of(context)
                   .push<bool>(
-                MaterialPageRoute(builder: (_) => const MediStartScreen()),
+                MaterialPageRoute(
+                    builder: (_) =>
+                      MediStartScreen(
+                        initialDate: DateTime.now(),
+                    ),
+                ),
               )
                   .then((startResult) {
                 if (startResult == true) {

@@ -12,7 +12,12 @@ import '../component/medistart_next_button.dart';
 import '../../MediMiddle/screen/medimiddle_screen.dart';
 
 class MediStartScreen extends StatefulWidget {
-  const MediStartScreen({Key? key}) : super(key: key);
+  final DateTime initialDate;
+
+  const MediStartScreen({
+    Key? key,
+    required this.initialDate,
+  }) : super(key: key);
 
   @override
   _MediStartScreenState createState() => _MediStartScreenState();
@@ -50,7 +55,8 @@ class _MediStartScreenState extends State<MediStartScreen> {
     Navigator.of(context)
         .push<bool>(
       MaterialPageRoute(
-        builder: (_) => MediMiddleScreen(selectionData: data),
+        builder: (_) =>
+            MediMiddleScreen(selectionData: data),
       ),
     )
         .then((middleResult) {
