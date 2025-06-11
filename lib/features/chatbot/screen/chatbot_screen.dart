@@ -8,6 +8,7 @@ import 'package:medife/features/chatbot/model/session_creation_request_model.dar
 import 'package:medife/features/chatbot/repository/chat_repository.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 class ChatBotScreen extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class ChatBotScreen extends StatefulWidget {
 
 class _ChatBotScreenState extends State<ChatBotScreen> {
   ChatRepository chatRepository = ChatRepository();
+  late final FlutterTts _tts;  // ★ TTS 엔진 인스턴스
 
   final TextEditingController controller = TextEditingController();
   final List<Map<String, String>> messages = [];
@@ -26,15 +28,26 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   bool isListening = false;
   String? accessToken;
   int? sessionId;
-
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   @override
   void initState() {
     super.initState();
+    // ▶ TTS 초기화
+    _tts = FlutterTts();
+    _tts.setLanguage("ko-KR");
+    _tts.setSpeechRate(0.5);
+    _tts.setVolume(1.0);
+
     speech = stt.SpeechToText();
     // 채팅 세션 생성
     chatStart();
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();  // ★ TTS 정리
+    super.dispose();
   }
 
   @override
@@ -125,11 +138,13 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     // 서버로 메시지 전송
     String? answer;
     try {
-      answer = await chatRepository.sendMessage(SendMessageRequestModel(
-        accessToken: accessToken!,
-        sessionId: sessionId!,
-        content: userMessage,
-      ));
+      answer = await chatRepository.sendMessage(
+        SendMessageRequestModel(
+          accessToken: accessToken!,
+          sessionId: sessionId!,
+          content: userMessage,
+        ),
+      );
     } catch (e) {
       print('채팅 오류: $e');
       return;
@@ -139,8 +154,16 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     Future.delayed(const Duration(milliseconds: 100), () {
       setState(() {
         messages.add({'type': 'bot', 'text': answer ?? ''});
-        _listKey.currentState?.insertItem(messages.length - 1, duration: const Duration(milliseconds: 300));
+        _listKey.currentState?.insertItem(
+          messages.length - 1,
+            duration: const Duration(milliseconds: 300),
+        );
       });
+
+      // ▶ 봇 응답이 화면에 추가된 후, TTS로 읽어주기
+      if ((answer ?? '').isNotEmpty) {
+        _tts.speak(answer!);
+      }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollController.animateTo(
