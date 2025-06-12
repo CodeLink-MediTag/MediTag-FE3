@@ -1,6 +1,5 @@
-
 import 'package:flutter/material.dart';
-
+import '../../components/custom_app_bar.dart';
 
 
 class AlertSound extends StatefulWidget {
@@ -14,37 +13,21 @@ class _AlertSoundPageState extends State<AlertSound> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF6F6F6), // 연한 회색 배경
-      body: Column(
+      backgroundColor: const Color(0xFFF6F6F6),
+
+      // 1) CustomAppBar 사용
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: CustomAppBar(
+          title: '알림음',
+          // fontSize 같은 옵션이 있다면 여기에 넘겨줄 수 있습니다.
+        ),
+      ),
+
+      // 2) body는 기존에 쓰시던 Column → ListView로 바꿔도 되고,
+      //    Column 안에 Expanded(ListView)로 쓰셔도 됩니다.
+      body: ListView(
         children: [
-          Container(
-            color: Color(0xFF547EE8),
-            padding: EdgeInsets.only(top: 37, bottom: 12), // 상단바 위쪽 높이 증가
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  left: 0,
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: (){
-                      Navigator.pop(context); // 현재 화면 종료 (이전 화면으로 돌아감)
-                    },
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    '알림음',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           _buildSoundTile('알림음1'),
           _buildDivider(),
           _buildSoundTile('알림음2'),
@@ -65,10 +48,12 @@ class _AlertSoundPageState extends State<AlertSound> {
         ),
         trailing: Checkbox(
           value: selectedSound == soundName,
-          onChanged: (value) {
-            setState(() => selectedSound = value! ? soundName : "");
+          activeColor: const Color(0xFF61B781),
+          onChanged: (checked) {
+            setState(() {
+              selectedSound = (checked! ? soundName : "");
+            });
           },
-          activeColor: Color(0xFF61B781), /// 체크박스 반응색
         ),
       ),
     );

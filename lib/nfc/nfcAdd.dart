@@ -1,7 +1,115 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:medife/components/custom_app_bar.dart';
+
+class CardRegistration extends StatelessWidget {
+  const CardRegistration({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[700],
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF547EE8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            minimumSize: const Size(double.infinity, 80),
+            textStyle: const TextStyle(fontSize: 30),
+            foregroundColor: Colors.white,
+          ),
+        ),
+      ),
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(56),
+          child: CustomAppBar(
+            title: '시간카드 등록',
+            onBack: () => Navigator.of(context).pop(),
+            onHome: () {
+              Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/landing',
+                      (route) => false // 스택을 깨끗하게 비우기
+              );
+            },
+          ),
+        ),
+        body: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: _MainView(),
+        ),
+      ),
+    );
+  }
+}
+
+class _MainView extends StatefulWidget {
+  const _MainView({Key? key}) : super(key: key);
+
+  @override
+  State<_MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<_MainView> {
+  String? _selectedLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // 시간 선택 버튼 3개
+        Column(
+          children: [
+            _buildTimeButton('아침'),
+            const SizedBox(height: 60),
+            _buildTimeButton('점심'),
+            const SizedBox(height: 60),
+            _buildTimeButton('저녁'),
+          ],
+        ),
+        // 안내문
+        Text(
+          '시간을 선택하고 카드를 태그해주세요',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeButton(String label) {
+    final isSelected = _selectedLabel == label;
+    return ElevatedButton(
+      onPressed: () => setState(() => _selectedLabel = label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF547EE8),
+        fixedSize: const Size(double.infinity, 60),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: isSelected ? 8 : 2,
+      ),
+      child: Text(label),
+    );
+  }
+}
+
+
+/*
 // card_registration이엇음
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 
 class CardRegistration extends StatelessWidget{
   const CardRegistration({super.key});
@@ -203,3 +311,7 @@ class _Notice extends StatelessWidget{
     ;
   }
 }
+
+
+
+ */

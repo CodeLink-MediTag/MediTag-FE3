@@ -8,8 +8,14 @@ import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/recording.dart';
 import 'package:medife/features/calendar/screen/calendar_screen.dart';
-import 'package:medife/features/setting/mypage.dart';
+import 'package:medife/features/mypage/mypage.dart';
 import '../features/eatlist/component/eat-list.dart';
+
+import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
+import 'package:medife/features/medication/MediMain/repository/medimain_medicine_repository.dart';
+
+
 
 class Landing extends StatefulWidget {
   const Landing({super.key});
@@ -21,23 +27,61 @@ class Landing extends StatefulWidget {
 class _LandingState extends State<Landing> {
   String _nickname = '000';
   bool _taken = false;
+  String? _favoriteMedName;
+  final MedicineRepository _repo = MedicineRepository();
 
   @override
   void initState() {
     super.initState();
     _loadNickname();
+    _loadFavoriteMedicine();
   }
 
   Future<void> _loadNickname() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // 1) 저장된 닉네임이 있는지
+    final storedNick = prefs.getString('nickname');
+
+    // 2) 저장된 아이디(이메일) 가져와서 '@' 앞만 취한다.
+    final rawUser = prefs.getString('username') ?? '사용자';
+    final displayUser = rawUser.contains('@')
+        ? rawUser.split('@')[0]
+        : rawUser;
+
     setState(() {
-      _nickname = prefs.getString('nickname') ?? '000';
+      _nickname = (storedNick != null && storedNick.isNotEmpty)
+          ? storedNick      // 우선 닉네임이 있으면 닉네임
+          : displayUser;     // 없으면 이메일 앞부분
     });
   }
+
+  Future<void> _loadFavoriteMedicine() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 1) 로컬에 저장된 즐겨찾기 약 이름 읽기
+    final favName = prefs.getString('favoriteMedicine');
+
+    // 2) 화면에 반영
+    setState(() {
+      _favoriteMedName = favName;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final textSize = context.watch<TextSizeProvider>().textSize;
+
+    // 1) 인삿말
+    final greetingText = _favoriteMedName != null
+        ? '${_favoriteMedName!}약 복용 하셨나요?'
+        : '좋은 하루 보내세요';
+
+    // 2) 버튼 라벨
+    final buttonLabel = _favoriteMedName != null
+        ? '${_favoriteMedName!} 약'
+        : '00약';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -117,10 +161,8 @@ class _LandingState extends State<Landing> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '00약 복용 하셨나요?',
-                                style: TextStyle(
-                                  fontSize: textSize,
-                                ),
+                                greetingText,
+                                style: TextStyle(fontSize: textSize),
                               ),
                             ],
                           ),
@@ -131,15 +173,15 @@ class _LandingState extends State<Landing> {
                               });
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                              _taken ? const Color(0xFFFFA4A5) : const Color(0xFF547EE8),
+                              backgroundColor: _taken
+                                  ? const Color(0xFFFFA4A5)
+                                  : const Color(0xFF547EE8),
                               fixedSize: const Size(100, 40),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
-                              _taken ? '복용 완료!' : '00약',
+                              _taken ? '복용 완료!' : buttonLabel,  // ← 하드코딩 대신 변수
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white,
@@ -190,12 +232,19 @@ class _LandingState extends State<Landing> {
                             MaterialPageRoute(builder: (context) => RecordingScreen()),
                           );
                         }, textSize: textSize),
-                        _menuCard('복약 알림 등록', Icons.notifications_active, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => MediMainScreen()),
-                          );
-                        }, textSize: textSize),
+                        _menuCard(
+                          '복약 알림 등록',
+                          Icons.notifications_active,
+                              () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => MediMainScreen()),
+                            ).then((_) {
+                              _loadFavoriteMedicine();
+                            });
+                          },
+                          textSize: textSize,
+                        ),
                         _menuCard('복용 기록', Icons.edit_note, () {
                           Navigator.push(
                             context,
@@ -227,7 +276,10 @@ class _LandingState extends State<Landing> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const MyPage()),
-            ).then((_) => _loadNickname());
+            ).then((_) {
+              _loadNickname();            // 닉네임 다시 로드
+              _loadFavoriteMedicine();    // 즐겨찾기도 다시 로드
+            });
           }
           if (index == 1) {
             Navigator.pushNamed(context, '/ocr'); // OCR 화면으로 이동

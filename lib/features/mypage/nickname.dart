@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medife/components/custom_app_bar.dart';
+import 'package:medife/components/custom_primary_button.dart';
 
-class Username extends StatefulWidget {
+class Nickname extends StatefulWidget {
   final String currentNickname;
-  const Username({super.key, required this.currentNickname});
+  const Nickname({super.key, required this.currentNickname});
 
   @override
-  State<Username> createState() => _UsernameState();
+  State<Nickname> createState() => _NicknameState();
 }
 
-class _UsernameState extends State<Username> {
+class _NicknameState extends State<Nickname> {
   late TextEditingController _nicknameController;
   Uint8List? _imageBytes;
 
@@ -96,17 +97,9 @@ class _UsernameState extends State<Username> {
             ),
           ),
           const Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: ElevatedButton(
-              onPressed: _saveNickname,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7D8FF7),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('완료', style: TextStyle(color: Colors.white, fontSize: 16)),
-            ),
+          CustomPrimaryButton(
+            label: '완료',
+            onPressed: _saveNickname,
           ),
         ],
       ),

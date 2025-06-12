@@ -64,7 +64,7 @@ class MedicationCard extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   medicine.isFavorite ? Icons.star : Icons.star_border,
-                  color: medicine.isFavorite ? Colors.yellow : Colors.grey,
+                  color: medicine.isFavorite ? Colors.amber : Colors.grey,
                 ),
                 onPressed: onToggleFavorite,
               ),

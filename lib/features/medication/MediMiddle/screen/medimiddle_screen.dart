@@ -5,11 +5,11 @@ import 'package:medife/features/medication/MediStart/model/medistart_selection_d
 import 'package:medife/features/medication/MediEnd/model/mediend_selection_data.dart';
 import 'package:medife/features/medication/MediEnd/screen/mediend_screen.dart';
 
-import '../component/medimiddle_app_bar.dart';
 import '../component/medimiddle_period_selector.dart';
 import '../component/medimiddle_date_picker.dart';
 import '../component/medimiddle_duration_input.dart';
-import '../component/medimiddle_next_button.dart';
+import 'package:medife/components/custom_app_bar.dart';
+import 'package:medife/components/custom_primary_button.dart';
 
 class MediMiddleScreen extends StatefulWidget {
   final MediStartSelectionData selectionData;
@@ -94,8 +94,21 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MediMiddleAppBar(),
-      backgroundColor: const Color(0xFFF3F5FA),
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: CustomAppBar(
+          title: '복용 기간/시작일 설정',
+          onBack: () => Navigator.of(context).pop(),
+          onHome: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/landing',
+                    (route) => false // 스택을 깨끗하게 비우기
+            );
+          },
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -138,8 +151,13 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
           ),
 
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: MediMiddleNextButton(onPressed: _onNext),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: CustomPrimaryButton(
+              label: '다음',
+              onPressed: _onNext,
+              margin: EdgeInsets.zero,        // 외부 margin 은 여기서
+              padding: const EdgeInsets.all(0),// 버튼 내부 패딩만 남겨도 됨
+            ),
           ),
         ],
       ),

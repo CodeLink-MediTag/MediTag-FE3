@@ -6,6 +6,7 @@ import '../component/medidetail_action_buttons.dart';
 import '../../MediMain/model/medimain_medicine.dart';
 import '../../MediEdit/screen/mediedit_screen.dart';
 import 'package:medife/features/calendar/calendar.dart' hide Medicine, Alarm;
+import 'package:medife/components/custom_app_bar.dart';
 
 class MediDetailScreen extends StatefulWidget {
   final Medicine medicine;
@@ -48,9 +49,19 @@ class _MediDetailScreenState extends State<MediDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('상세페이지'),
-        backgroundColor: const Color(0xFF547EE8),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: CustomAppBar(
+          title: '상세페이지',
+          onBack: () => Navigator.of(context).pop(),
+          onHome: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/landing',
+                    (route) => false // 스택을 깨끗하게 비우기
+            );
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
