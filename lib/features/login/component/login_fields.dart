@@ -82,22 +82,29 @@ class _LoginFieldsState extends State<LoginFields> {
           LoginCustomButton(
             text: '로그인',
             onPressed: () async {
-              if (formKey.currentState!.validate()) {
-                formKey.currentState!.save();
-                final request = LoginRequestModel(
+              if (!formKey.currentState!.validate()) return;
+              formKey.currentState!.save();
+
+              final request = LoginRequestModel(
                   username: username,
-                  password: password,
-                );
-                try {
-                  final token = await repository.login(request);
-                  print('로그인 성공 $token');
-                  await _handleLoginSuccess();
+                  password: password
+              );
+
+              try {
+                // 1) 리포지토리에서 토큰 문자열 받아오기
+                final token = await repository.login(request);  // String
+
+                // 2) SharedPreferences에 username만 저장
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setString('username', username);
+
+                // 3) 다음 화면으로
+                await _handleLoginSuccess();
+
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.toString())),
-                  );
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.toString())));
                 }
-              }
             },
           ),
           const SizedBox(height: 12),

@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:medife/features/setting/username.dart';
-import 'package:medife/features/setting/protectorAlert.dart';
-import 'package:medife/features/setting/protectorEdit.dart';
+import 'package:medife/features/mypage/nickname.dart';
+import 'package:medife/features/mypage/guardian/GuardianAlert/guardian_alert_container.dart';
+import 'package:medife/features/mypage/guardian/GuardianEdit/guardian_edit_container.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -14,7 +14,7 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  String _nickname = '김먀먀';
+  String _nickname = '000';
   Uint8List? _profileBytes;
 
   @override
@@ -25,19 +25,41 @@ class _MyPageState extends State<MyPage> {
 
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // 1) 사용자가 설정한 닉네임
+    final storedNick = prefs.getString('nickname');
+
+    // 2) 로그인할 때 저장된 username(이메일)
+    final rawUser = prefs.getString('username') ?? '';
+    // 이메일이면 '@' 앞부분만 꺼내고, 아니면 그대로
+    final user = rawUser.contains('@')
+        ? rawUser.split('@')[0]
+        : rawUser.isNotEmpty
+        ? rawUser
+        : '사용자';
+
+    // 3) 최종 표시할 닉네임 결정
+    final displayNick = (storedNick != null && storedNick.isNotEmpty)
+        ? storedNick
+        : user;
+
+    // 4) 프로필 사진도 불러오기
+    final base64Image = prefs.getString('profileImageBase64');
+    Uint8List? imageBytes;
+    if (base64Image != null) {
+      imageBytes = base64Decode(base64Image);
+    }
+
     setState(() {
-      _nickname = prefs.getString('nickname') ?? '김먀먀';
-      final base64Image = prefs.getString('profileImageBase64');
-      if (base64Image != null) {
-        _profileBytes = base64Decode(base64Image);
-      }
+      _nickname = displayNick;
+      _profileBytes = imageBytes;
     });
   }
 
   Future<void> _navigateToEditNickname() async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Username(currentNickname: _nickname)),
+      MaterialPageRoute(builder: (context) => Nickname(currentNickname: _nickname)),
     );
     if (result != null && result is String) {
       setState(() {
@@ -52,24 +74,25 @@ class _MyPageState extends State<MyPage> {
     final phone = prefs.getString('guardianPhone');
     final relation = prefs.getString('guardianName');
 
-    if (phone != null && relation != null && phone.isNotEmpty && relation.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProtectorAlert(
-            userName: _nickname,
-            phoneNumber: phone,
-            guardianName: relation,
-          ),
-        ),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ProtectorEdit()),
-      );
-    }
+    // null 체크 + isNotEmpty 조합
+    final bool hasGuardian =
+        phone    != null && phone.isNotEmpty &&
+            relation != null && relation.isNotEmpty;
+
+    final Widget page = hasGuardian
+        ? const GuardianAlert()
+        : const GuardianEdit();
+
+    // 람다 없이 Navigator.push(_navigateTo...) 하시면 즉시 실행되어 버립니다.
+    // 반드시 아래처럼 람다로 감싸주세요.
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => page),
+    );
+
+    // 돌아오면 setState 로 MyPage 새로고침
+    setState(() {});
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +132,7 @@ class _MyPageState extends State<MyPage> {
                       : null,
                 ),
                 const SizedBox(height: 10),
-                const Text('ID : aaaaaa', style: TextStyle(color: Colors.white)),
+                const Text('안녕하세요', style: TextStyle(color: Colors.white)),
                 const SizedBox(height: 4),
                 Text(
                   '$_nickname님,\n안온한 하루 되세요.',
@@ -146,8 +169,27 @@ class _MyPageState extends State<MyPage> {
           Expanded(
             child: ListView(
               children: [
-                _buildMenuItem("내 정보 수정", _navigateToEditNickname),
-                _buildMenuItem("보호자 알림", _navigateToGuardianPage),
+                _buildMenuItem("내 정보 수정", () => _navigateToEditNickname()),
+                _buildMenuItem("보호자 알림", () async {
+                  // 1) SharedPreferences 로 저장된 보호자 정보 꺼내기
+                  final prefs    = await SharedPreferences.getInstance();
+                  final phone    = prefs.getString('guardianPhone') ?? '';
+                  final relation = prefs.getString('guardianName')  ?? '';
+
+                  // 2) 조건에 따라 페이지 선택
+                  final Widget nextPage =
+                  (phone.isNotEmpty && relation.isNotEmpty)
+                      ? GuardianAlert()
+                      : GuardianEdit();
+
+                  // 3) 새 인스턴스를 푸시(push)
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => nextPage),
+                  );
+
+                  setState(() {});  // 돌아왔을 때 새로고침
+                }),
+
                 _buildMenuItem("보기 방식 변경", () {}),
                 _buildMenuItem("로그아웃", () {}),
                 _buildMenuItem("회원탈퇴", () {}),

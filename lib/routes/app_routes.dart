@@ -12,11 +12,9 @@ import 'package:medife/features/ocr/ocr.dart';
 import 'package:medife/features/recording/recording.dart';
 import 'package:medife/features/recording/recordlist.dart';
 import 'package:medife/features/setting/alertsound.dart';
-import 'package:medife/features/setting/mypage.dart';
-import 'package:medife/features/setting/protectorEdit.dart';
-import 'package:medife/features/setting/protectorAlert.dart';
+import 'package:medife/features/mypage/mypage.dart';
 import 'package:medife/features/setting/setting.dart';
-import 'package:medife/features/setting/username.dart';
+import 'package:medife/features/mypage/nickname.dart';
 import '../features/eatlist/component/eat-list.dart';
 import 'route_names.dart';
 
@@ -38,13 +36,11 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => AlertSound());
       case RouteName.mypage:
         return MaterialPageRoute(builder: (_) => const MyPage());
-      case RouteName.protectorEdit:
-        return MaterialPageRoute(builder: (_) => const ProtectorEdit());
       case RouteName.setting:
         return MaterialPageRoute(builder: (_) => SettingScreen());
       case RouteName.username:
         return MaterialPageRoute(
-            builder: (_) => const Username(currentNickname: '000',));
+            builder: (_) => const Nickname(currentNickname: '000',));
 
       default:
         return MaterialPageRoute(

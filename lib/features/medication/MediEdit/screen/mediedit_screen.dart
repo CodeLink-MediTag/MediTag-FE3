@@ -18,6 +18,7 @@ import '../component/mediedit_submit_button.dart';
 import '../../MediMain/model/medimain_alarm.dart';
 import '../../MediMain/model/medimain_medicine.dart';
 import 'package:medife/ip/ip_address.dart';
+import 'package:medife/components/custom_app_bar.dart';
 
 /// “아침/점심/저녁” 라벨을 기본 시간으로 매핑해 주는 헬퍼 함수
 TimeOfDay _defaultTimeForLabel(String label) {
@@ -278,9 +279,19 @@ class _MediEditScreenState extends State<MediEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('정보 수정'),
-        backgroundColor: const Color(0xFF547EE8),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(56),
+        child: CustomAppBar(
+          title: '정보 수정',
+          onBack: () => Navigator.of(context).pop(),
+          onHome: () {
+            Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/landing',
+                    (route) => false // 스택을 깨끗하게 비우기
+            );
+          },
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

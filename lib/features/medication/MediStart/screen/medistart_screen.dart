@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:medife/components/custom_app_bar.dart';
+import 'package:medife/components/custom_primary_button.dart';
 
 import '../model/medistart_selection_data.dart';
-import '../component/medistart_app_bar.dart';
 import '../component/medistart_name_field.dart';
 import '../component/medistart_image_picker.dart';
 import '../component/medistart_recording_dropdown.dart';
-import '../component/medistart_next_button.dart';
 
 import '../../MediMiddle/screen/medimiddle_screen.dart';
 
@@ -70,8 +70,17 @@ class _MediStartScreenState extends State<MediStartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5FA),
-      appBar: MediStartAppBar(onClose: () => Navigator.pop(context)),
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: CustomAppBar(
+          title: '복약 알림 등록',
+          onBack: () => Navigator.of(context).pop(),
+          onHome: () {
+            Navigator.pushNamedAndRemoveUntil(context, '/landing', (_) => false);
+          },
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -79,7 +88,10 @@ class _MediStartScreenState extends State<MediStartScreen> {
             children: [
               MediStartNameField(controller: _medicineNameCtrl),
               const SizedBox(height: 24),
-              MediStartImagePicker(selectedImage: _selectedImage, onTap: _pickImage),
+              MediStartImagePicker(
+                selectedImage: _selectedImage,
+                onTap: _pickImage,
+              ),
               const SizedBox(height: 24),
               MediStartRecordingDropdown(
                 recordings: _recordings,
@@ -87,9 +99,18 @@ class _MediStartScreenState extends State<MediStartScreen> {
                 onChanged: (v) => setState(() => _selectedRecording = v),
               ),
               const Spacer(),
-              MediStartNextButton(onPressed: _onNext),
             ],
           ),
+        ),
+      ),
+
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: CustomPrimaryButton(
+          label: '다음',
+          onPressed: _onNext,
+          // 이미 외부에서 Padding으로 여백 주었으니
+          margin: EdgeInsets.zero,
         ),
       ),
     );
