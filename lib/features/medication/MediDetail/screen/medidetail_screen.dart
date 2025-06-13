@@ -54,48 +54,63 @@ class _MediDetailScreenState extends State<MediDetailScreen> {
         child: CustomAppBar(
           title: '상세페이지',
           onBack: () => Navigator.of(context).pop(),
-          onHome: () {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/landing',
-                    (route) => false // 스택을 깨끗하게 비우기
-            );
-          },
+          onHome: () => Navigator.pushNamedAndRemoveUntil(
+              context, '/landing', (route) => false),
         ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1) 헤더(이미지 + 이름 + 특징)
-            MediDetailHeader(
-              imageUrl: _currentMedicine.imageUrl ?? '',
-              medicineName: _currentMedicine.medicineName,
-              characteristic: _currentMedicine.characteristic,
-            ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border.all(color: const Color(0xFF547EE8), width: 2),
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
 
-            const SizedBox(height: 20),
+              // 1) 헤더
+              MediDetailHeader(
+                imageUrl: _currentMedicine.imageUrl ?? '',
+                medicineName: _currentMedicine.medicineName,
+                isPrescription: _currentMedicine.isPrescription,
+              ),
+              const SizedBox(height: 20),
 
-            // 2) 필드 행들
-            FieldRow(
-              label: '복용 시작 날짜',
-              value: DateFormat('yyyy-MM-dd').format(_startDate),
-            ),
-            FieldRow(label: '복용 기간', value: '$_duration일'),
-            FieldRow(label: '복용 시간대', value: _dosageTimes.join(' / ')),
-            FieldRow(label: '복용 주기', value: _frequency),
+              // 2) 필드 행들
+              FieldRow(
+                label: '복용 시작 날짜',
+                value: DateFormat('yyyy-MM-dd').format(_startDate),
+              ),
+              FieldRow(label: '복용 기간', value: '$_duration일'),
+              FieldRow(label: '복용 주기', value: _frequency),
+              FieldRow(label: '복용 시간대', value: _dosageTimes.join(' / ')),
 
-            const SizedBox(height: 24),
+              // 녹음파일 정보
+              FieldRow(
+                label: '주의사항 파일',
+                value: widget.medicine.characteristic,
+              ),
+            ],
+          ),
+        ),
 
-            // 3) 액션 버튼들
-            MediDetailActions(
-              medicine: _currentMedicine,
-              onEdited: (updated) {
-                setState(() {
-                  _currentMedicine = updated;
-                  _applyMedicine(_currentMedicine);
-                });
-              },
+        const SizedBox(height: 24),
+
+        // 3) 액션 버튼들
+        MediDetailActions(
+        medicine: _currentMedicine,
+        onEdited: (updated) {
+         setState(() {
+         _currentMedicine = updated;
+         _applyMedicine(_currentMedicine);
+         });
+          },
             ),
           ],
         ),

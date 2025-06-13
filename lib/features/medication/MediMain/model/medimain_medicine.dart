@@ -5,6 +5,7 @@ class Medicine {
   final String medicineName;
   final String characteristic;
   final String? imageUrl;
+  final bool isPrescription;
   final bool prescribed;
   final int duration;
   final int? frequency;
@@ -16,6 +17,7 @@ class Medicine {
     required this.medicineName,
     required this.characteristic,
     this.imageUrl,
+    required this.isPrescription,
     required this.prescribed,
     required this.duration,
     required this.frequency,
@@ -32,6 +34,8 @@ class Medicine {
 
       // 처리약 여부
       prescribed: json['prescribed'] as bool,
+
+      isPrescription: json['prescribed'] as bool,
 
       // 반드시 여기서 서버 응답의 duration, frequency를 읽어서 넘겨줘야 함
       duration: (json['duration'] as int?) ?? 0,

@@ -247,6 +247,7 @@ class _MediEditScreenState extends State<MediEditScreen> {
           medicineName: _nameCtrl.text,
           characteristic: widget.medicine.characteristic,
           imageUrl: widget.medicine.imageUrl,
+          isPrescription: _prescribed,
           prescribed: _prescribed,
           duration: int.parse(_durationCtrl.text),
           frequency: _prescribed ? null : int.parse(_durationCtrl.text),
