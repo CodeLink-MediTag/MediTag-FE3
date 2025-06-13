@@ -218,6 +218,16 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
                   onToggleFavorite: () => _toggleFavorite(med),
                   onToggleTaking: (alarm) => _toggleTaking(med, alarm),
                   onAskConfirm: (alarm) => _askConfirm(ctx, med, alarm),
+
+                  onEdited: (updatedMed) {
+                    setState(() {
+                      final idx = _medicines.indexWhere((m) =>
+                      m.medicineId == updatedMed.medicineId);
+                      if (idx != -1) {
+                        _medicines[idx] = updatedMed;
+                      }
+                    });
+                  },
                 );
               },
             ),
