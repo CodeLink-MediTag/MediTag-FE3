@@ -53,7 +53,8 @@ class _MediDetailScreenState extends State<MediDetailScreen> {
         preferredSize: const Size.fromHeight(56),
         child: CustomAppBar(
           title: '상세페이지',
-          onBack: () => Navigator.of(context).pop(),
+          onBack: () => Navigator.of(context).pop(_currentMedicine),
+          //onBack: () => Navigator.of(context).pop(),
           onHome: () => Navigator.pushNamedAndRemoveUntil(
               context, '/landing', (route) => false),
         ),
@@ -104,12 +105,12 @@ class _MediDetailScreenState extends State<MediDetailScreen> {
 
         // 3) 액션 버튼들
         MediDetailActions(
-        medicine: _currentMedicine,
-        onEdited: (updated) {
-         setState(() {
-         _currentMedicine = updated;
-         _applyMedicine(_currentMedicine);
-         });
+          medicine: _currentMedicine,
+          onEdited: (updatedMedicine) {
+            setState(() {
+              _currentMedicine = updatedMedicine;
+              _applyMedicine(updatedMedicine);
+            });
           },
             ),
           ],

@@ -10,6 +10,7 @@ class MedicationCard extends StatelessWidget {
   final VoidCallback onToggleFavorite;
   final void Function(Alarm) onToggleTaking;
   final void Function(Alarm) onAskConfirm;
+  final ValueChanged<Medicine> onEdited;
 
   const MedicationCard({
     Key? key,
@@ -17,6 +18,7 @@ class MedicationCard extends StatelessWidget {
     required this.onToggleFavorite,
     required this.onToggleTaking,
     required this.onAskConfirm,
+    required this.onEdited,
   }) : super(key: key);
 
   @override
@@ -75,15 +77,18 @@ class MedicationCard extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.arrow_forward_ios),
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.push<Medicine>(
                     context,
-                    MaterialPageRoute(builder: (_) => MediDetailScreen(medicine: medicine)),
-                  );
+                  MaterialPageRoute(builder: (_) => MediDetailScreen(medicine: medicine)),
+                ).then((updated) {
+                  if (updated != null) {
+                    onEdited(updated);
+                  }
+                  });
                 },
               ),
             ],
           ),
-
           const SizedBox(height: 12),
           // 알람 버튼들
           SingleChildScrollView(

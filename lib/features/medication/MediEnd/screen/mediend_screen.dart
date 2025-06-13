@@ -29,6 +29,33 @@ class MediEndScreen extends StatefulWidget {
   State<MediEndScreen> createState() => _MediEndScreenState();
 }
 
+List<TimeOfDay> _makeDefaultTimes(int count) {
+  switch (count) {
+    case 1:
+      return [const TimeOfDay(hour: 8, minute: 0)];
+    case 2:
+      return [
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 18, minute: 0),
+      ];
+    case 3:
+      return [
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 12, minute: 0),
+        const TimeOfDay(hour: 18, minute: 0),
+      ];
+    case 4:
+      return [
+        const TimeOfDay(hour: 8, minute: 0),
+        const TimeOfDay(hour: 12, minute: 0),
+        const TimeOfDay(hour: 18, minute: 0),
+        const TimeOfDay(hour: 22, minute: 0),
+      ];
+    default:
+      return [];
+  }
+}
+
 class _MediEndScreenState extends State<MediEndScreen> {
   late List<TimeOfDay> _alarmTimes;
   late List<String>   _dosageTimes;
@@ -77,11 +104,12 @@ class _MediEndScreenState extends State<MediEndScreen> {
     });
   }
 
+  /// 사용자가 “1회,2회,3회,4회” 중 하나를 선택했을 때 불리는 콜백
   void _onFrequencyChanged(int newFreq) {
     setState(() {
       _frequency   = newFreq;
-      _dosageTimes = [];
-      _alarmTimes  = List.generate(newFreq, (_) => const TimeOfDay(hour: 8, minute: 0));
+      _dosageTimes = [];  // 일반약에선 라벨 비우고
+      _alarmTimes  = _makeDefaultTimes(newFreq);
     });
   }
 

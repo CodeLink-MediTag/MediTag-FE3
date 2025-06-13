@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 
 class AlarmTimeListField extends StatelessWidget {
   final List<TimeOfDay> times;
-  final void Function(int idx, TimeOfDay t) onTimeChanged;
+  /// (idx, _unused) 대신에 idx만 전달
+  final void Function(int idx) onTapAt;
 
   const AlarmTimeListField({
     Key? key,
     required this.times,
-    required this.onTimeChanged,
+    required this.onTapAt,
   }) : super(key: key);
 
   @override
@@ -26,20 +27,11 @@ class AlarmTimeListField extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(
-                  t.format(context),
-                  style: const TextStyle(fontSize: 16),
-                ),
+                title: Text(t.format(context), style: const TextStyle(fontSize: 16)),
                 trailing: const Icon(Icons.access_time),
-                onTap: () async {
-                  final picked = await showTimePicker(
-                    context: context,
-                    initialTime: t,
-                  );
-                  if (picked != null) {
-                    onTimeChanged(i, picked);
-                  }
-                },
+                // **여기서는** 다이얼로그를 띄우지 않고
+                // 인덱스만 부모에게 알려줍니다.
+                onTap: () => onTapAt(i),
               ),
             );
           }),
