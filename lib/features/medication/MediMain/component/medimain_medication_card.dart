@@ -56,7 +56,10 @@ class MedicationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(medicine.medicineName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text(medicine.characteristic, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                    Text(
+                      medicine.prescribed ? '처방약' : '일반약',
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
                   ],
                 ),
               ),

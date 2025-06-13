@@ -4,24 +4,19 @@ import 'package:flutter/material.dart';
 class MediDetailHeader extends StatelessWidget {
   final String imageUrl;
   final String medicineName;
-  final String characteristic;
+  final bool isPrescription;
 
   const MediDetailHeader({
     Key? key,
     required this.imageUrl,
     required this.medicineName,
-    required this.characteristic,
+    required this.isPrescription,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFF547EE8), width: 2),
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-      ),
       child: Row(
         children: [
           // 이미지
@@ -57,8 +52,11 @@ class MediDetailHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  characteristic,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  isPrescription ? '처방약입니다' : '일반약입니다',  // ← show here
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isPrescription ? Colors.redAccent : Colors.green,
+                  ),
                 ),
               ],
             ),
