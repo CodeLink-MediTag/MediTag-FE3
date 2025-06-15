@@ -70,28 +70,15 @@ class _MyPageState extends State<MyPage> {
   }
 
   Future<void> _navigateToGuardianPage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final phone = prefs.getString('guardianPhone');
-    final relation = prefs.getString('guardianName');
-
-    // null 체크 + isNotEmpty 조합
-    final bool hasGuardian =
-        phone    != null && phone.isNotEmpty &&
-            relation != null && relation.isNotEmpty;
-
-    final Widget page = hasGuardian
-        ? const GuardianAlert()
-        : const GuardianEdit();
-
-    // 람다 없이 Navigator.push(_navigateTo...) 하시면 즉시 실행되어 버립니다.
-    // 반드시 아래처럼 람다로 감싸주세요.
+    // 1) 무조건 GuardianAlertContainer 화면으로 이동
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => page),
+      MaterialPageRoute(builder: (_) => const GuardianAlert()),
     );
 
-    // 돌아오면 setState 로 MyPage 새로고침
+    // 2) 돌아오면 업데이트
     setState(() {});
   }
+
 
 
   @override
@@ -171,22 +158,9 @@ class _MyPageState extends State<MyPage> {
               children: [
                 _buildMenuItem("내 정보 수정", () => _navigateToEditNickname()),
                 _buildMenuItem("보호자 알림", () async {
-                  // 1) SharedPreferences 로 저장된 보호자 정보 꺼내기
-                  final prefs    = await SharedPreferences.getInstance();
-                  final phone    = prefs.getString('guardianPhone') ?? '';
-                  final relation = prefs.getString('guardianName')  ?? '';
-
-                  // 2) 조건에 따라 페이지 선택
-                  final Widget nextPage =
-                  (phone.isNotEmpty && relation.isNotEmpty)
-                      ? GuardianAlert()
-                      : GuardianEdit();
-
-                  // 3) 새 인스턴스를 푸시(push)
                   await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => nextPage),
+                      MaterialPageRoute(builder: (_) => const GuardianAlert()),
                   );
-
                   setState(() {});  // 돌아왔을 때 새로고침
                 }),
 
