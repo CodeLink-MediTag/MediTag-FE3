@@ -23,6 +23,7 @@ class _GuardianAlertState extends State<GuardianAlert> {
   }
 
   Future<void> _loadGuards() async {
+    setState(() => _loading = true);
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
     if (token != null) {

@@ -32,23 +32,24 @@ class GuardianAlertView extends StatelessWidget {
         onBack: () => Navigator.of(context).pop(),
         onHome: () => Navigator.pushNamedAndRemoveUntil(
           context,
-          '/landing',      // 홈 라우트에 맞게 수정
+          '/landing',
               (_) => false,
         ),
       ),
 
+      // ★ 항상 목록 화면
       body: guards.isEmpty
+      // 데이터가 없으면 '등록된 보호자가 없습니다.' 텍스트만
           ? const Center(child: Text('등록된 보호자가 없습니다.'))
+      // 한 건이라도 있으면 카드 리스트
           : ListView.builder(
         padding: const EdgeInsets.all(24),
         itemCount: guards.length,
         itemBuilder: (ctx, i) {
           final g = guards[i];
           return Card(
-            color: Colors.grey.shade100, // 원하는 배경색
             margin: const EdgeInsets.symmetric(vertical: 8),
             child: ListTile(
-              tileColor: Colors.grey.shade100, // (옵션) ListTile 전체에 색을 주고 싶을 때
               title: Text('${g.relationship} • ${g.phoneNumber}'),
               trailing: IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -58,11 +59,12 @@ class GuardianAlertView extends StatelessWidget {
           );
         },
       ),
+
+      // ★ 항상 “추가” 버튼 노출
       bottomNavigationBar: CustomPrimaryButton(
         label: '보호자 알림 대상 추가',
         onPressed: onAddPressed,
       ),
-
     );
   }
 }
