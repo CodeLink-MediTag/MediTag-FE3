@@ -13,12 +13,6 @@ import '../component/mediend_time_list.dart';
 import 'package:medife/components/custom_app_bar.dart';
 import 'package:medife/components/custom_primary_button.dart';
 
-import 'dart:io';                       // File
-import 'dart:typed_data';               // Uint8List
-import 'package:flutter/foundation.dart' show kIsWeb;  // kIsWeb 구분
-import 'package:path/path.dart' as p;   // basename
-
-
 /// TimeOfDay 에 따라 '아침'/'점심'/'저녁' 레이블을 리턴
 String _labelFor(TimeOfDay t) {
   if (t.hour < 12) return '아침';
@@ -139,54 +133,38 @@ class _MediEndScreenState extends State<MediEndScreen> {
     if (token == null) return;
 
     final sel = widget.selectionData;
+    final body = <String, dynamic>{
+      'name'          : sel.name,
+      'characteristic': sel.characteristic,
+      'startDate'     : sel.startDate,
+      'duration'      : sel.duration,
+      'prescribed'    : sel.prescribed,
+      // 언제나 frequency 보내기
+      'frequency'     : _frequency,
+      // 언제나 dosageTimes 보내기 (처방약엔 실제 값, 일반약엔 빈 배열)
+      'dosageTimes'   : sel.prescribed ? _dosageTimes : <String>[],
+      // 언제나 alarmTimes 보내기
+      'alarmTimes'    : _alarmTimes.map((t) {
+        final base = DateTime.parse(sel.startDate);
+        return DateFormat('HH:mm:ss').format(
+          DateTime(base.year, base.month, base.day, t.hour, t.minute),
+        );
+      }).toList(),
+    };
+
+    // 디버깅: 실제 보내는 페이로드를 로그로 확인
+    print('📤 REQUEST BODY → ${jsonEncode(body)}');
+
     final uri = Uri.parse('http://$ipAddress:8080/api/medicines');
     final req = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $token';
-    // JSON payload
-    final jsonString = jsonEncode({
-        'name'          : sel.name,
-        'characteristic': sel.characteristic,
-        'startDate'     : sel.startDate,
-        'duration'      : sel.duration,
-        'prescribed'    : sel.prescribed,
-        'frequency'     : _frequency,
-        'dosageTimes'   : sel.prescribed ? _dosageTimes : <String>[],
-        'alarmTimes'    : _alarmTimes.map((t) {
-          final base = DateTime.parse(sel.startDate);
-          return DateFormat('HH:mm:ss').format(DateTime(
-              base.year, base.month, base.day, t.hour, t.minute));
-        }).toList(),
-      });
-    req.files.add(
-        http.MultipartFile.fromString(
-            'data',
-            jsonString,
-            contentType: MediaType('application', 'json'),
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(
+        http.MultipartFile.fromBytes(
+          'data',
+          utf8.encode(jsonEncode(body)),
+          contentType: MediaType('application', 'json'),
         ),
-    );
-
-    // **여기만 imagePath/imageBytes 사용**
-    if ((kIsWeb && sel.imageBytes != null) ||
-        (!kIsWeb && sel.imagePath != null && sel.imagePath!.isNotEmpty)) {
-      if (kIsWeb) {
-        req.files.add(
-          http.MultipartFile.fromBytes(
-            'file',
-            sel.imageBytes!,
-            filename: p.basename(sel.imagePath ?? 'upload.jpg'),
-            contentType: MediaType('image', 'jpeg'),
-          ),
-        );
-      } else {
-        req.files.add(
-          await http.MultipartFile.fromPath(
-            'file',
-            sel.imagePath!,
-            contentType: MediaType('image', 'jpeg'),
-          ),
-        );
-      }
-    }
+      );
 
     final streamed = await req.send();
     final res      = await http.Response.fromStream(streamed);
