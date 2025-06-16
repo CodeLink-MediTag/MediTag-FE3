@@ -11,12 +11,6 @@ import '../component/medistart_recording_dropdown.dart';
 
 import '../../MediMiddle/screen/medimiddle_screen.dart';
 
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
-
-import 'package:image_picker/image_picker.dart';
-
-
 class MediStartScreen extends StatefulWidget {
   final DateTime initialDate;
 
@@ -35,28 +29,12 @@ class _MediStartScreenState extends State<MediStartScreen> {
   final List<String> _recordings = ['녹음 1', '녹음 2', '녹음 3'];
   String? _selectedRecording;
 
-  File? _selectedImageFile;
-  Uint8List? _selectedImageBytes;
-
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked == null) return;
-
-    final bytes = await picked.readAsBytes();
-    setState(() {
-      if (kIsWeb) {
-        _selectedImageBytes = bytes;
-        _selectedImageFile = null;
-      } else {
-        _selectedImageFile = File(picked.path);
-        _selectedImageBytes = null;
-      }
-    });
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() => _selectedImage = File(picked.path));
+    }
   }
-
-
-
 
   void _onNext() {
     // ① 약 이름이 비어 있으면 경고 스낵바만 띄우고 다음 단계로 못 넘어감
@@ -71,8 +49,7 @@ class _MediStartScreenState extends State<MediStartScreen> {
     final data = MediStartSelectionData(
       name:           _medicineNameCtrl.text.trim(),
       characteristic: _selectedRecording,
-      imagePath:      _selectedImageFile?.path,
-      imageBytes:     _selectedImageBytes,
+      imageUrl:       _selectedImage?.path,
     );
 
     Navigator.of(context)
@@ -112,8 +89,7 @@ class _MediStartScreenState extends State<MediStartScreen> {
               MediStartNameField(controller: _medicineNameCtrl),
               const SizedBox(height: 24),
               MediStartImagePicker(
-                selectedImageFile: _selectedImageFile,
-                selectedImageBytes: _selectedImageBytes,
+                selectedImage: _selectedImage,
                 onTap: _pickImage,
               ),
               const SizedBox(height: 24),

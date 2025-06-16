@@ -1,0 +1,125 @@
+[33m80ccca8[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/feat/image[m[33m, [m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #48 from CodeLink-MediTag/fix/ocr
+[33m363a784[m ocr tts
+[33mf6c691c[m Merge pull request #47 from CodeLink-MediTag/revert-44-feat/image
+[33m5173306[m Revert "image"
+[33m9684a8d[m Merge pull request #46 from CodeLink-MediTag/revert-45-fix/ocr
+[33m878f599[m Revert "Fix/ocr"
+[33mf1320d6[m Merge pull request #45 from CodeLink-MediTag/fix/ocr
+[33mf169336[m ip
+[33m64f5047[m Merge pull request #44 from CodeLink-MediTag/feat/image
+[33m045cfad[m image
+[33m38c074e[m Merge pull request #43 from CodeLink-MediTag/feat/mypage
+[33mcf1702b[m[33m ([m[1;31morigin/feat/mypage[m[33m, [m[1;32mfeat/mypage[m[33m)[m mypage
+[33m4be5b7f[m ocr 태그시 음성 출력
+[33m0e8e7b4[m ipaddress.dart gitignore에 추가
+[33m70a83f6[m Merge pull request #42 from CodeLink-MediTag/feat/meidication
+[33m52ed39b[m[33m ([m[1;31morigin/feat/meidication[m[33m, [m[1;32mfeat/meidication[m[33m)[m medi
+[33m1d54645[m Merge pull request #41 from CodeLink-MediTag/style/medicine
+[33mcf0ff7b[m[33m ([m[1;31morigin/style/medicine[m[33m, [m[1;32mstyle/medicine[m[33m)[m stylemedi
+[33m85da915[m[33m ([m[1;32mdev[m[33m)[m Merge pull request #40 from CodeLink-MediTag/feat/guardian
+[33mb83c182[m 짜잘한수정들
+[33md594eff[m Merge pull request #39 from CodeLink-MediTag/feat/chatbot_tts
+[33m9021e37[m chatbottts
+[33m3f7f3d0[m ìchatbottts
+[33m0957484[m Merge pull request #38 from CodeLink-MediTag/feat/calendar
+[33m20b3305[m calendar
+[33m6d37c92[m Merge pull request #37 from CodeLink-MediTag/feat/ocr
+[33m845272d[m Merge branch 'dev' into feat/ocr
+[33mc4869e9[m Merge pull request #36 from CodeLink-MediTag/feat/mediedit-fix
+[33m89eb4e4[m 수정을 수정함
+[33ma3594d1[m Merge pull request #35 from CodeLink-MediTag/style/guideline-screen-fix
+[33m597410e[m Merge pull request #34 from CodeLink-MediTag/feat/fontsize-fix
+[33mdf05b67[m 가이드라인뜨게끔수정
+[33me87c57e[m 폰트크기수정할때오류나는거수정함
+[33m953ad1a[m ocr기능 구현
+[33me64dc4d[m Merge pull request #33 from CodeLink-MediTag/feat/mediedit
+[33m6d9df40[m ocr작업중
+[33m36dab4b[m 약ì수정
+[33m847867c[m 약수정 및 짜잘한 세부사항
+[33ma2ca3c3[m Merge pull request #32 from CodeLink-MediTag/fix/chatbot-response-bug
+[33m58aee8e[m 챗봇 오류 해결
+[33m129a5ca[m Merge pull request #31 from CodeLink-MediTag/style/appbar-fix
+[33m8cb26f8[m Merge pull request #30 from CodeLink-MediTag/feat/setting-fontsize
+[33mab25572[m Merge pull request #29 from CodeLink-MediTag/test
+[33m4a048c8[m 앱바수정
+[33m54dd3c3[m 설정에서 폰트크기 수정 및 랜딩화면디자인수정
+[33m9871328[m 테스트
+[33m836e2e6[m Merge pull request #28 from CodeLink-MediTag/style/page-custom_appbar-fix
+[33mb2d9044[m Merge branch 'dev' into style/page-custom_appbar-fix
+[33m59f6a42[m Merge pull request #27 from CodeLink-MediTag/style/landing-fix/font-add
+[33m247d02a[m Merge branch 'dev' into style/landing-fix/font-add
+[33mbe1ea76[m Merge pull request #26 from CodeLink-MediTag/feat/voiceover-labeling
+[33m390fb96[m Merge branch 'dev' into feat/voiceover-labeling
+[33m8c7f7be[m Merge pull request #25 from CodeLink-MediTag/feat/setting
+[33m96f9c2c[m Merge pull request #24 from CodeLink-MediTag/feat/MediButton
+[33m9c7b573[m Merge branch 'dev' into feat/MediButton
+[33m1d65cc8[m Merge pull request #23 from CodeLink-MediTag/feat/record-dosage
+[33me628f45[m Merge branch 'dev' into feat/record-dosage
+[33mf68a584[m 터방약 버튼
+[33md14e62f[m feat: 복용기록 기능 추가
+[33m06a3047[m 환경설정 글자 크기 변하게끔 기능 추가/환경설정 선택지 수정/다크모드는 아직 껍데기만/알림음도 아직 껍데기
+[33ma542651[m 기능구현 안되어있는 거 빼고 나머지 페이지 탑바 통일
+[33m2a1031b[m 보이스오버 라벨링 작업 틈틈히 작업해야함 미완성 병합하지마:
+[33m462ef14[m 랜딩페이지 디자인 수정 및 폰트 추가 작업
+[33m41d82b8[m Merge pull request #22 from CodeLink-MediTag/fix/ip-address
+[33m57af48e[m ipAddress 수정
+[33m48202eb[m ip 입력 칸 수정
+[33m685037e[m fix gitignore
+[33m597e5b6[m gitignore에 cxx경로 추가
+[33m214a1e9[m ip/ip.dart
+[33m6df7b9d[m Merge pull request #18 from CodeLink-MediTag/style/guideline-real-fix
+[33m12510f4[m Merge pull request #16 from CodeLink-MediTag/style/chatbot-animation-fix
+[33m474e0ab[m Merge pull request #15 from CodeLink-MediTag/style/srceensize-test
+[33mbc9a1fe[m Merge pull request #14 from CodeLink-MediTag/style/voice-over
+[33mc6a1d83[m 보이스오버기능 활용하기 편하도록 라벨링
+[33m113a353[m 반응형스크린 테스트/랜딩화면만 갖ë가져다쓰면 ã돼
+[33m90ac18a[m 챗봇 채팅 읽게, 채팅 올라오는 거 부드럽게 수정, 파이ì어 베이스코드 추가
+[33mf634766[m 가이드라인 수정  및 파이어베이스 코드 추가
+[33m8f750eb[m Merge pull request #13 from CodeLink-MediTag/feat/2-medimain
+[33m94e6c40[m resolve conflict
+[33m833199e[m 약등록
+[33m96f7113[m Merge pull request #12 from CodeLink-MediTag/refactor/gradle-properties
+[33m9fc7627[m android/gradle.properties java 주석처리| 회원가입 로그인 텍스트 미리 삽입
+[33m3e32070[m Merge pull request #11 from CodeLink-MediTag/style/5-login-sign-recording-landing-guideline
+[33mf95d24b[m Merge branch 'dev' into style/5-login-sign-recording-landing-guideline
+[33m76d83b0[m Merge pull request #9 from CodeLink-MediTag/feat/7-send-notifications
+[33m1ee6d7f[m google-serivces.json 삭제
+[33m44f8606[m google json 내용 삭제
+[33maaaf4e8[m feat/send-notifications
+[33m7bd8046[m 로그인, 회원가입, 노ã녹음í, ë©메ìíã인화면 디자인 수정/ 가이느드ë라인 추카
+[33mcc9e6d6[m 파이어베이스 연결| 토큰 생성| 알림 도착
+[33maf6c6f2[m Merge pull request #8 from CodeLink-MediTag/fix/build
+[33m6f704a1[m fix/
+[33m545e9f3[m Merge pull request #7 from CodeLink-MediTag/feat/6-chatbot
+[33mb40b4b0[m Merge branch 'dev' into feat/6-chatbot
+[33mdaa0d7e[m feat/6-chatbot
+[33m3697028[m 챗봇 코드 분리 작업중
+[33m3459511[m Merge pull request #6 from CodeLink-MediTag/refactor/3-kakao-login
+[33m559baf7[m refactor/3-kakao-login
+[33m3684997[m 챗봇 코드 분리 작업중
+[33m1cab3e5[m Merge pull request #5 from CodeLink-MediTag/refactor/2-kakao-login
+[33m1bfc3ef[m refactor/2-kakao-login
+[33m1cd2c3f[m Merge pull request #4 from CodeLink-MediTag/feat/5-social-login
+[33m826146a[m feat/5-social-login
+[33m29fcc28[m 카톡로그인 구현
+[33m4f2c407[m Update README.md
+[33m1700692[m Merge pull request #3 from CodeLink-MediTag/refactor/signup-popup
+[33mb820329[m 회원가입 팝업창
+[33m64e67c2[m Merge pull request #2 from CodeLink-MediTag/feat/4-signup
+[33mc7491b1[m d
+[33mb4b52af[m 회원가입 로그인 페이지랑 연결 | 라우터 설정
+[33mf4b203a[m 회원가입 기능 구현 | 전역 ip 변수 생성
+[33m80ae4e4[m Update README.md
+[33ma8456ec[m Update README.md
+[33ma42a59e[m Update README.md
+[33m2da064e[m Update README.md
+[33mef9a876[m Update README.md
+[33m513b38b[m Update README.md
+[33mae1fc07[m Update README.md
+[33m40da7fd[m Update README.md
+[33mb0b0cf2[m Update README.md
+[33mb545c45[m Update README.md
+[33m4c75213[m Merge pull request #1 from CodeLink-MediTag/feat/1-login
+[33m6c87d17[m 1. 일반로그인기능 구현 2. 로그인, 회원가입 디렉터리 분리
+[33mb2bd2e7[m 처음 커밋
+[33m3d94452[m[33m ([m[1;31morigin/main[m[33m)[m first commit
