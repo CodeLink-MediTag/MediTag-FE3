@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+
 
 
 class MediEndSelectionData {
@@ -7,8 +7,7 @@ class MediEndSelectionData {
   final String  startDate;
   final int     duration;
   final int     frequency;
-  final String? imagePath;
-  final Uint8List? imageBytes;
+  final String? imageUrl;
   final bool    prescribed;
   final List<String> dosageTimes;
   final List<String> alarmTimes;
@@ -19,8 +18,7 @@ class MediEndSelectionData {
     required this.startDate,
     required this.duration,
     required this.frequency,
-    this.imagePath,
-    this.imageBytes,
+    this.imageUrl,
     required this.prescribed,
     required this.dosageTimes,
     required this.alarmTimes,
@@ -32,8 +30,7 @@ class MediEndSelectionData {
     String? startDate,
     int? duration,
     int? frequency,
-    String? imagePath,
-    Uint8List? imageBytes,
+    String? imageUrl,
     bool? prescribed,
     List<String>? dosageTimes,
     List<String>? alarmTimes,
@@ -44,28 +41,17 @@ class MediEndSelectionData {
       startDate: startDate ?? this.startDate,
       duration: duration ?? this.duration,
       frequency: frequency ?? this.frequency,
-      imagePath:      imagePath      ?? this.imagePath,
-      imageBytes:     imageBytes     ?? this.imageBytes,
+      imageUrl: imageUrl ?? this.imageUrl,
       prescribed: prescribed ?? this.prescribed,
       dosageTimes: dosageTimes ?? this.dosageTimes,
       alarmTimes: alarmTimes ?? this.alarmTimes,
     );
   }
 
-
   @override
   String toString() {
-    return 'MediEndSelectionData('
-        'name: $name, '
-        'characteristic: $characteristic, '
-        'startDate: $startDate, '
-        'duration: $duration, '
-        'frequency: $frequency, '
-        'prescribed: $prescribed, '
-        'dosageTimes: $dosageTimes, '
-        'alarmTimes: $alarmTimes, '
-        'imagePath: $imagePath, '
-        'imageBytes: ${imageBytes != null ? '${imageBytes!.length} bytes' : 'null'}'
-        ')';
-    }
+    return 'MediEndSelectionData(name: \$name, characteristic: \$characteristic, startDate: \$startDate, duration: \$duration, frequency: \$frequency, imageUrl: \$imageUrl, prescribed: \$prescribed, dosageTimes: \$dosageTimes, alarmTimes: \$alarmTimes)';
   }
+}
+
+
