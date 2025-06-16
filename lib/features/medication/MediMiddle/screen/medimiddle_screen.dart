@@ -11,6 +11,7 @@ import '../component/medimiddle_duration_input.dart';
 import 'package:medife/components/custom_app_bar.dart';
 import 'package:medife/components/custom_primary_button.dart';
 
+
 class MediMiddleScreen extends StatefulWidget {
   final MediStartSelectionData selectionData;
   const MediMiddleScreen({Key? key, required this.selectionData}) : super(key: key);
@@ -70,7 +71,8 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
       startDate: DateFormat('yyyy-MM-dd').format(selectedDate),
       duration: days,
       frequency: prescribed ? 3 : 0, // 처방약이면 3회, 아니면 0
-      imageUrl: mid.imageUrl,
+      imagePath:      mid.imagePath,
+      imageBytes:     mid.imageBytes,
       prescribed: prescribed,
       dosageTimes: prescribed ? ['아침', '점심', '저녁'] : [],
       alarmTimes: [], // EndScreen에서 채움

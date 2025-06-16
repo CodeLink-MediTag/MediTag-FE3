@@ -1,10 +1,13 @@
+import 'dart:typed_data';
+
 class MediStartSelectionData {
   final String? name;
   final String? characteristic;
   final String? startDate;
   final int? duration;
   final int? frequency;
-  final String? imageUrl;
+  final String? imagePath;       // 모바일에서만 사용
+  final Uint8List? imageBytes;   // 웹에서만 사용
   final bool? prescribed;
   final List<String>? dosageTimes;
   final List<String>? alarmTimes;
@@ -15,7 +18,8 @@ class MediStartSelectionData {
     this.startDate,
     this.duration,
     this.frequency,
-    this.imageUrl,
+    this.imagePath,
+    this.imageBytes,
     this.prescribed,
     this.dosageTimes,
     this.alarmTimes,
@@ -27,7 +31,8 @@ class MediStartSelectionData {
     String? startDate,
     int? duration,
     int? frequency,
-    String? imageUrl,
+    String? imagePath,
+    Uint8List? imageBytes,
     bool? prescribed,
     List<String>? dosageTimes,
     List<String>? alarmTimes,
@@ -38,7 +43,8 @@ class MediStartSelectionData {
       startDate: startDate ?? this.startDate,
       duration: duration ?? this.duration,
       frequency: frequency ?? this.frequency,
-      imageUrl: imageUrl ?? this.imageUrl,
+      imagePath:      imagePath      ?? this.imagePath,
+      imageBytes:     imageBytes     ?? this.imageBytes,
       prescribed: prescribed ?? this.prescribed,
       dosageTimes: dosageTimes ?? this.dosageTimes,
       alarmTimes: alarmTimes ?? this.alarmTimes,
@@ -47,6 +53,17 @@ class MediStartSelectionData {
 
   @override
   String toString() {
-    return 'MediStartSelectionData(name: \$name, characteristic: \$characteristic, startDate: \$startDate, duration: \$duration, frequency: \$frequency, imageUrl: \$imageUrl, prescribed: \$prescribed, dosageTimes: \$dosageTimes, alarmTimes: \$alarmTimes)';
+    return 'MediStartSelectionData('
+        'name: $name, '
+        'characteristic: $characteristic, '
+        'startDate: $startDate, '
+        'duration: $duration, '
+        'frequency: $frequency, '
+        'prescribed: $prescribed, '
+        'dosageTimes: $dosageTimes, '
+        'alarmTimes: $alarmTimes, '
+        'imagePath: $imagePath, '
+        'imageBytes: ${imageBytes != null ? '${imageBytes!.length} bytes' : 'null'}'
+        ')';
   }
 }
