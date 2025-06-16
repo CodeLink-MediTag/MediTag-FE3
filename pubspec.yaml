@@ -58,6 +58,7 @@ dependencies:
   google_mlkit_text_recognition: ^0.11.0 # 한국어 텍스트 인식
 
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
