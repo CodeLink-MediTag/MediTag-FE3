@@ -14,7 +14,7 @@ import '../../MediMiddle/screen/medimiddle_screen.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 
 class MediStartScreen extends StatefulWidget {
@@ -39,24 +39,22 @@ class _MediStartScreenState extends State<MediStartScreen> {
   Uint8List? _selectedImageBytes;
 
   Future<void> _pickImage() async {
-    if (kIsWeb) {
-      final result = await FilePicker.platform.pickFiles(type: FileType.image);
-      if (result != null && result.files.single.bytes != null) {
-        setState(() {
-          _selectedImageBytes = result.files.single.bytes;
-          _selectedImageFile  = null;
-        });
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+
+    final bytes = await picked.readAsBytes();
+    setState(() {
+      if (kIsWeb) {
+        _selectedImageBytes = bytes;
+        _selectedImageFile = null;
+      } else {
+        _selectedImageFile = File(picked.path);
+        _selectedImageBytes = null;
       }
-    } else {
-      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (picked != null) {
-        setState(() {
-          _selectedImageFile  = File(picked.path);
-          _selectedImageBytes = null;
-        });
-      }
-    }
+    });
   }
+
 
 
 

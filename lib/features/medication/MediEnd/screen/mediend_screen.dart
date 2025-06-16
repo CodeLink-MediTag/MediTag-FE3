@@ -141,31 +141,30 @@ class _MediEndScreenState extends State<MediEndScreen> {
     final sel = widget.selectionData;
     final uri = Uri.parse('http://$ipAddress:8080/api/medicines');
     final req = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $token';
-    // JSON payload
-    final jsonString = jsonEncode({
-        'name'          : sel.name,
-        'characteristic': sel.characteristic,
-        'startDate'     : sel.startDate,
-        'duration'      : sel.duration,
-        'prescribed'    : sel.prescribed,
-        'frequency'     : _frequency,
-        'dosageTimes'   : sel.prescribed ? _dosageTimes : <String>[],
-        'alarmTimes'    : _alarmTimes.map((t) {
-          final base = DateTime.parse(sel.startDate);
-          return DateFormat('HH:mm:ss').format(DateTime(
-              base.year, base.month, base.day, t.hour, t.minute));
-        }).toList(),
-      });
-    req.files.add(
-        http.MultipartFile.fromString(
-            'data',
-            jsonString,
-            contentType: MediaType('application', 'json'),
-        ),
+      ..headers['Authorization'] = 'Bearer $token'
+      ..files.add(
+      http.MultipartFile.fromString(
+        'data',
+        jsonEncode({
+          'name'          : sel.name,
+          'characteristic': sel.characteristic,
+          'startDate'     : sel.startDate,
+          'duration'      : sel.duration,
+          'prescribed'    : sel.prescribed,
+          'frequency'     : _frequency,
+          'dosageTimes'   : sel.prescribed ? _dosageTimes : <String>[],
+          'alarmTimes'    : _alarmTimes.map((t) {
+            final base = DateTime.parse(sel.startDate);
+            return DateFormat('HH:mm:ss').format(
+              DateTime(base.year, base.month, base.day, t.hour, t.minute),
+            );
+          }).toList(),
+        }),
+        contentType: MediaType('application', 'json'),
+      ),
     );
 
-    // **여기만 imagePath/imageBytes 사용**
+    // 2) 이미지 part (있을 때만)
     if ((kIsWeb && sel.imageBytes != null) ||
         (!kIsWeb && sel.imagePath != null && sel.imagePath!.isNotEmpty)) {
       if (kIsWeb) {
@@ -198,6 +197,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
