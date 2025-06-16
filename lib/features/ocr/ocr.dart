@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../components/custom_app_bar.dart';
 
@@ -14,9 +13,6 @@ class OcrScreen extends StatefulWidget {
 
 class _OcrScreenState extends State<OcrScreen> {
   String _resultText = '약 봉투를 앞에 두고 사진을 촬영해주세요.';
-
-  // tts 인스턴스 추가
-  final FlutterTts flutterTts = FlutterTts();
 
   Future<void> _captureImageAndCheckText() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
@@ -36,23 +32,12 @@ class _OcrScreenState extends State<OcrScreen> {
     if (text.contains('점심')) keywords.add('점심');
     if (text.contains('저녁')) keywords.add('저녁');
 
-    String spokenText;
-    if (keywords.isNotEmpty) {
-      spokenText = '${keywords.join(' ')} 약입니다';
-    } else {
-      spokenText = '약봉투를 카메라 앞에 두고 촬영해주세요';
-    }
-
-    // 음성 출력
-    await flutterTts.setLanguage("ko-KR");
-    await flutterTts.setSpeechRate(0.5);
-    await flutterTts.speak(spokenText);
-
     setState(() {
-      _resultText = spokenText;
+      _resultText = keywords.isNotEmpty
+          ? '${keywords.join(' ')} 약입니다'
+          : '약봉투를 카메라 앞에 두고 촬영해주세요';
     });
   }
-
 
   @override
   Widget build(BuildContext context) {

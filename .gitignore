@@ -43,8 +43,7 @@ app.*.map.json
 /android/app/release
 /android/app/.cxx/
 
-# 주소 계속 바뀌지 않게
-lib/ip/ip_address.dart
+
 
 #파이어 베이스 google-services.json 경로 (깃헙에 올라라가면 안됨)
 android/app/google-services.json
