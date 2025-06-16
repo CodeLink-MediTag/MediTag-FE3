@@ -11,6 +11,12 @@ import '../component/medistart_recording_dropdown.dart';
 
 import '../../MediMiddle/screen/medimiddle_screen.dart';
 
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:file_picker/file_picker.dart';
+
+
 class MediStartScreen extends StatefulWidget {
   final DateTime initialDate;
 
@@ -29,12 +35,30 @@ class _MediStartScreenState extends State<MediStartScreen> {
   final List<String> _recordings = ['녹음 1', '녹음 2', '녹음 3'];
   String? _selectedRecording;
 
+  File? _selectedImageFile;
+  Uint8List? _selectedImageBytes;
+
   Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _selectedImage = File(picked.path));
+    if (kIsWeb) {
+      final result = await FilePicker.platform.pickFiles(type: FileType.image);
+      if (result != null && result.files.single.bytes != null) {
+        setState(() {
+          _selectedImageBytes = result.files.single.bytes;
+          _selectedImageFile  = null;
+        });
+      }
+    } else {
+      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (picked != null) {
+        setState(() {
+          _selectedImageFile  = File(picked.path);
+          _selectedImageBytes = null;
+        });
+      }
     }
   }
+
+
 
   void _onNext() {
     // ① 약 이름이 비어 있으면 경고 스낵바만 띄우고 다음 단계로 못 넘어감
@@ -49,7 +73,8 @@ class _MediStartScreenState extends State<MediStartScreen> {
     final data = MediStartSelectionData(
       name:           _medicineNameCtrl.text.trim(),
       characteristic: _selectedRecording,
-      imageUrl:       _selectedImage?.path,
+      imagePath:      _selectedImageFile?.path,
+      imageBytes:     _selectedImageBytes,
     );
 
     Navigator.of(context)
@@ -89,7 +114,8 @@ class _MediStartScreenState extends State<MediStartScreen> {
               MediStartNameField(controller: _medicineNameCtrl),
               const SizedBox(height: 24),
               MediStartImagePicker(
-                selectedImage: _selectedImage,
+                selectedImageFile: _selectedImageFile,
+                selectedImageBytes: _selectedImageBytes,
                 onTap: _pickImage,
               ),
               const SizedBox(height: 24),
