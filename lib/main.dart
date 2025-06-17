@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      initialRoute: '/login', // 무조건 로그인부터 시작
+      initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),

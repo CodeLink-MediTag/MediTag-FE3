@@ -13,7 +13,7 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ 배경을 흰색으로 지정
+      backgroundColor: Colors.white,
       appBar: const SignupAppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
