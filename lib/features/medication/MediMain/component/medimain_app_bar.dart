@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medife/features/calendar/screen/calendar_screen.dart';
 
 import '../../../../routes/route_names.dart';
 
@@ -42,7 +43,11 @@ class MediMainAppBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.calendar_today, color: Colors.white),
               tooltip: '달력 보기',
               onPressed: () {
-                Navigator.of(context).pushNamed(RouteName.calendar);
+                // Navigator.of(context).pushNamed(RouteName.calendar);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CalendarScreen()),
+                );
               },
             );
           },
