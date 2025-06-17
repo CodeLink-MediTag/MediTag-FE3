@@ -85,6 +85,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'SEBANG',
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
       ),
       builder: (context, child) {
         final textSizeProvider = context.watch<TextSizeProvider>();
