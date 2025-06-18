@@ -28,27 +28,15 @@ class _LoginFieldsState extends State<LoginFields> {
   String password = '';
 
   Future<void> _handleLoginSuccess() async {
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Landing()),
-    );
-
-    /*
     final prefs = await SharedPreferences.getInstance();
     bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
-
     if (hasSeenGuideline) {
-      Navigator.pushReplacementNamed(context, RouteName.landing);
+      Navigator.pushReplacementNamed(context, '/landing');
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const GuidelineScreen()),
-      );
+      Navigator.pushReplacementNamed(context, '/guideline');
     }
-
-     */
   }
+
 
   @override
   Widget build(BuildContext context) {
