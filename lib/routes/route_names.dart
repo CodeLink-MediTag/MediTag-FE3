@@ -20,4 +20,5 @@ class RouteName {
   static const String protectorEdit = '/protectorEdit';
   static const String setting = '/setting';
   static const String username = '/username';
+  static const String guideline = '/guideline';
 }
