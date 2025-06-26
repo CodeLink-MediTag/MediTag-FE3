@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:medife/features/recording/recording_pop2.dart';
 import 'package:medife/features/recording/recordlist.dart';
 import 'package:medife/features/recording/recording_pop.dart'; // ← 녹음 화면 import
 import 'package:medife/components/custom_app_bar.dart';
@@ -28,7 +29,7 @@ class RecordingScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RecordingPop()),
+                          MaterialPageRoute(builder: (context) => const RecordingPop2()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

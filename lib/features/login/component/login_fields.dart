@@ -43,6 +43,7 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<void> _handleLoginSuccess() async {
+    /*
     final prefs = await SharedPreferences.getInstance();
     bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
@@ -51,6 +52,13 @@ class _LoginFieldsState extends State<LoginFields> {
     } else {
       Navigator.pushReplacementNamed(context, RouteName.guideline);
     }
+
+     */
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Landing()),
+    );
+
   }
 
   @override

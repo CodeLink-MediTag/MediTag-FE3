@@ -55,6 +55,13 @@ dependencies:
 
   google_mlkit_text_recognition: ^0.11.0 # 한국어 텍스트 인식
 
+  # 녹음에 필요한 플러그인들
+
+  record: ^4.4.1  # 최신 버전은 pub.dev에서 확인하세요
+  dio: ^5.3.2
+  path_provider: ^2.1.2
+  path: ^1.8.3
+
 
 dev_dependencies:
   flutter_test:
