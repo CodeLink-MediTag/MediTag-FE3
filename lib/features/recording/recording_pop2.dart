@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medife/ip/ip_address.dart';
 import 'package:record/record.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
@@ -49,7 +50,7 @@ class _RecordingPop2State extends State<RecordingPop2> {
   }
 
   Future<void> _sendToServer(String filePath) async {
-    const url = 'http://10.138.59.170:8080/api/records';
+    String url = 'http://$ipAddress:8080/api/records';
 
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
