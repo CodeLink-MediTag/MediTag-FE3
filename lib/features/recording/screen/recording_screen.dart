@@ -170,9 +170,24 @@ class _RecordingScreenState extends State<RecordingScreen> {
                   ),
                   const SizedBox(height: 32),
                   TextField(
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: '약 이름을 입력하세요',
-                      border: OutlineInputBorder(),
+                      labelStyle: const TextStyle(
+                        color: Color(0xFF547EE8), // 라벨 색상
+                        fontWeight: FontWeight.bold,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white, // 배경 흰색
+                      prefixIcon: const Icon(Icons.medication, color: Color(0xFF547EE8)),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF547EE8), width: 1.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF7D8FF7), width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                     ),
                     onChanged: (value) {
                       setState(() {
@@ -180,6 +195,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
                       });
                     },
                   ),
+
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _toggleRecording,
