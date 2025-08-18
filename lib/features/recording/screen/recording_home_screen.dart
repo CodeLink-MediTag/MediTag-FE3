@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:medife/features/recording/recording_pop2.dart';
-import 'package:medife/features/recording/recordlist.dart';
-import 'package:medife/features/recording/recording_pop.dart'; // ← 녹음 화면 import
 import 'package:medife/components/custom_app_bar.dart';
+import 'package:medife/features/recording/screen/recording_list_screen.dart';
+import 'package:medife/features/recording/screen/recording_screen.dart';
 
-class RecordingScreen extends StatelessWidget {
-  const RecordingScreen({super.key});
+class RecordingHomeScreen extends StatelessWidget {
+  const RecordingHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,7 @@ class RecordingScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RecordingPop2()),
+                          MaterialPageRoute(builder: (context) => const RecordingScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -53,7 +52,7 @@ class RecordingScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const RecordList()),
+                          MaterialPageRoute(builder: (context) => const RecordingListScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(

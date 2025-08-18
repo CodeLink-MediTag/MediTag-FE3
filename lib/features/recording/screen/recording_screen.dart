@@ -2,26 +2,30 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medife/components/custom_app_bar.dart';
+import 'package:medife/features/recording/screen/recording_list_screen.dart';
 import 'package:medife/ip/ip_address.dart';
 import 'package:record/record.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../components/custom_app_bar.dart';
-import 'recordlist.dart';
 
-class RecordingPop2 extends StatefulWidget {
-  const RecordingPop2({super.key});
+
+class RecordingScreen extends StatefulWidget {
+  const RecordingScreen({super.key});
 
   @override
-  State<RecordingPop2> createState() => _RecordingPop2State();
+  State<RecordingScreen> createState() => _RecordingScreenState();
 }
 
-class _RecordingPop2State extends State<RecordingPop2> {
+class _RecordingScreenState extends State<RecordingScreen> {
   final Record _record = Record();
   bool _isRecording = false;
   String _recordFilePath = '';
+
+  String _title = ''; // 약 이름 저장용
+
 
   Future<void> _startRecording() async {
     if (await Permission.microphone.request().isGranted) {
@@ -61,7 +65,7 @@ class _RecordingPop2State extends State<RecordingPop2> {
     }
 
     final jsonMap = {
-      "title": "테스트 녹음",
+      "title": _title,
       "recordingTime": DateTime.now().toIso8601String(),
       "recordingFile": p.basename(filePath),
     };
@@ -165,6 +169,18 @@ class _RecordingPop2State extends State<RecordingPop2> {
                     ),
                   ),
                   const SizedBox(height: 32),
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: '약 이름을 입력하세요',
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _title = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _toggleRecording,
                     style: ElevatedButton.styleFrom(
@@ -186,7 +202,8 @@ class _RecordingPop2State extends State<RecordingPop2> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RecordList()),
+                        // MaterialPageRoute(builder: (context) => const RecordList()),
+                        MaterialPageRoute(builder: (context) => const RecordingListScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
