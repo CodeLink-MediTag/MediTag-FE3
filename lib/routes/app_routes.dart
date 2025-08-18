@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medife/features/calendar/screen/calendar_screen.dart';
+import 'package:medife/features/recording/screen/recording_list_screen.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/chatbot/chatbot.dart';
@@ -10,8 +11,7 @@ import 'package:medife/features/medication/MediMain/MediMain.dart';
 import 'package:medife/features/medication/MediMiddle/MediMiddle.dart';
 import 'package:medife/features/medication/MediStart/MediStart.dart';
 import 'package:medife/features/ocr/ocr.dart';
-import 'package:medife/features/recording/recording.dart';
-import 'package:medife/features/recording/recordlist.dart';
+import 'package:medife/features/recording/screen/recording_home_screen.dart';
 import 'package:medife/features/setting/alertsound.dart';
 import 'package:medife/features/mypage/mypage.dart';
 import 'package:medife/features/setting/setting.dart';
@@ -30,9 +30,9 @@ class AppRoute {
       case RouteName.eatlist:
         return MaterialPageRoute(builder: (_) => EatList());
       case RouteName.recording:
-        return MaterialPageRoute(builder: (_) => const RecordingScreen());
+        return MaterialPageRoute(builder: (_) => const RecordingHomeScreen());
       case RouteName.recordlist:
-        return MaterialPageRoute(builder: (_) => const RecordList());
+        return MaterialPageRoute(builder: (_) => const RecordingListScreen());
       case RouteName.alertsound:
         return MaterialPageRoute(builder: (_) => AlertSound());
       case RouteName.mypage:

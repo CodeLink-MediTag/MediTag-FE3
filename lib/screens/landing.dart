@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medife/features/medication/MediMain/screen/medimain_screen.dart';
 import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
 import 'package:medife/features/setting/setting.dart';
-import 'package:medife/features/recording/recording.dart';
+import 'package:medife/features/recording/screen/recording_home_screen.dart';
 import 'package:medife/features/calendar/screen/calendar_screen.dart';
 import 'package:medife/features/mypage/mypage.dart';
 import '../features/eatlist/component/eat-list.dart';
@@ -229,7 +229,7 @@ class _LandingState extends State<Landing> {
                         _menuCard('주의사항 녹음', Icons.mic, () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => RecordingScreen()),
+                            MaterialPageRoute(builder: (context) => RecordingHomeScreen()),
                           );
                         }, textSize: textSize),
                         _menuCard(
