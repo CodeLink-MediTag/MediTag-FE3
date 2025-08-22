@@ -37,17 +37,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 앱이 NFC 태그로 실행됐는지 확인
   Future<void> _checkInitialNfcLaunch() async {
-    // MethodChannel 통해 Android native에서 인텐트 데이터 가져오기
     const platform = MethodChannel('nfc_channel');
     try {
       final String? cardInfo = await platform.invokeMethod('getInitialNfcData');
       if (cardInfo != null && cardInfo.isNotEmpty) {
         _navigateToTimeScreen(cardInfo);
       }
-    } catch (e) {
-      print("초기 NFC 데이터 없음: $e");
+    } catch (e, st) {
+      debugPrint("초기 NFC 데이터 없음 (안전처리): $e\n$st");
     }
   }
+
 
   void _startNfcSession() {
     NfcManager.instance.startSession(onDiscovered: (NfcTag tag) async {

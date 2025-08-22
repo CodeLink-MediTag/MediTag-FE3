@@ -1,4 +1,4 @@
-package com.example.medife
+package com.codelink.medife
 
 import android.content.Intent
 import android.os.Bundle
@@ -36,16 +36,25 @@ class MainActivity: FlutterActivity() {
         handleIntent(intent)
     }
 
-    private fun handleIntent(intent: Intent) {
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
+
         if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
             val rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            if (rawMsgs != null) {
+            if (rawMsgs != null && rawMsgs.isNotEmpty()) {
                 val msgs = rawMsgs.map { it as NdefMessage }
-                val record = msgs[0].records[0]
-                val payload = record.payload
-                val langCodeLen = payload[0].toInt() and 0x3F
-                initialNfcData = String(payload.copyOfRange(1 + langCodeLen, payload.size))
+                if (msgs.isNotEmpty() && msgs[0].records.isNotEmpty()) {
+                    val record = msgs[0].records[0]
+                    val payload = record.payload
+                    if (payload.isNotEmpty()) {
+                        val langCodeLen = payload[0].toInt() and 0x3F
+                        initialNfcData = String(payload.copyOfRange(1 + langCodeLen, payload.size))
+                    }
+                }
             }
         }
     }
+
+
+
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:medife/features/ocr/ocr.dart';
 import 'package:medife/providers/text_size_provider.dart';
 import 'package:provider/provider.dart';
@@ -8,11 +9,12 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'features/login/screen/login_screen.dart';
+import 'features/nfc_tag/nfc_app.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'screens/landing.dart';
 import 'screens/guideline/guideline_screen.dart';
-import 'providers/text_size_provider.dart';
 import 'firebase_options.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +44,8 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
   void initState() {
     super.initState();
     _initializeApp();
+    _checkInitialNfcLaunch(); // 🔥 추가
+
   }
 
   Future<void> _initializeApp() async {
@@ -55,7 +59,31 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
     });
   }
 
+  // NFC 앱 실행 시 데이터 확인
+  Future<void> _checkInitialNfcLaunch() async {
+    const platform = MethodChannel('nfc_channel');
+    try {
+      final String? cardInfo = await platform.invokeMethod('getInitialNfcData');
+      if (cardInfo != null && cardInfo.isNotEmpty) {
+        _navigateToTimeScreen(cardInfo);
+      }
+    } catch (e) {
+      debugPrint("초기 NFC 데이터 없음: $e");
+    }
+  }
+  void _navigateToTimeScreen(String cardInfo) {
+    String route = '';
+    if (cardInfo == "morning_card") route = '/morning';
+    else if (cardInfo == "lunch_card") route = '/lunch';
+    else if (cardInfo == "dinner_card") route = '/dinner';
 
+    if (route.isNotEmpty) {
+      // 로그인 화면 이후 이동
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(context, route);
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     if (hasSeenGuideline == null) {
@@ -109,6 +137,10 @@ class MyApp extends StatelessWidget {
         '/landing': (context) => Landing(),
         '/ocr' : (context) => OcrScreen(),
         '/guideline': (context) => const GuidelineScreen(),
+        // 카드별로 화면 이동
+        '/morning': (context) => MorningScreen(),
+        '/lunch': (context) => LunchScreen(),
+        '/dinner': (context) => DinnerScreen(),
       },
       debugShowCheckedModeBanner: false,
     );
