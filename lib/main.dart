@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:medife/features/ocr/ocr.dart';
+import 'package:medife/providers/nfc_provider.dart';
 import 'package:medife/providers/text_size_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,8 +45,6 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
   void initState() {
     super.initState();
     _initializeApp();
-    _checkInitialNfcLaunch(); // 🔥 추가
-
   }
 
   Future<void> _initializeApp() async {
@@ -59,31 +58,6 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
     });
   }
 
-  // NFC 앱 실행 시 데이터 확인
-  Future<void> _checkInitialNfcLaunch() async {
-    const platform = MethodChannel('nfc_channel');
-    try {
-      final String? cardInfo = await platform.invokeMethod('getInitialNfcData');
-      if (cardInfo != null && cardInfo.isNotEmpty) {
-        _navigateToTimeScreen(cardInfo);
-      }
-    } catch (e) {
-      debugPrint("초기 NFC 데이터 없음: $e");
-    }
-  }
-  void _navigateToTimeScreen(String cardInfo) {
-    String route = '';
-    if (cardInfo == "morning_card") route = '/morning';
-    else if (cardInfo == "lunch_card") route = '/lunch';
-    else if (cardInfo == "dinner_card") route = '/dinner';
-
-    if (route.isNotEmpty) {
-      // 로그인 화면 이후 이동
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(context, route);
-      });
-    }
-  }
   @override
   Widget build(BuildContext context) {
     if (hasSeenGuideline == null) {
@@ -95,16 +69,54 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
       );
     }
 
-    return ChangeNotifierProvider(
-      create: (_) => TextSizeProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TextSizeProvider()),
+        ChangeNotifierProvider(create: (_) => NfcProvider()), // ✅ 추가
+      ],
       child: MyApp(hasSeenGuideline: hasSeenGuideline!),
     );
+
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final bool hasSeenGuideline;
   const MyApp({super.key, required this.hasSeenGuideline});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInitialNfcLaunch();
+  }
+
+  Future<void> _checkInitialNfcLaunch() async {
+    const platform = MethodChannel('nfc_channel');
+    try {
+      final String? cardInfo = await platform.invokeMethod('getInitialNfcData');
+      if (cardInfo != null && cardInfo.isNotEmpty) {
+        String? route;
+        if (cardInfo == "morning_card") route = '/morning';
+        else if (cardInfo == "lunch_card") route = '/lunch';
+        else if (cardInfo == "dinner_card") route = '/dinner';
+
+        if (route != null) {
+          context.read<NfcProvider>().setPendingRoute(route); // ✅ 저장만
+          print("NFC값:$route");
+        }
+      }
+    } catch (e) {
+      debugPrint("초기 NFC 데이터 없음: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

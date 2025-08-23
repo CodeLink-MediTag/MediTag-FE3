@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
@@ -10,6 +11,10 @@ import 'login_custom_text_field.dart';
 import '../model/login_request_model.dart';
 import '../model/kakao_login_request_model.dart';
 import '../repository/login_auth_repository.dart';
+
+import 'package:provider/provider.dart';
+import 'package:medife/providers/nfc_provider.dart'; // ✅ NFC Provider도 import
+
 
 class LoginFields extends StatefulWidget {
   final VoidCallback? onLoginSuccess;
@@ -47,15 +52,22 @@ class _LoginFieldsState extends State<LoginFields> {
     final prefs = await SharedPreferences.getInstance();
     bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
-    if (hasSeenGuideline) {
-      Navigator.pushReplacementNamed(context, RouteName.landing);
-    } else {
-      Navigator.pushReplacementNamed(context, RouteName.guideline);
+    final next = hasSeenGuideline ? RouteName.landing : RouteName.guideline;
+
+    // 먼저 로그인 후 가야 할 곳으로 교체 네비게이션
+    await Navigator.pushReplacementNamed(context, next);
+
+    // 그 다음 NFC 보류 라우트 처리
+    _navigateToNfcIfNeeded();
+  }
+
+  void _navigateToNfcIfNeeded() {
+    final nfcProvider = context.read<NfcProvider>();
+    final route = nfcProvider.pendingRoute;
+    if (route != null) {
+      Navigator.pushNamed(context, route);
+      nfcProvider.clearPendingRoute(); // ✅ 1회성
     }
-
-
-
-
   }
 
   @override
