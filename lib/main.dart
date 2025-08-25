@@ -10,6 +10,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'features/login/screen/login_screen.dart';
+import 'features/nfc_tag/lunch_screen.dart';
 import 'features/nfc_tag/nfc_app.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'screens/landing.dart';

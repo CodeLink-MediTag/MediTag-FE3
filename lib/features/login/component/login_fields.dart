@@ -48,25 +48,23 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<void> _handleLoginSuccess() async {
-
     final prefs = await SharedPreferences.getInstance();
+
     bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
     final next = hasSeenGuideline ? RouteName.landing : RouteName.guideline;
 
     // 먼저 로그인 후 가야 할 곳으로 교체 네비게이션
-    await Navigator.pushReplacementNamed(context, next);
+    // await Navigator.pushReplacementNamed(context, next);
 
     // 그 다음 NFC 보류 라우트 처리
-    _navigateToNfcIfNeeded();
-  }
-
-  void _navigateToNfcIfNeeded() {
     final nfcProvider = context.read<NfcProvider>();
     final route = nfcProvider.pendingRoute;
     if (route != null) {
       Navigator.pushNamed(context, route);
-      nfcProvider.clearPendingRoute(); // ✅ 1회성
+      nfcProvider.clearPendingRoute(); // ✅ 사용 후 초기화
+    } else {
+      Navigator.pushNamed(context, "/landing"); // 기본 화면으로 이동
     }
   }
 
