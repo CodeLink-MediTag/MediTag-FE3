@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medife/features/calendar/screen/calendar_screen.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:medife/features/calendar/calendar.dart';
 import 'package:medife/features/chatbot/chatbot.dart';
@@ -41,7 +42,8 @@ class AppRoute {
       case RouteName.username:
         return MaterialPageRoute(
             builder: (_) => const Nickname(currentNickname: '000',));
-
+      case RouteName.calendar:
+        return MaterialPageRoute(builder: (_) => CalendarScreen());
       default:
         return MaterialPageRoute(
           builder: (_) =>

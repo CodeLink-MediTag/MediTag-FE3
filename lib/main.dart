@@ -11,7 +11,7 @@ import 'features/login/screen/login_screen.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'screens/landing.dart';
 import 'screens/guideline/guideline_screen.dart';
-import 'providers/text_size_provider.dart'; // TextSizeProvider import 추가
+import 'providers/text_size_provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -23,7 +23,7 @@ void main() async {
   KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');
 
   runApp(
-    const MyAppInitializer(), // 앱 초기화 처리 위젯
+    const MyAppInitializer(),
   );
 }
 
@@ -46,11 +46,15 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
 
   Future<void> _initializeApp() async {
     prefs = await SharedPreferences.getInstance();
+
+    // 🔥 'hasSeenGuideline'이 null인 경우 기본값을 false로 설정
     final seenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
+
     setState(() {
       hasSeenGuideline = seenGuideline;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +85,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'SEBANG',
         primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
       ),
       builder: (context, child) {
         final textSizeProvider = context.watch<TextSizeProvider>();
@@ -96,8 +101,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      //initialRoute: hasSeenGuideline ? '/landing' : '/guideline',
-      initialRoute: '/login',
+      initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),
         '/login': (context) => LoginScreen(),

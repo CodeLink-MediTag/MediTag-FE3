@@ -1,4 +1,3 @@
-// login_fields.dart
 import 'package:flutter/material.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,27 +26,31 @@ class _LoginFieldsState extends State<LoginFields> {
   String username = '';
   String password = '';
 
+  // 비밀번호 표시/숨김 상태 변수
+  bool _obscurePassword = true;
+
+  // 컨트롤러를 State에서 관리
+  final TextEditingController _usernameController =
+  TextEditingController(text: "test@gmail.com");
+  final TextEditingController _passwordController =
+  TextEditingController(text: "test12345");
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleLoginSuccess() async {
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Landing()),
-    );
-
-    /*
     final prefs = await SharedPreferences.getInstance();
     bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
     if (hasSeenGuideline) {
       Navigator.pushReplacementNamed(context, RouteName.landing);
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const GuidelineScreen()),
-      );
+      Navigator.pushReplacementNamed(context, RouteName.guideline);
     }
-
-     */
   }
 
   @override
@@ -61,7 +64,7 @@ class _LoginFieldsState extends State<LoginFields> {
           const Text('아이디', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 8),
           LoginCustomTextField(
-            controller: TextEditingController(text: "test@gmail.com"),
+            controller: _usernameController,
             hintText: 'ID',
             validator: (value) => value!.isEmpty ? '아이디를 입력해주세요' : null,
             onSaved: (value) => username = value!,
@@ -71,40 +74,44 @@ class _LoginFieldsState extends State<LoginFields> {
           const Text('비밀번호', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 8),
           LoginCustomTextField(
-            controller: TextEditingController(text: "test12345"),
+            controller: _passwordController,
             hintText: 'password',
-            obscureText: true,
+            obscureText: _obscurePassword,
             validator: (value) => value!.isEmpty ? '비밀번호를 입력해주세요' : null,
             onSaved: (value) => password = value!,
             icon: Icons.lock_outline,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            ),
           ),
           const SizedBox(height: 24),
           LoginCustomButton(
             text: '로그인',
             onPressed: () async {
-              if (!formKey.currentState!.validate()) return;
-              formKey.currentState!.save();
-
-              final request = LoginRequestModel(
+              if (formKey.currentState!.validate()) {
+                formKey.currentState!.save();
+                final request = LoginRequestModel(
                   username: username,
-                  password: password
-              );
-
-              try {
-                // 1) 리포지토리에서 토큰 문자열 받아오기
-                final token = await repository.login(request);  // String
-
-                // 2) SharedPreferences에 username만 저장
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setString('username', username);
-
-                // 3) 다음 화면으로
-                await _handleLoginSuccess();
-
+                  password: password,
+                );
+                try {
+                  final token = await repository.login(request);
+                  print('로그인 성공 $token');
+                  await _handleLoginSuccess();
                 } catch (e) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(e.toString())),
+                  );
                 }
+              }
             },
           ),
           const SizedBox(height: 12),

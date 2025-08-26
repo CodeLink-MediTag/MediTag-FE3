@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:medife/screens/landing.dart';
 
 class GuidelineScreen extends StatefulWidget {
   const GuidelineScreen({super.key});
@@ -20,22 +19,15 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
     'assets/images/guideline_3.jpg',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    // ✅ _controller 리스너 제거, onPageChanged로 대체
-  }
-
   Future<void> _setGuidelineSeen(bool neverShowAgain) async {
     final prefs = await SharedPreferences.getInstance();
-    // neverShowAgain == true: 다시 보지 않기, false: 닫기
+
     await prefs.setBool('hasSeenGuideline', neverShowAgain);
+
     if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const Landing()),
-    );
+    Navigator.pushReplacementNamed(context, '/landing');
   }
+
 
   @override
   void dispose() {
@@ -55,7 +47,7 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
             onPageChanged: (index) {
               setState(() {
                 _currentPage = index;
-                _showButtons = index == _images.length - 1; // ✅ 마지막 페이지에서 버튼 표시
+                _showButtons = index == _images.length - 1;
               });
             },
             itemBuilder: (context, index) {
@@ -84,7 +76,7 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
                   ElevatedButton(
                     onPressed: () => _setGuidelineSeen(false), // 닫기
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
+                      backgroundColor: Colors.grey,
                       minimumSize: const Size.fromHeight(50),
                     ),
                     child: const Text('닫기', style: TextStyle(color: Colors.black)),

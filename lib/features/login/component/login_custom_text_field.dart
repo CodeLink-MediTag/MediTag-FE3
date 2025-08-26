@@ -1,4 +1,3 @@
-// login_custom_text_field.dart
 import 'package:flutter/material.dart';
 
 class LoginCustomTextField extends StatelessWidget {
@@ -8,6 +7,7 @@ class LoginCustomTextField extends StatelessWidget {
   final FormFieldValidator<String> validator;
   final TextEditingController? controller;
   final IconData? icon;
+  final Widget? suffixIcon;
 
   const LoginCustomTextField({
     super.key,
@@ -17,6 +17,7 @@ class LoginCustomTextField extends StatelessWidget {
     this.obscureText = false,
     this.controller,
     this.icon,
+    this.suffixIcon,
   });
 
   @override
@@ -26,6 +27,7 @@ class LoginCustomTextField extends StatelessWidget {
       onSaved: onSaved,
       validator: validator,
       obscureText: obscureText,
+      obscuringCharacter: '*',
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey),
@@ -36,6 +38,7 @@ class LoginCustomTextField extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
         prefixIcon: icon != null ? Icon(icon, color: Colors.grey) : null,
+        suffixIcon: suffixIcon,
         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       ),
     );
