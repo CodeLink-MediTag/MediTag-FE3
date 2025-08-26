@@ -1,3 +1,4 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:medife/features/ocr/ocr.dart';
 import 'package:medife/providers/text_size_provider.dart';
@@ -36,6 +37,8 @@ class MyAppInitializer extends StatefulWidget {
 
 class _MyAppInitializerState extends State<MyAppInitializer> {
   bool? hasSeenGuideline;
+  bool? isLoggedIn;
+  bool? firstLogin;
   late SharedPreferences prefs;
 
   @override
@@ -47,19 +50,29 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
   Future<void> _initializeApp() async {
     prefs = await SharedPreferences.getInstance();
 
-    // 🔥 'hasSeenGuideline'이 null인 경우 기본값을 false로 설정
+    // 기본값 명시적 설정 (앱 최초 실행 시 대비)
+    if (!prefs.containsKey('firstLogin')) {
+      await prefs.setBool('firstLogin', true);
+    }
+    if (!prefs.containsKey('hasSeenGuideline')) {
+      await prefs.setBool('hasSeenGuideline', false);
+    }
+
     final seenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
+    final loggedIn = prefs.getBool('isLoggedIn') ?? false;
+    final firstLoginVal = prefs.getBool('firstLogin') ?? true;
+    print('App init: hasSeenGuideline=$seenGuideline, firstLogin=$firstLogin');
 
     setState(() {
       hasSeenGuideline = seenGuideline;
+      isLoggedIn = loggedIn;
+      firstLogin = firstLoginVal;
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    if (hasSeenGuideline == null) {
-      // 아직 초기화 중이면 로딩 화면
+    if (hasSeenGuideline == null || isLoggedIn == null || firstLogin == null) {
       return const MaterialApp(
         home: Scaffold(
           body: Center(child: CircularProgressIndicator()),
@@ -69,14 +82,26 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
 
     return ChangeNotifierProvider(
       create: (_) => TextSizeProvider(),
-      child: MyApp(hasSeenGuideline: hasSeenGuideline!),
+      child: MyApp(
+        hasSeenGuideline: hasSeenGuideline!,
+        isLoggedIn: isLoggedIn!,
+        firstLogin: firstLogin!,
+      ),
     );
   }
 }
 
 class MyApp extends StatelessWidget {
   final bool hasSeenGuideline;
-  const MyApp({super.key, required this.hasSeenGuideline});
+  final bool isLoggedIn;
+  final bool firstLogin;
+
+  const MyApp({
+    super.key,
+    required this.hasSeenGuideline,
+    required this.isLoggedIn,
+    required this.firstLogin,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,16 +126,63 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      initialRoute: '/',
-      routes: {
-        '/': (context) => LoginScreen(),
-        '/login': (context) => LoginScreen(),
-        '/signup': (context) => SignupScreen(),
-        '/landing': (context) => Landing(),
-        '/ocr' : (context) => OcrScreen(),
-        '/guideline': (context) => const GuidelineScreen(),
+      initialRoute: isLoggedIn ? '/splash' : '/login',
+      onGenerateRoute: (settings) {
+        if (settings.name == '/splash') {
+          return MaterialPageRoute(builder: (context) => SplashScreen(
+            hasSeenGuideline: hasSeenGuideline,
+            firstLogin: firstLogin,
+          ));
+        }
+        switch (settings.name) {
+          case '/login':
+            return MaterialPageRoute(builder: (_) => LoginScreen());
+          case '/signup':
+            return MaterialPageRoute(builder: (_) => SignupScreen());
+          case '/landing':
+            return MaterialPageRoute(builder: (_) => Landing());
+          case '/ocr':
+            return MaterialPageRoute(builder: (_) => OcrScreen());
+          case '/guideline':
+            return MaterialPageRoute(builder: (_) => const GuidelineScreen());
+          default:
+            return MaterialPageRoute(builder: (_) => LoginScreen());
+        }
       },
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class SplashScreen extends StatefulWidget {
+  final bool hasSeenGuideline;
+  final bool firstLogin;
+  const SplashScreen({super.key, required this.hasSeenGuideline, required this.firstLogin});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkInitialRoute();
+  }
+
+  Future<void> _checkInitialRoute() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (widget.firstLogin && !widget.hasSeenGuideline) {
+      Navigator.of(context).pushReplacementNamed('/guideline');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/landing');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }
