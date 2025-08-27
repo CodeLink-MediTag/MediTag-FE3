@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:medife/providers/text_size_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import 'package:medife/features/medication/MediMain/screen/medimain_screen.dart';
 import 'package:medife/features/chatbot/screen/chatbot_screen.dart';
@@ -25,13 +26,15 @@ class _LandingState extends State<Landing> {
   String _nickname = '000';
   bool _taken = false;
   String? _favoriteMedName;
+  String? _favoriteAlarmIso;
+  int? _favoriteMedId;
   final MedicineRepository _repo = MedicineRepository();
 
   @override
   void initState() {
     super.initState();
     _loadNickname();
-    _loadFavoriteMedicine();
+    _loadFavoriteData();
   }
 
   Future<void> _loadNickname() async {
@@ -45,12 +48,72 @@ class _LandingState extends State<Landing> {
     });
   }
 
-  Future<void> _loadFavoriteMedicine() async {
+  Future<void> _loadFavoriteData() async {
     final prefs = await SharedPreferences.getInstance();
-    final favName = prefs.getString('favoriteMedicine');
     setState(() {
-      _favoriteMedName = favName;
+      _favoriteMedName = prefs.getString('favoriteMedicine');
+      _favoriteAlarmIso = prefs.getString('favoriteAlarmIso');
+      _favoriteMedId = prefs.getInt('favoriteMedicineId');
+      if (_favoriteAlarmIso != null) {
+        final takenKey = 'taken_${_favoriteAlarmIso!}';
+        _taken = prefs.getBool(takenKey) ?? false;
+      } else {
+        _taken = false;
+      }
     });
+  }
+
+  Future<void> _onFavoriteButtonPressed() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    if (_favoriteAlarmIso == null || _favoriteMedId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('즐겨찾기 약이 없습니다')));
+      return;
+    }
+
+    final alarmTime = DateTime.tryParse(_favoriteAlarmIso!);
+    if (alarmTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('알람 시간 정보가 잘못되었습니다')));
+      return;
+    }
+
+    final now = DateTime.now();
+    final start = alarmTime.subtract(const Duration(hours: 1));
+    final end = alarmTime.add(const Duration(hours: 1));
+
+    if (!(now.isAfter(start) && now.isBefore(end))) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('복용 시간이 아닙니다')));
+      setState(() { _taken = false; });
+      return;
+    }
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인이 필요합니다')));
+      return;
+    }
+
+    final date = DateFormat('yyyy-MM-dd').format(alarmTime);
+    try {
+      await _repo.patchTaking(
+        token: token,
+        medicineId: _favoriteMedId!,
+        alarmIso: _favoriteAlarmIso!,
+        date: date,
+        taking: true,
+      );
+
+      final takenKey = 'taken_${_favoriteAlarmIso!}';
+      await prefs.setBool(takenKey, true);
+
+      // 복용 완료 표시 갱신
+      setState(() { _taken = true; });
+
+      // 성공 알림
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('복용 완료로 저장되었습니다')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('서버 저장 실패: $e')));
+    }
   }
 
   @override
@@ -60,14 +123,40 @@ class _LandingState extends State<Landing> {
     final ColorScheme cs = theme.colorScheme;
 
     final greetingText = _favoriteMedName != null ? '${_favoriteMedName!}약 복용 하셨나요?' : '좋은 하루 보내세요';
-    final buttonLabel = _favoriteMedName != null ? '${_favoriteMedName!} 약' : '00약';
+    final buttonLabel = _favoriteAlarmIso != null
+        ? '${DateFormat('hh:mm a').format(DateTime.parse(_favoriteAlarmIso!))} ${_taken ? '복용 완료!' : '미복용'}'
+        : '00약';
 
-    final Color buttonBg = _taken ? cs.secondary : cs.primary;
-    final Color buttonFg = _taken ? cs.onSecondary : cs.onPrimary;
-
-    final bottomBg = cs.primary;
-    final bottomSelected = cs.onPrimary;
-    final bottomUnselected = cs.onPrimary.withOpacity(0.75);
+    // 기본 buttonBg/buttonFg 계산 (enabled 상태의 색)
+    Color buttonBg;
+    Color buttonFg;
+    if (_taken) {
+      // taken 이면 실제로 버튼은 disabled 되므로 여기 값은 resolve에서 사용 안될 수도 있지만 fallback으로 설정
+      buttonBg = const Color(0xFFF4B7E8); // 분홍
+      buttonFg = Colors.white;
+    } else {
+      if (_favoriteAlarmIso != null) {
+        final alarmTime = DateTime.tryParse(_favoriteAlarmIso!);
+        if (alarmTime != null) {
+          final now = DateTime.now();
+          final start = alarmTime.subtract(const Duration(hours: 1));
+          final end = alarmTime.add(const Duration(hours: 1));
+          if (!(now.isAfter(start) && now.isBefore(end))) {
+            buttonBg = Colors.grey;
+            buttonFg = Colors.white;
+          } else {
+            buttonBg = cs.primary;
+            buttonFg = cs.onPrimary;
+          }
+        } else {
+          buttonBg = cs.primary;
+          buttonFg = cs.onPrimary;
+        }
+      } else {
+        buttonBg = cs.primary;
+        buttonFg = cs.onPrimary;
+      }
+    }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -75,7 +164,6 @@ class _LandingState extends State<Landing> {
         children: [
           Stack(
             children: [
-              // 상단 컬러 바 (테마 primary)
               Container(
                 height: 200,
                 width: double.infinity,
@@ -125,39 +213,10 @@ class _LandingState extends State<Landing> {
                           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
                         ],
                       ),
-                      child: (textSize >= 15)
-                          ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(greetingText, style: TextStyle(fontSize: textSize)),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _taken = !_taken;
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _taken ? const Color(0xFFFFA4A5) : cs.primary,
-                              fixedSize: const Size(100, 40),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text(
-                              _taken ? '복용 완료!' : buttonLabel,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: cs.onPrimary,
-                                fontSize: textSize * 0.85,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                          : Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // 왼쪽 텍스트
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -180,23 +239,36 @@ class _LandingState extends State<Landing> {
                               ),
                             ],
                           ),
+                          // 오른쪽 버튼 (MaterialStateProperty로 disabled에서도 핑크 보이게)
                           ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _taken = !_taken;
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: buttonBg,
-                              foregroundColor: buttonFg,
-                              fixedSize: const Size(100, 40),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            onPressed: _taken ? null : _onFavoriteButtonPressed,
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                // disabled 상태일 때 분홍색 유지
+                                if (states.contains(MaterialState.disabled)) {
+                                  return const Color(0xFFF4B7E8);
+                                }
+                                // enabled 상태일 때 계산된 색 사용
+                                return buttonBg;
+                              }),
+                              foregroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                if (states.contains(MaterialState.disabled)) {
+                                  return Colors.white;
+                                }
+                                return buttonFg;
+                              }),
+                              fixedSize: MaterialStateProperty.all(const Size(120, 48)),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              elevation: MaterialStateProperty.resolveWith<double>((states) {
+                                return states.contains(MaterialState.disabled) ? 0.0 : 2.0;
+                              }),
                             ),
                             child: Text(
-                              _taken ? '복용 완료!' : buttonLabel,
+                              buttonLabel,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: buttonFg,
                                 fontSize: textSize * 0.85,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -210,7 +282,10 @@ class _LandingState extends State<Landing> {
               ),
             ],
           ),
+
           const SizedBox(height: 15),
+
+          // 아래 메뉴 카드들 (원래 UI 유지)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -252,7 +327,7 @@ class _LandingState extends State<Landing> {
                           Icons.notifications_active,
                               () {
                             Navigator.push(context, MaterialPageRoute(builder: (_) => MediMainScreen())).then((_) {
-                              _loadFavoriteMedicine();
+                              _loadFavoriteData();
                             });
                           },
                           textSize: textSize,
@@ -288,10 +363,11 @@ class _LandingState extends State<Landing> {
           ),
         ],
       ),
+
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: bottomBg,
-        selectedItemColor: bottomSelected,
-        unselectedItemColor: bottomUnselected,
+        backgroundColor: cs.primary,
+        selectedItemColor: cs.onPrimary,
+        unselectedItemColor: cs.onPrimary.withOpacity(0.75),
         currentIndex: 0,
         onTap: (index) {
           if (index == 2) {
@@ -300,15 +376,11 @@ class _LandingState extends State<Landing> {
               MaterialPageRoute(builder: (context) => const MyPage()),
             ).then((_) {
               _loadNickname();
-              _loadFavoriteMedicine();
+              _loadFavoriteData();
             });
           }
           if (index == 1) {
             Navigator.pushNamed(context, '/ocr');
-          }
-          if (index == 0) {
-            // 예시: 카드 등록 페이지로 이동하려면 해당 라우트로 이동
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => const CardRegistration()));
           }
         },
         type: BottomNavigationBarType.fixed,

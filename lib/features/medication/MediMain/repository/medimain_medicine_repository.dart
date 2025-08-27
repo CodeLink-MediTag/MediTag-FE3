@@ -1,10 +1,11 @@
+// medimain_medicine_repository.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../ip/ip_address.dart';
 import '../model/medimain_medicine.dart';
 import '../model/medimain_alarm.dart';
 import 'package:flutter/foundation.dart';
-
+import 'package:intl/intl.dart';
 
 class MedicineRepository {
   final String baseUrl = 'http://$ipAddress:8080/api/medicines';
@@ -23,19 +24,15 @@ class MedicineRepository {
     return data.map((e) => Medicine.fromJson(e)).toList();
   }
 
-  /// 토큰과 Medicine 객체를 받아서 서버에 즐겨찾기 상태를 토글합니다.
+  /// 즐겨찾기 토글 (기존 방식 유지)
   Future<void> toggleFavorite(String token, Medicine med) async {
-    final uri = Uri.parse('$baseUrl/favorite');
-    // PATCH 요청을 직접 생성
-    final req = http.Request('PATCH', uri)
+    final uri = Uri.parse('http://$ipAddress:8080/favorite'); // 백엔드가 /favorite 에 매핑돼 있음
+    final req = http.Request('PUT', uri)
       ..headers['Content-Type'] = 'application/json'
       ..headers['Authorization'] = 'Bearer $token'
-    // bodyBytes에 UTF-8 인코딩된 JSON 바이트를 그대로 넣으면
-    // http 패키지가 charset을 자동으로 추가하지 않습니다.
-      ..bodyBytes = utf8.encode(jsonEncode({
-        'medicineName': med.medicineName,
-        'favorite': med.isFavorite,
-      }));
+      ..body = jsonEncode({
+        'medicineId': med.medicineId,
+      });
 
     final streamed = await req.send();
     final res = await http.Response.fromStream(streamed);
@@ -45,19 +42,31 @@ class MedicineRepository {
     }
   }
 
-  Future<void> updateTaking(String token, Medicine med, Alarm alarm) async {
-    await http.post(
-      Uri.parse('$baseUrl/taking'),
+  /// 복용 상태를 서버에 반영 (PATCH)
+  Future<void> patchTaking({
+    required String token,
+    required int medicineId,
+    required String alarmIso, // alarmTime ISO string
+    required String date, // yyyy-MM-dd
+    required bool taking,
+  }) async {
+    // Endpoint in BE: PATCH /api/medicines/{medicineId}/alarms/taking?alarmTime=...&date=...
+    final uri = Uri.parse('$baseUrl/$medicineId/alarms/taking').replace(queryParameters: {
+      'alarmTime': alarmIso,
+      'date': date,
+    });
+
+    final res = await http.patch(
+      uri,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: json.encode({
-        'medicineName': med.medicineName,
-        'alarmTime': alarm.alarmTime.toIso8601String(),
-        'taking': alarm.taking,
-      }),
+      body: jsonEncode({'taking': taking}),
     );
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception('patch taking 실패: ${res.statusCode} ${res.body}');
+    }
   }
 }
-
