@@ -1,3 +1,4 @@
+// lib/features/calendar/screen/calendar_screen.dart
 import 'package:flutter/material.dart';
 import 'package:medife/components/custom_app_bar.dart';
 import '../widgets/calendar_header.dart';
@@ -45,32 +46,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 화면 전체 색은 테마에서 가져오게 (다크/라이트 자동 적용)
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5FA),
+      backgroundColor: bg,
       appBar: const CustomAppBar(title: '복약기록 캘린더'),
-        body: SafeArea(                             // 3) 상단·하단 안전 영역 확보
-          child: Padding(                          // 4) 좌우 여백 추가
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                CalendarHeader(
-                  focusedDay: _focusedDay,
-                  selectedDay: _selectedDay!,
-                  events: _medDays,
-                  onDaySelected: _onDaySelected,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              // CalendarHeader는 아래에 제공한 테마 기반 구현을 사용
+              CalendarHeader(
+                focusedDay: _focusedDay,
+                selectedDay: _selectedDay ?? DateTime.now(),
+                events: _medDays,
+                onDaySelected: _onDaySelected,
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: CalendarMediList(
+                  selectedDay: _selectedDay ?? DateTime.now(),
+                  medicines: _medicines,
+                  onAdded: _loadAll,
                 ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: CalendarMediList(
-                    selectedDay: _selectedDay!,
-                    medicines: _medicines,
-                    onAdded: _loadAll,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }
