@@ -23,10 +23,11 @@ class MediMainAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       elevation: 0,
       title: const Text(
-        '메인 화면',
+        '복약 알림창',
         style: TextStyle(
+          fontFamily: 'SEBANG',           // 폰트 패밀리 적용
           fontWeight: FontWeight.bold,
-          fontSize: 26,
+          fontSize: 20,
           color: Colors.white,
         ),
       ),
@@ -43,7 +44,6 @@ class MediMainAppBar extends StatelessWidget implements PreferredSizeWidget {
               icon: const Icon(Icons.calendar_today, color: Colors.white),
               tooltip: '달력 보기',
               onPressed: () {
-                // Navigator.of(context).pushNamed(RouteName.calendar);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CalendarScreen()),

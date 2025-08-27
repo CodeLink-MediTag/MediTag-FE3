@@ -13,7 +13,9 @@ import 'package:medife/features/calendar/screen/calendar_screen.dart';
 import 'package:medife/features/mypage/mypage.dart';
 import '../features/eatlist/component/eat-list.dart';
 
+import 'package:collection/collection.dart';
 import 'package:medife/features/medication/MediMain/repository/medimain_medicine_repository.dart';
+import '../nfc/nfcAdd.dart';
 
 class Landing extends StatefulWidget {
   const Landing({super.key});
@@ -44,7 +46,9 @@ class _LandingState extends State<Landing> {
     final displayUser = rawUser.contains('@') ? rawUser.split('@')[0] : rawUser;
 
     setState(() {
-      _nickname = (storedNick != null && storedNick.isNotEmpty) ? storedNick : displayUser;
+      _nickname = (storedNick != null && storedNick.isNotEmpty)
+          ? storedNick
+          : displayUser;
     });
   }
 
@@ -118,23 +122,26 @@ class _LandingState extends State<Landing> {
 
   @override
   Widget build(BuildContext context) {
-    final textSize = context.watch<TextSizeProvider>().textSize;
+    // 안전하게 기본값 지정
+    final textSize = context.watch<TextSizeProvider?>()?.textSize ?? 14.0;
     final ThemeData theme = Theme.of(context);
     final ColorScheme cs = theme.colorScheme;
 
-    final greetingText = _favoriteMedName != null ? '${_favoriteMedName!}약 복용 하셨나요?' : '좋은 하루 보내세요';
+    // dev 기능 : textSize에 따라 카드 높이 동적 지정
+    double cardHeight = (textSize >= 18) ? 110 : 80;
+    double chatbotCardHeight = (textSize >= 18) ? 130 : 100;
+
+    // greeting / button label (원래 네가 원하던 형태: 시간 + 상태)
+    final greetingText = _favoriteMedName != null
+        ? '${_favoriteMedName!}약 복용 하셨나요?'
+        : '좋은 하루 보내세요';
+
     final buttonLabel = _favoriteAlarmIso != null
         ? '${DateFormat('hh:mm a').format(DateTime.parse(_favoriteAlarmIso!))} ${_taken ? '복용 완료!' : '미복용'}'
         : '00약';
 
-    // 기본 buttonBg/buttonFg 계산 (enabled 상태의 색)
-    Color buttonBg;
-    Color buttonFg;
-    if (_taken) {
-      // taken 이면 실제로 버튼은 disabled 되므로 여기 값은 resolve에서 사용 안될 수도 있지만 fallback으로 설정
-      buttonBg = const Color(0xFFF4B7E8); // 분홍
-      buttonFg = Colors.white;
-    } else {
+    // 버튼 색 결정 (MaterialState로 disabled도 핑크로 보이게 함)
+    Color resolveEnabledColor() {
       if (_favoriteAlarmIso != null) {
         final alarmTime = DateTime.tryParse(_favoriteAlarmIso!);
         if (alarmTime != null) {
@@ -142,20 +149,13 @@ class _LandingState extends State<Landing> {
           final start = alarmTime.subtract(const Duration(hours: 1));
           final end = alarmTime.add(const Duration(hours: 1));
           if (!(now.isAfter(start) && now.isBefore(end))) {
-            buttonBg = Colors.grey;
-            buttonFg = Colors.white;
+            return Colors.grey; // 복용 시간이 아니면 회색
           } else {
-            buttonBg = cs.primary;
-            buttonFg = cs.onPrimary;
+            return cs.primary; // 복용 시간 안이면 primary
           }
-        } else {
-          buttonBg = cs.primary;
-          buttonFg = cs.onPrimary;
         }
-      } else {
-        buttonBg = cs.primary;
-        buttonFg = cs.onPrimary;
       }
+      return cs.primary;
     }
 
     return Scaffold(
@@ -180,7 +180,7 @@ class _LandingState extends State<Landing> {
                             'MediTag',
                             style: TextStyle(
                               color: cs.onPrimary,
-                              fontSize: (textSize ?? 14.0) * 1.8,
+                              fontSize: textSize * 1.8,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -239,23 +239,28 @@ class _LandingState extends State<Landing> {
                               ),
                             ],
                           ),
-                          // 오른쪽 버튼 (MaterialStateProperty로 disabled에서도 핑크 보이게)
+                          // 오른쪽 버튼 (disabled 상태에서도 분홍색으로 보이게)
                           ElevatedButton(
                             onPressed: _taken ? null : _onFavoriteButtonPressed,
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                                // disabled 상태일 때 분홍색 유지
+                                // disabled 상태(즉 복용 완료 상태)일 때는 분홍 유지
                                 if (states.contains(MaterialState.disabled)) {
                                   return const Color(0xFFF4B7E8);
                                 }
-                                // enabled 상태일 때 계산된 색 사용
-                                return buttonBg;
+                                // enabled 상태: 시간창에 따라 primary or grey
+                                return resolveEnabledColor();
                               }),
                               foregroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                // disabled -> 흰색 텍스트
                                 if (states.contains(MaterialState.disabled)) {
                                   return Colors.white;
                                 }
-                                return buttonFg;
+                                // enabled 텍스트 색 (primary 대비)
+                                final bg = resolveEnabledColor();
+                                // 회색 배경이면 검정 텍스트, 그렇지 않으면 onPrimary
+                                if (bg == Colors.grey) return Colors.black87;
+                                return cs.onPrimary;
                               }),
                               fixedSize: MaterialStateProperty.all(const Size(120, 48)),
                               shape: MaterialStateProperty.all(
@@ -285,7 +290,7 @@ class _LandingState extends State<Landing> {
 
           const SizedBox(height: 15),
 
-          // 아래 메뉴 카드들 (원래 UI 유지)
+          // 아래 메뉴 카드들 (dev의 카드 높이 동작 유지)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -298,7 +303,7 @@ class _LandingState extends State<Landing> {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBotScreen()));
                     },
                     fullWidth: true,
-                    height: 100,
+                    height: chatbotCardHeight,
                     textSize: textSize,
                     theme: theme,
                     cs: cs,
@@ -321,6 +326,7 @@ class _LandingState extends State<Landing> {
                           textSize: textSize,
                           theme: theme,
                           cs: cs,
+                          height: cardHeight,
                         ),
                         _menuCard(
                           '복약 알림 등록',
@@ -333,6 +339,7 @@ class _LandingState extends State<Landing> {
                           textSize: textSize,
                           theme: theme,
                           cs: cs,
+                          height: cardHeight,
                         ),
                         _menuCard(
                           '복용 기록',
@@ -343,6 +350,7 @@ class _LandingState extends State<Landing> {
                           textSize: textSize,
                           theme: theme,
                           cs: cs,
+                          height: cardHeight,
                         ),
                         _menuCard(
                           '복약 달력',
@@ -353,6 +361,7 @@ class _LandingState extends State<Landing> {
                           textSize: textSize,
                           theme: theme,
                           cs: cs,
+                          height: cardHeight,
                         ),
                       ],
                     ),
@@ -386,25 +395,10 @@ class _LandingState extends State<Landing> {
         type: BottomNavigationBarType.fixed,
         selectedFontSize: 0,
         unselectedFontSize: 0,
-        items: [
-          BottomNavigationBarItem(
-            icon: Center(
-              child: Icon(Icons.credit_card, size: 30, color: cs.onPrimary),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Center(
-              child: Icon(Icons.camera_alt, size: 30, color: cs.onPrimary),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Center(
-              child: Icon(Icons.person, size: 30, color: cs.onPrimary),
-            ),
-            label: '',
-          ),
+        items: const [
+          BottomNavigationBarItem(icon: Center(child: Icon(Icons.credit_card, size: 30)), label: ''),
+          BottomNavigationBarItem(icon: Center(child: Icon(Icons.camera_alt, size: 30)), label: ''),
+          BottomNavigationBarItem(icon: Center(child: Icon(Icons.person, size: 30)), label: ''),
         ],
       ),
     );
@@ -436,20 +430,12 @@ class _LandingState extends State<Landing> {
               alignment: Alignment.topLeft,
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: textSize * 1.4,
-                  fontWeight: FontWeight.bold,
-                  color: theme.textTheme.bodyLarge?.color,
-                ),
+                style: TextStyle(fontSize: textSize * 1.4, fontWeight: FontWeight.bold, color: theme.textTheme.bodyLarge?.color),
               ),
             ),
             Align(
               alignment: Alignment.bottomRight,
-              child: Icon(
-                icon,
-                color: cs.primary,
-                size: 40,
-              ),
+              child: Icon(icon, color: cs.primary, size: 40),
             ),
           ],
         ),
