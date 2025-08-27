@@ -1,9 +1,7 @@
+// lib/features/login/component/login_fields.dart
 import 'package:flutter/material.dart';
-import 'package:medife/screens/landing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:medife/screens/guideline/guideline_screen.dart';
-import 'package:medife/routes/route_names.dart';
 
 import 'login_custom_button.dart';
 import 'login_custom_text_field.dart';
@@ -38,15 +36,26 @@ class _LoginFieldsState extends State<LoginFields> {
   Future<void> _handleLoginSuccess() async {
     final prefs = await SharedPreferences.getInstance();
 
+    // 로그인 상태 저장
     await prefs.setBool('isLoggedIn', true);
-    await prefs.setBool('firstLogin', true);        // 필요 시 첫 로그인 상태 갱신(일반 로그인 시 보통 false)
-    await prefs.setBool('hasSeenGuideline', false); // 팝업 띄우도록 false로 설정
 
-    // 이후 팝업 화면 또는 랜딩 화면으로 네비게이션
-    Navigator.of(context).pushNamedAndRemoveUntil('/guideline', (route) => false);
+    // 기본: firstLogin/hasSeenGuideline 키가 없으면 초기값 세팅 (안전 장치)
+    if (!prefs.containsKey('firstLogin')) {
+      await prefs.setBool('firstLogin', true);
+    }
+    if (!prefs.containsKey('hasSeenGuideline')) {
+      await prefs.setBool('hasSeenGuideline', false);
+    }
+
+    final hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
+
+    // 가이드라인을 본 적이 없으면 가이드라인 화면으로, 이미 봤다면 바로 랜딩으로
+    if (!hasSeenGuideline) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/guideline', (route) => false);
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
+    }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +105,7 @@ class _LoginFieldsState extends State<LoginFields> {
                 final request = LoginRequestModel(username: username, password: password);
                 try {
                   final token = await repository.login(request);
-                  print('로그인 성공 $token');
+                  debugPrint('로그인 성공: $token');
                   await _handleLoginSuccess();
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -116,12 +125,10 @@ class _LoginFieldsState extends State<LoginFields> {
               final request = KakaoLoginRequestModel(accessToken: token);
               try {
                 final response = await repository.kakaoLogin(request);
-                print('카카오 로그인 성공: $response');
+                debugPrint('카카오 로그인 성공: $response');
                 await _handleLoginSuccess();
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString())),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
               }
             },
           ),
@@ -138,7 +145,7 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<String?> handleKakaoLogin(BuildContext context) async {
-    KakaoSdk.init(nativeAppKey: '0294f90ad4d3deac240d0065da6d5c5f');
+    // (앱 전체에서 KakaoSdk.init을 이미 main에서 했으면 중복 불필요)
     try {
       bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
@@ -153,7 +160,7 @@ class _LoginFieldsState extends State<LoginFields> {
       }
       return token.accessToken;
     } catch (e) {
-      print('카카오 로그인 실패: $e');
+      debugPrint('카카오 로그인 실패: $e');
       return null;
     }
   }
