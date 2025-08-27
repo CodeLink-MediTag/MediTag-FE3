@@ -108,6 +108,15 @@ class _SettingsPageState extends State<SettingScreen> {
     );
   }
 
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    // 팝업 재출현 여부 상태 유지 (초기화 금지)
+    // await prefs.setBool('hasSeenGuideline', false); // 주석 처리 또는 삭제
+    // await prefs.setBool('firstLogin', true); // 필요 시, 사용자 경험에 맞게 설정
+    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final textSizeProvider = Provider.of<TextSizeProvider>(context);
@@ -117,11 +126,8 @@ class _SettingsPageState extends State<SettingScreen> {
       backgroundColor: Color(0xFFF6F6F6),
       body: Column(
         children: [
-          // CustomAppBar에 textSize 전달 (원한다면)
           CustomAppBar(
             title: '환경설정',
-            // 만약 CustomAppBar가 fontSize 지원한다면 여기에 전달
-            // fontSize: textSize,
           ),
           Expanded(
             child: Container(
@@ -186,8 +192,8 @@ class _SettingsPageState extends State<SettingScreen> {
                         Text('글자 크기', style: TextStyle(fontSize: textSize, fontWeight: FontWeight.w400)),
                         Slider(
                           value: textSize,
-                          min: 10,
-                          max: 24,
+                          min: 14,
+                          max: 18,
                           divisions: 7,
                           label: textSize.toStringAsFixed(1),
                           onChanged: (value) {
@@ -209,8 +215,8 @@ class _SettingsPageState extends State<SettingScreen> {
                   Padding(
                     padding: EdgeInsets.only(bottom: 20),
                     child: ElevatedButton(
-                      onPressed: () {
-                        // 로그아웃 로직 추가 가능
+                      onPressed: () async {
+                        await _logout(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF547EE8),

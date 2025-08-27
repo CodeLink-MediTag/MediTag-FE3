@@ -12,9 +12,7 @@ import '../model/kakao_login_request_model.dart';
 import '../repository/login_auth_repository.dart';
 
 class LoginFields extends StatefulWidget {
-  final VoidCallback? onLoginSuccess;
-
-  const LoginFields({super.key, this.onLoginSuccess});
+  const LoginFields({super.key});
 
   @override
   State<LoginFields> createState() => _LoginFieldsState();
@@ -25,15 +23,10 @@ class _LoginFieldsState extends State<LoginFields> {
   final formKey = GlobalKey<FormState>();
   String username = '';
   String password = '';
-
-  // 비밀번호 표시/숨김 상태 변수
   bool _obscurePassword = true;
 
-  // 컨트롤러를 State에서 관리
-  final TextEditingController _usernameController =
-  TextEditingController(text: "test@gmail.com");
-  final TextEditingController _passwordController =
-  TextEditingController(text: "test12345");
+  final TextEditingController _usernameController = TextEditingController(text: "test@gmail.com");
+  final TextEditingController _passwordController = TextEditingController(text: "test12345");
 
   @override
   void dispose() {
@@ -43,20 +36,17 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<void> _handleLoginSuccess() async {
-
     final prefs = await SharedPreferences.getInstance();
-    bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
-    if (hasSeenGuideline) {
-      Navigator.pushReplacementNamed(context, RouteName.landing);
-    } else {
-      Navigator.pushReplacementNamed(context, RouteName.guideline);
-    }
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setBool('firstLogin', true);        // 필요 시 첫 로그인 상태 갱신(일반 로그인 시 보통 false)
+    await prefs.setBool('hasSeenGuideline', false); // 팝업 띄우도록 false로 설정
 
-
-
-
+    // 이후 팝업 화면 또는 랜딩 화면으로 네비게이션
+    Navigator.of(context).pushNamedAndRemoveUntil('/guideline', (route) => false);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -103,18 +93,13 @@ class _LoginFieldsState extends State<LoginFields> {
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 formKey.currentState!.save();
-                final request = LoginRequestModel(
-                  username: username,
-                  password: password,
-                );
+                final request = LoginRequestModel(username: username, password: password);
                 try {
                   final token = await repository.login(request);
                   print('로그인 성공 $token');
                   await _handleLoginSuccess();
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.toString())),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                 }
               }
             },

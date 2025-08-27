@@ -9,13 +9,12 @@ import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/recording/screen/recording_home_screen.dart';
 import 'package:medife/features/calendar/screen/calendar_screen.dart';
 import 'package:medife/features/mypage/mypage.dart';
+import 'package:medife/nfc/nfcAdd.dart';
 import '../features/eatlist/component/eat-list.dart';
 
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 import 'package:medife/features/medication/MediMain/repository/medimain_medicine_repository.dart';
-
-
 
 class Landing extends StatefulWidget {
   const Landing({super.key});
@@ -39,49 +38,38 @@ class _LandingState extends State<Landing> {
 
   Future<void> _loadNickname() async {
     final prefs = await SharedPreferences.getInstance();
-
     // 1) 저장된 닉네임이 있는지
     final storedNick = prefs.getString('nickname');
-
     // 2) 저장된 아이디(이메일) 가져와서 '@' 앞만 취한다.
     final rawUser = prefs.getString('username') ?? '사용자';
-    final displayUser = rawUser.contains('@')
-        ? rawUser.split('@')[0]
-        : rawUser;
+    final displayUser = rawUser.contains('@') ? rawUser.split('@')[0] : rawUser;
 
     setState(() {
       _nickname = (storedNick != null && storedNick.isNotEmpty)
-          ? storedNick      // 우선 닉네임이 있으면 닉네임
-          : displayUser;     // 없으면 이메일 앞부분
+          ? storedNick // 우선 닉네임이 있으면 닉네임
+          : displayUser; // 없으면 이메일 앞부분
     });
   }
 
   Future<void> _loadFavoriteMedicine() async {
     final prefs = await SharedPreferences.getInstance();
-
     // 1) 로컬에 저장된 즐겨찾기 약 이름 읽기
     final favName = prefs.getString('favoriteMedicine');
-
     // 2) 화면에 반영
     setState(() {
       _favoriteMedName = favName;
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     final textSize = context.watch<TextSizeProvider>().textSize;
-
     // 1) 인삿말
     final greetingText = _favoriteMedName != null
         ? '${_favoriteMedName!}약 복용 하셨나요?'
         : '좋은 하루 보내세요';
-
     // 2) 버튼 라벨
-    final buttonLabel = _favoriteMedName != null
-        ? '${_favoriteMedName!} 약'
-        : '00약';
+    final buttonLabel = _favoriteMedName != null ? '${_favoriteMedName!} 약' : '00약';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -89,11 +77,7 @@ class _LandingState extends State<Landing> {
         children: [
           Stack(
             children: [
-              Container(
-                height: 200,
-                width: double.infinity,
-                color: const Color(0xFF547EE8),
-              ),
+              Container(height: 200, width: double.infinity, color: const Color(0xFF547EE8)),
               Padding(
                 padding: const EdgeInsets.only(top: 60, left: 20, right: 20),
                 child: Column(
@@ -118,10 +102,7 @@ class _LandingState extends State<Landing> {
                             child: IconButton(
                               icon: const Icon(Icons.settings, color: Colors.white),
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => SettingScreen()),
-                                );
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SettingScreen()));
                               },
                             ),
                           ),
@@ -138,14 +119,40 @@ class _LandingState extends State<Landing> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          )
+                          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
                         ],
                       ),
-                      child: Row(
+                      child: (textSize >= 15)
+                          ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(greetingText, style: TextStyle(fontSize: textSize)),
+                          const SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                _taken = !_taken;
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _taken ? const Color(0xFFFFA4A5) : const Color(0xFF547EE8),
+                              fixedSize: const Size(100, 40),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(
+                              _taken ? '복용 완료!' : buttonLabel,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: textSize * 0.85,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                          : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
@@ -160,10 +167,7 @@ class _LandingState extends State<Landing> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                greetingText,
-                                style: TextStyle(fontSize: textSize),
-                              ),
+                              Text(greetingText, style: TextStyle(fontSize: textSize)),
                             ],
                           ),
                           ElevatedButton(
@@ -173,15 +177,12 @@ class _LandingState extends State<Landing> {
                               });
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _taken
-                                  ? const Color(0xFFFFA4A5)
-                                  : const Color(0xFF547EE8),
+                              backgroundColor: _taken ? const Color(0xFFFFA4A5) : const Color(0xFF547EE8),
                               fixedSize: const Size(100, 40),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Text(
-                              _taken ? '복용 완료!' : buttonLabel,  // ← 하드코딩 대신 변수
+                              _taken ? '복용 완료!' : buttonLabel,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white,
@@ -208,10 +209,7 @@ class _LandingState extends State<Landing> {
                     '챗봇',
                     Icons.smart_toy,
                         () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => ChatBotScreen()),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatBotScreen()));
                     },
                     fullWidth: true,
                     height: 100,
@@ -227,35 +225,23 @@ class _LandingState extends State<Landing> {
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
                         _menuCard('주의사항 녹음', Icons.mic, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => RecordingHomeScreen()),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => RecordingHomeScreen()));
                         }, textSize: textSize),
                         _menuCard(
                           '복약 알림 등록',
                           Icons.notifications_active,
                               () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => MediMainScreen()),
-                            ).then((_) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => MediMainScreen())).then((_) {
                               _loadFavoriteMedicine();
                             });
                           },
                           textSize: textSize,
                         ),
                         _menuCard('복용 기록', Icons.edit_note, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => EatList()),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => EatList()));
                         }, textSize: textSize),
                         _menuCard('복약 달력', Icons.calendar_today, () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => CalendarScreen()),
-                          );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => CalendarScreen()));
                         }, textSize: textSize),
                       ],
                     ),
@@ -272,41 +258,26 @@ class _LandingState extends State<Landing> {
         unselectedItemColor: Colors.white70,
         currentIndex: 0,
         onTap: (index) {
-          if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const MyPage()),
-            ).then((_) {
-              _loadNickname();            // 닉네임 다시 로드
-              _loadFavoriteMedicine();    // 즐겨찾기도 다시 로드
-            });
+          if (index == 0) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const CardRegistration()));
           }
           if (index == 1) {
-            Navigator.pushNamed(context, '/ocr'); // OCR 화면으로 이동
+            Navigator.pushNamed(context, '/ocr');
+          }
+          if (index == 2) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const MyPage())).then((_) {
+              _loadNickname();
+              _loadFavoriteMedicine();
+            });
           }
         },
         type: BottomNavigationBarType.fixed,
         selectedFontSize: 0,
         unselectedFontSize: 0,
-        items: [
-          BottomNavigationBarItem(
-            icon: Center(
-              child: Icon(Icons.credit_card, size: 30),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Center(
-              child: Icon(Icons.camera_alt, size: 30),
-            ),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Center(
-              child: Icon(Icons.person, size: 30),
-            ),
-            label: '',
-          ),
+        items: const [
+          BottomNavigationBarItem(icon: Center(child: Icon(Icons.credit_card, size: 30)), label: ''),
+          BottomNavigationBarItem(icon: Center(child: Icon(Icons.camera_alt, size: 30)), label: ''),
+          BottomNavigationBarItem(icon: Center(child: Icon(Icons.person, size: 30)), label: ''),
         ],
       ),
     );
@@ -324,11 +295,7 @@ class _LandingState extends State<Landing> {
           borderRadius: BorderRadius.circular(16),
           color: Colors.white,
           boxShadow: const [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
+            BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
           ],
         ),
         padding: const EdgeInsets.all(16),
@@ -338,19 +305,12 @@ class _LandingState extends State<Landing> {
               alignment: Alignment.topLeft,
               child: Text(
                 title,
-                style: TextStyle(
-                  fontSize: textSize * 1.4,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: textSize * 1.4, fontWeight: FontWeight.bold),
               ),
             ),
             Align(
               alignment: Alignment.bottomRight,
-              child: Icon(
-                icon,
-                color: const Color(0xFF547EE8),
-                size: 40,
-              ),
+              child: Icon(icon, color: const Color(0xFF547EE8), size: 40),
             ),
           ],
         ),
