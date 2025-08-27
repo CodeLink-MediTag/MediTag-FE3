@@ -23,7 +23,6 @@ class RecordingHomeScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 🎙 녹음 하기 버튼 → 녹음 화면으로 이동
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -38,6 +37,7 @@ class RecordingHomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         textStyle: const TextStyle(
+                          fontFamily: 'SEBANG',        // 폰트 적용
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
@@ -46,8 +46,6 @@ class RecordingHomeScreen extends StatelessWidget {
                       child: const Text('🎙 녹음 하기'),
                     ),
                     const SizedBox(height: 30),
-
-                    // 📁 녹음 목록 가기 버튼
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
@@ -62,6 +60,7 @@ class RecordingHomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         textStyle: const TextStyle(
+                          fontFamily: 'SEBANG',        // 폰트 적용
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),

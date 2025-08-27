@@ -43,7 +43,7 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title: '주의사항 녹음'),
+      appBar: CustomAppBar(title: '주의사항 녹음'),
       body: FutureBuilder<List<Recording>>(
         future: recordingsFuture,
         builder: (context, snapshot) {
@@ -68,8 +68,7 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
                   icon: Icon(
                     playingIndex == index ? Icons.pause : Icons.play_arrow,
                   ),
-                  onPressed: () =>
-                      _togglePlay(recording.recordingFile, index),
+                  onPressed: () => _togglePlay(recording.recordingFile, index),
                 ),
               );
             },
