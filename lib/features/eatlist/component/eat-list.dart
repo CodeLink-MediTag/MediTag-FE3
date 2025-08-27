@@ -5,7 +5,7 @@ import 'package:medife/features/eatlist/model/medicine.dart';
 import 'package:medife/features/eatlist/repository/eat-list-repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'eat-card.dart';
-import 'package:medife/components/custom_app_bar.dart'; // 커스텀 앱바 경로 맞게 수정
+import 'package:medife/components/custom_app_bar.dart'; // 경로 맞게 수정
 
 class EatList extends StatefulWidget {
   const EatList({super.key});
@@ -15,10 +15,8 @@ class EatList extends StatefulWidget {
 }
 
 class _EatListState extends State<EatList> {
-
   List<Medicine> medicines = [];
   Map<int, Map<String, bool>> takenStatus = {};
-
   EatListRepository eatListRepository = EatListRepository();
 
   @override
@@ -34,7 +32,6 @@ class _EatListState extends State<EatList> {
         DateFormat('yyyy-MM-dd').format(DateTime.now()),
         token,
       );
-
       setState(() {
         medicines = fetchedMedicines;
         takenStatus = convertToTakenStatus(medicines);
@@ -47,14 +44,8 @@ class _EatListState extends State<EatList> {
   Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString('accessToken');
-    try {
-      if (accessToken == null) {
-        throw Exception("토큰 없음");
-      }
-      return accessToken;
-    } catch (e){
-      throw e;
-    }
+    if (accessToken == null) throw Exception("토큰 없음");
+    return accessToken;
   }
 
   String getTimeLabel(DateTime time, bool isPrescribed) {
@@ -78,19 +69,12 @@ class _EatListState extends State<EatList> {
         final label = getTimeLabel(alarm.alarmTime, medicine.prescribed);
         timeMap[label] = alarm.taking;
       }
-
       takenStatus[medicine.medicineId] = timeMap;
     }
-
     return takenStatus;
   }
 
-
-  Future<void> onTaken(
-      int medicineId,
-      String time,
-      bool prescribed,
-      ) async {
+  Future<void> onTaken(int medicineId, String time, bool prescribed) async {
     final token = await getToken();
 
     setState(() {
@@ -109,7 +93,7 @@ class _EatListState extends State<EatList> {
   List<Widget> buildEatCards(
       List<Medicine> medicines,
       Map<int, Map<String, bool>> takenStatus,
-      void Function(int medicineId, String time, bool prescribed) onTaken
+      void Function(int medicineId, String time, bool prescribed) onTaken,
       ) {
     return medicines.map((pill) {
       final times = takenStatus[pill.medicineId]!.keys.toList();
@@ -124,14 +108,10 @@ class _EatListState extends State<EatList> {
     }).toList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        // 뒤로 가기 막고 직접 처리하거나 그대로 pop 허용 가능
-        return true;
-      },
+      onWillPop: () async => true,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: CustomAppBar(
@@ -139,10 +119,11 @@ class _EatListState extends State<EatList> {
           onBack: () {
             Navigator.pop(context);
           },
-          // 필요하면 onHome 콜백 추가 가능
+          // 필요하다면 onHome 콜백도 추가 가능
+          height: 60, // 앱바 높이 명시적으로 고정 가능
         ),
         body: Padding(
-          padding: const EdgeInsets.only(top: 30), // 앱바 밑 공간 조정
+          padding: const EdgeInsets.only(top: 30), // 앱바 아래 간격
           child: ListView(
             children: buildEatCards(medicines, takenStatus, onTaken),
           ),

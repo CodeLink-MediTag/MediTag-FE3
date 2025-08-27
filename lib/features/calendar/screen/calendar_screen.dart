@@ -1,4 +1,3 @@
-// lib/features/calendar/screen/calendar_screen.dart
 import 'package:flutter/material.dart';
 import 'package:medife/components/custom_app_bar.dart';
 import '../widgets/calendar_header.dart';
@@ -46,18 +45,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 화면 전체 색은 테마에서 가져오게 (다크/라이트 자동 적용)
     final bg = Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
       backgroundColor: bg,
-      appBar: const CustomAppBar(title: '복약기록 캘린더'),
+      appBar: CustomAppBar(
+        title: '복약기록 캘린더',
+        height: 60, // 앱바 높이 명확히 고정
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             children: [
-              // CalendarHeader는 아래에 제공한 테마 기반 구현을 사용
               CalendarHeader(
                 focusedDay: _focusedDay,
                 selectedDay: _selectedDay ?? DateTime.now(),
