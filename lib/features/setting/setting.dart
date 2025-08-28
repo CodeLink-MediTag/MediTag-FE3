@@ -220,7 +220,7 @@ class _SettingsPageState extends State<SettingScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF547EE8),
-                        minimumSize: Size(358, 48),
+                        minimumSize: Size(300, 48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
