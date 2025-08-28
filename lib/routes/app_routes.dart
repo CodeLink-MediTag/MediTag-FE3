@@ -12,7 +12,7 @@ import 'package:medife/features/medication/MediMiddle/MediMiddle.dart';
 import 'package:medife/features/medication/MediStart/MediStart.dart';
 import 'package:medife/features/ocr/ocr.dart';
 import 'package:medife/features/recording/screen/recording_home_screen.dart';
-import 'package:medife/features/setting/alertsound.dart';
+import 'package:medife/features/setting/alert_sound.dart';
 import 'package:medife/features/mypage/mypage.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/mypage/nickname.dart';

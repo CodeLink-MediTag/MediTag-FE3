@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
-import 'package:medife/features/setting/alertsound.dart';
+import 'package:medife/features/setting/alert_sound.dart';
 import 'package:medife/nfc/nfcAdd.dart';
 import '../../components/custom_app_bar.dart';
 import 'package:medife/providers/text_size_provider.dart';
