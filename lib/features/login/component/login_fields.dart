@@ -1,7 +1,5 @@
 // lib/features/login/component/login_fields.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:medife/screens/landing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
@@ -10,10 +8,6 @@ import 'login_custom_text_field.dart';
 import '../model/login_request_model.dart';
 import '../model/kakao_login_request_model.dart';
 import '../repository/login_auth_repository.dart';
-
-import 'package:provider/provider.dart';
-import 'package:medife/providers/nfc_provider.dart'; // ✅ NFC Provider도 import
-
 
 class LoginFields extends StatefulWidget {
   const LoginFields({super.key});
@@ -41,11 +35,11 @@ class _LoginFieldsState extends State<LoginFields> {
 
   Future<void> _handleLoginSuccess() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // 로그인 상태 저장
     await prefs.setBool('isLoggedIn', true);
 
-    // firstLogin/hasSeenGuideline 기본값(안전장치)
+    // 기본: firstLogin/hasSeenGuideline 키가 없으면 초기값 세팅 (안전 장치)
     if (!prefs.containsKey('firstLogin')) {
       await prefs.setBool('firstLogin', true);
     }
@@ -53,26 +47,14 @@ class _LoginFieldsState extends State<LoginFields> {
       await prefs.setBool('hasSeenGuideline', false);
     }
 
-    final nfcProvider = context.read<NfcProvider>();
-    final pending = nfcProvider.pendingRoute;
-
-    // 1) NFC 보류 라우트가 있으면 최우선 처리
-    if (pending != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
-      nfcProvider.clearPendingRoute();
-      return;
-    }
-
-    // 2) NFC 보류 라우트가 없을 때만 가이드라인/랜딩 분기
     final hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
+    // 가이드라인을 본 적이 없으면 가이드라인 화면으로, 이미 봤다면 바로 랜딩으로
     if (!hasSeenGuideline) {
-      Navigator.of(context).pushNamedAndRemoveUntil(RouteName.guideline, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil('/guideline', (route) => false);
     } else {
-      Navigator.of(context).pushNamedAndRemoveUntil(RouteName.landing, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
     }
-    
-
   }
 
   @override
