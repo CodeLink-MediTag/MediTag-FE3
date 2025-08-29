@@ -13,7 +13,7 @@ void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(
-      const MyApp(hasSeenGuideline: true), // ⭐ 필수 인자 전달
+      MyApp(hasSeenGuideline: true, isLoggedIn: true, firstLogin: false), // ⭐ 필수 인자 전달
     );
 
     // Verify that our counter starts at 0.

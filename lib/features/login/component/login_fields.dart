@@ -1,10 +1,9 @@
+// lib/features/login/component/login_fields.dart
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:medife/screens/landing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:medife/screens/guideline/guideline_screen.dart';
-import 'package:medife/routes/route_names.dart';
 
 import 'login_custom_button.dart';
 import 'login_custom_text_field.dart';
@@ -17,9 +16,7 @@ import 'package:medife/providers/nfc_provider.dart'; // ✅ NFC Provider도 impo
 
 
 class LoginFields extends StatefulWidget {
-  final VoidCallback? onLoginSuccess;
-
-  const LoginFields({super.key, this.onLoginSuccess});
+  const LoginFields({super.key});
 
   @override
   State<LoginFields> createState() => _LoginFieldsState();
@@ -30,15 +27,10 @@ class _LoginFieldsState extends State<LoginFields> {
   final formKey = GlobalKey<FormState>();
   String username = '';
   String password = '';
-
-  // 비밀번호 표시/숨김 상태 변수
   bool _obscurePassword = true;
 
-  // 컨트롤러를 State에서 관리
-  final TextEditingController _usernameController =
-  TextEditingController(text: "test@gmail.com");
-  final TextEditingController _passwordController =
-  TextEditingController(text: "test12345");
+  final TextEditingController _usernameController = TextEditingController(text: "test@gmail.com");
+  final TextEditingController _passwordController = TextEditingController(text: "test12345");
 
   @override
   void dispose() {
@@ -49,23 +41,38 @@ class _LoginFieldsState extends State<LoginFields> {
 
   Future<void> _handleLoginSuccess() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // 로그인 상태 저장
+    await prefs.setBool('isLoggedIn', true);
 
-    bool hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
-
-    final next = hasSeenGuideline ? RouteName.landing : RouteName.guideline;
-
-    // 먼저 로그인 후 가야 할 곳으로 교체 네비게이션
-    // await Navigator.pushReplacementNamed(context, next);
-
-    // 그 다음 NFC 보류 라우트 처리
-    final nfcProvider = context.read<NfcProvider>();
-    final route = nfcProvider.pendingRoute;
-    if (route != null) {
-      Navigator.pushNamed(context, route);
-      nfcProvider.clearPendingRoute(); // ✅ 사용 후 초기화
-    } else {
-      Navigator.pushNamed(context, "/landing"); // 기본 화면으로 이동
+    // firstLogin/hasSeenGuideline 기본값(안전장치)
+    if (!prefs.containsKey('firstLogin')) {
+      await prefs.setBool('firstLogin', true);
     }
+    if (!prefs.containsKey('hasSeenGuideline')) {
+      await prefs.setBool('hasSeenGuideline', false);
+    }
+
+    final nfcProvider = context.read<NfcProvider>();
+    final pending = nfcProvider.pendingRoute;
+
+    // 1) NFC 보류 라우트가 있으면 최우선 처리
+    if (pending != null) {
+      Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
+      nfcProvider.clearPendingRoute();
+      return;
+    }
+
+    // 2) NFC 보류 라우트가 없을 때만 가이드라인/랜딩 분기
+    final hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
+
+    if (!hasSeenGuideline) {
+      Navigator.of(context).pushNamedAndRemoveUntil(RouteName.guideline, (route) => false);
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(RouteName.landing, (route) => false);
+    }
+    
+
   }
 
   @override
@@ -113,18 +120,13 @@ class _LoginFieldsState extends State<LoginFields> {
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 formKey.currentState!.save();
-                final request = LoginRequestModel(
-                  username: username,
-                  password: password,
-                );
+                final request = LoginRequestModel(username: username, password: password);
                 try {
                   final token = await repository.login(request);
-                  print('로그인 성공 $token');
+                  debugPrint('로그인 성공: $token');
                   await _handleLoginSuccess();
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.toString())),
-                  );
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
                 }
               }
             },
@@ -141,12 +143,10 @@ class _LoginFieldsState extends State<LoginFields> {
               final request = KakaoLoginRequestModel(accessToken: token);
               try {
                 final response = await repository.kakaoLogin(request);
-                print('카카오 로그인 성공: $response');
+                debugPrint('카카오 로그인 성공: $response');
                 await _handleLoginSuccess();
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(e.toString())),
-                );
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
               }
             },
           ),
@@ -163,7 +163,7 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<String?> handleKakaoLogin(BuildContext context) async {
-    KakaoSdk.init(nativeAppKey: '0294f90ad4d3deac240d0065da6d5c5f');
+    // (앱 전체에서 KakaoSdk.init을 이미 main에서 했으면 중복 불필요)
     try {
       bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
@@ -178,7 +178,7 @@ class _LoginFieldsState extends State<LoginFields> {
       }
       return token.accessToken;
     } catch (e) {
-      print('카카오 로그인 실패: $e');
+      debugPrint('카카오 로그인 실패: $e');
       return null;
     }
   }

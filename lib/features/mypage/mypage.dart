@@ -1,3 +1,4 @@
+// lib/features/mypage/mypage.dart
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -5,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medife/features/mypage/nickname.dart';
 import 'package:medife/features/mypage/guardian/GuardianAlert/guardian_alert_container.dart';
 import 'package:medife/features/mypage/guardian/GuardianEdit/guardian_edit_container.dart';
+import 'package:medife/features/mypage/unregister/unregister_screen.dart';
+import 'package:medife/features/mypage/mode/mode.dart';
+import 'package:provider/provider.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -26,24 +30,11 @@ class _MyPageState extends State<MyPage> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // 1) 사용자가 설정한 닉네임
     final storedNick = prefs.getString('nickname');
-
-    // 2) 로그인할 때 저장된 username(이메일)
     final rawUser = prefs.getString('username') ?? '';
-    // 이메일이면 '@' 앞부분만 꺼내고, 아니면 그대로
-    final user = rawUser.contains('@')
-        ? rawUser.split('@')[0]
-        : rawUser.isNotEmpty
-        ? rawUser
-        : '사용자';
+    final user = rawUser.contains('@') ? rawUser.split('@')[0] : (rawUser.isNotEmpty ? rawUser : '사용자');
+    final displayNick = (storedNick != null && storedNick.isNotEmpty) ? storedNick : user;
 
-    // 3) 최종 표시할 닉네임 결정
-    final displayNick = (storedNick != null && storedNick.isNotEmpty)
-        ? storedNick
-        : user;
-
-    // 4) 프로필 사진도 불러오기
     final base64Image = prefs.getString('profileImageBase64');
     Uint8List? imageBytes;
     if (base64Image != null) {
@@ -65,30 +56,30 @@ class _MyPageState extends State<MyPage> {
       setState(() {
         _nickname = result;
       });
-      await _loadUserData(); // 새로고침
+      await _loadUserData();
     }
   }
 
   Future<void> _navigateToGuardianPage() async {
-    // 1) 무조건 GuardianAlertContainer 화면으로 이동
     await Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const GuardianAlert()),
     );
-
-    // 2) 돌아오면 업데이트
     setState(() {});
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
+          // header (테마 사용)
           Container(
-            color: const Color(0xFF547EE8),
+            color: cs.primary,
             padding: const EdgeInsets.only(top: 50, bottom: 20),
             width: double.infinity,
             child: Column(
@@ -96,14 +87,18 @@ class _MyPageState extends State<MyPage> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, color: cs.onPrimary),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Center(
                         child: Text(
                           '마이페이지',
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: cs.onPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -113,60 +108,109 @@ class _MyPageState extends State<MyPage> {
                 const SizedBox(height: 10),
                 CircleAvatar(
                   radius: 40,
+                  backgroundColor: theme.cardColor,
                   backgroundImage: _profileBytes != null ? MemoryImage(_profileBytes!) : null,
                   child: _profileBytes == null
-                      ? const Icon(Icons.account_circle, size: 60, color: Colors.white)
+                      ? Icon(Icons.account_circle, size: 60, color: cs.onPrimary)
                       : null,
                 ),
                 const SizedBox(height: 10),
-                const Text('안녕하세요', style: TextStyle(color: Colors.white)),
+                Text('안녕하세요', style: TextStyle(color: cs.onPrimary)),
                 const SizedBox(height: 4),
                 Text(
                   '$_nickname님,\n안온한 하루 되세요.',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: cs.onPrimary),
                   textAlign: TextAlign.center,
                 ),
               ],
             ),
           ),
+
           const SizedBox(height: 12),
+
+          // summary card
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+              boxShadow: [BoxShadow(color: isDark ? Colors.black54 : Colors.black12, blurRadius: 4)],
             ),
             child: Row(
-              children: const [
-                Icon(Icons.medication, color: Colors.redAccent),
-                SizedBox(width: 12),
+              children: [
+                Icon(Icons.medication, color: cs.secondary),
+                const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("오늘 복용한 약", style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text("3번 중 2번"),
+                    Text("오늘 복용한 약", style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text("3번 중 2번", style: theme.textTheme.bodyMedium),
                   ],
                 ),
               ],
             ),
           ),
+
           const SizedBox(height: 16),
+
+          // menu list
           Expanded(
             child: ListView(
               children: [
-                _buildMenuItem("내 정보 수정", () => _navigateToEditNickname()),
-                _buildMenuItem("보호자 알림", () async {
-                  await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const GuardianAlert()),
-                  );
-                  setState(() {});  // 돌아왔을 때 새로고침
+                _buildMenuItem(context, "내 정보 수정", () => _navigateToEditNickname()),
+                _buildMenuItem(context, "보호자 알림", () async {
+                  await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuardianAlert()));
+                  setState(() {});
                 }),
 
-                _buildMenuItem("보기 방식 변경", () {}),
-                _buildMenuItem("로그아웃", () {}),
-                _buildMenuItem("회원탈퇴", () {}),
+                _buildMenuItem(context, "보기 방식 변경", () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) {
+                      final themeProv = ctx.read<ThemeProvider>();
+
+                      AppThemeMode current;
+                      if (themeProv.mode == AppThemeMode.system) {
+                        final platformIsDark = MediaQuery.of(ctx).platformBrightness == Brightness.dark;
+                        current = platformIsDark ? AppThemeMode.dark : AppThemeMode.light;
+                      } else {
+                        current = themeProv.mode;
+                      }
+
+                      final options = <AppThemeMode>[AppThemeMode.light, AppThemeMode.dark];
+
+                      return StatefulBuilder(builder: (c, localSetState) {
+                        return AlertDialog(
+                          title: const Text('보기 방식 변경'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: options.map((m) {
+                              final label = m == AppThemeMode.light ? '라이트 모드' : '다크 모드';
+                              return RadioListTile<AppThemeMode>(
+                                value: m,
+                                groupValue: current,
+                                title: Text(label),
+                                onChanged: (val) {
+                                  if (val == null) return;
+                                  localSetState(() => current = val);
+                                  themeProv.setMode(val);
+                                },
+                              );
+                            }).toList(),
+                          ),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('닫기')),
+                          ],
+                        );
+                      });
+                    },
+                  );
+                }),
+                _buildMenuItem(context, "로그아웃", () {}),
+                _buildMenuItem(context, "회원탈퇴", () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UnregisterScreen()));
+                }),
               ],
             ),
           ),
@@ -175,13 +219,18 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
-  Widget _buildMenuItem(String title, VoidCallback onTap) {
-    return ListTile(
-      title: Text(title),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      shape: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+  Widget _buildMenuItem(BuildContext context, String title, VoidCallback onTap) {
+    final theme = Theme.of(context);
+    return Container(
+      color: theme.scaffoldBackgroundColor,
+      child: ListTile(
+        title: Text(title, style: theme.textTheme.bodyLarge),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: theme.iconTheme.color),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        shape: Border(bottom: BorderSide(color: theme.dividerColor)),
+        tileColor: theme.cardColor,
+      ),
     );
   }
 }

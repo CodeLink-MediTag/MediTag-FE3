@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:medife/features/medication/MediDetail/screen/medidetail_screen.dart';
 import 'package:medife/features/medication/MediMain/model/medimain_medicine.dart';
 import 'package:medife/features/medication/MediMain/model/medimain_alarm.dart';
-//import 'package:medife/features/medication/MediMain/component/medimain_time_button.dart';
-
 
 class MedicationCard extends StatelessWidget {
   final Medicine medicine;
@@ -23,6 +21,7 @@ class MedicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
@@ -57,10 +56,14 @@ class MedicationCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(medicine.medicineName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text(
+                      medicine.medicineName,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                       medicine.prescribed ? '처방약' : '일반약',
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -79,32 +82,35 @@ class MedicationCard extends StatelessWidget {
                 onPressed: () {
                   Navigator.push<Medicine>(
                     context,
-                  MaterialPageRoute(builder: (_) => MediDetailScreen(medicine: medicine)),
-                ).then((updated) {
-                  if (updated != null) {
-                    onEdited(updated);
-                  }
+                    MaterialPageRoute(builder: (_) => MediDetailScreen(medicine: medicine)),
+                  ).then((updated) {
+                    if (updated != null) onEdited(updated);
                   });
                 },
               ),
             ],
           ),
           const SizedBox(height: 12),
-          // 알람 버튼들
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
+          // 알람 시간: 캡슐 모양 라벨(버튼처럼 보이지만 클릭 동작 없음)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
               children: medicine.alarms.map((alarm) {
-                final formattedTime = TimeOfDay.fromDateTime(alarm.alarmTime).format(context);
+                final formatted = TimeOfDay.fromDateTime(alarm.alarmTime).format(context);
                 return Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      // 아주 약간의 입체감 (선택사항)
+                      BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+                    ],
                   ),
                   child: Text(
-                    formattedTime,
+                    formatted,
                     style: const TextStyle(fontSize: 14, color: Colors.black87),
                   ),
                 );

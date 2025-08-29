@@ -45,32 +45,37 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5FA),
-      appBar: const CustomAppBar(title: '복약기록 캘린더'),
-        body: SafeArea(                             // 3) 상단·하단 안전 영역 확보
-          child: Padding(                          // 4) 좌우 여백 추가
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
-              children: [
-                CalendarHeader(
-                  focusedDay: _focusedDay,
-                  selectedDay: _selectedDay!,
-                  events: _medDays,
-                  onDaySelected: _onDaySelected,
+      backgroundColor: bg,
+      appBar: CustomAppBar(
+        title: '복약기록 캘린더',
+        height: 60, // 앱바 높이 명확히 고정
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            children: [
+              CalendarHeader(
+                focusedDay: _focusedDay,
+                selectedDay: _selectedDay ?? DateTime.now(),
+                events: _medDays,
+                onDaySelected: _onDaySelected,
+              ),
+              const SizedBox(height: 20),
+              Expanded(
+                child: CalendarMediList(
+                  selectedDay: _selectedDay ?? DateTime.now(),
+                  medicines: _medicines,
+                  onAdded: _loadAll,
                 ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: CalendarMediList(
-                    selectedDay: _selectedDay!,
-                    medicines: _medicines,
-                    onAdded: _loadAll,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

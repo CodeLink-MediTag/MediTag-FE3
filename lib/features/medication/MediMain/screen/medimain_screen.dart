@@ -1,3 +1,4 @@
+// medimain_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,7 +53,6 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
     _loadAll();
   }
 
-
   Future<void> _loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -66,7 +66,6 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('accessToken');
     if (_token == null) {
-      // 토큰이 없으면 빈 화면 처리
       setState(() {
         _isLoading = false;
         _medicines = [];
@@ -77,7 +76,6 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
 
     setState(() { _isLoading = true; });
 
-    // 2) 오늘 날짜 약 리스트 가져오기
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     List<Medicine> meds;
     try {
@@ -86,7 +84,6 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
       meds = [];
     }
 
-    // 3) 로컬에 저장된 favoriteMedicine 키 읽어서 반영
     final favName = prefs.getString('favoriteMedicine');
     for (var med in meds) {
       med.isFavorite = med.medicineName == favName;
@@ -128,7 +125,6 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
   }
 
   /// 로컬에서 favoriteMedicine 키 읽어서
-  /// _favoriteMedName 과 리스트의 isFavorite 에 반영
   Future<void> _loadFavoriteMedicine() async {
     final prefs = await SharedPreferences.getInstance();
     final favName = prefs.getString('favoriteMedicine');
@@ -140,32 +136,81 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
     });
   }
 
-  /// 즐겨찾기 토글 로직 일단 임시임
+  /// 즐겨찾기 토글 로직 - 로컬 prefs에 favoriteMedicine, favoriteAlarmIso, favoriteMedicineId 저장
   Future<void> _toggleFavorite(Medicine med) async {
-    // 1) 이전에 즐겨찾기 된 약 모두 해제
     for (var other in _medicines) {
       other.isFavorite = false;
     }
 
-    // 2) 선택된 약만 토글
     med.isFavorite = !med.isFavorite;
 
-    // 3) 로컬에 저장 (한 번에 하나만 저장)
     final prefs = await SharedPreferences.getInstance();
     if (med.isFavorite) {
       await prefs.setString('favoriteMedicine', med.medicineName);
+      await prefs.setInt('favoriteMedicineId', med.medicineId);
+
+      // 가장 가까운 알람(현재 이후 알람, 없으면 첫 알람) 찾아서 저장
+      final now = DateTime.now();
+      Alarm? nextAlarm;
+      final futureAlarms = med.alarms.where((a) => a.alarmTime.isAfter(now)).toList();
+      if (futureAlarms.isNotEmpty) {
+        nextAlarm = futureAlarms.first;
+      } else if (med.alarms.isNotEmpty) {
+        nextAlarm = med.alarms.first;
+      } else {
+        nextAlarm = null;
+      }
+
+      if (nextAlarm != null) {
+        await prefs.setString('favoriteAlarmIso', nextAlarm.alarmTime.toIso8601String());
+      } else {
+        await prefs.remove('favoriteAlarmIso');
+      }
+
+      // 서버에도 즐겨찾기 반영(선택사항) - 토큰이 있으면 호출
+      final token = prefs.getString('accessToken');
+      if (token != null) {
+        try {
+          await _repo.toggleFavorite(token, med);
+        } catch (_) {
+          // 실패해도 로컬은 반영
+        }
+      }
     } else {
       await prefs.remove('favoriteMedicine');
+      await prefs.remove('favoriteMedicineId');
+      await prefs.remove('favoriteAlarmIso');
+      // 서버 remove favorite could be called here
     }
 
-    // 4) 화면 갱신
     setState(() {});
   }
 
-  void _toggleTaking(Medicine med, Alarm alarm) {
-    setState(() => alarm.taking = !alarm.taking);
-    if (_token != null) {
-      _repo.updateTaking(_token!, med, alarm);
+  /// 알람 '복용' 토글: 서버로 patch 요청 후 로컬 반영
+  Future<void> _toggleTaking(Medicine med, Alarm alarm) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('로그인이 필요합니다')));
+      return;
+    }
+
+    final date = DateFormat('yyyy-MM-dd').format(alarm.alarmTime);
+    try {
+      await _repo.patchTaking(
+        token: token,
+        medicineId: med.medicineId,
+        alarmIso: alarm.alarmTime.toIso8601String(),
+        date: date,
+        taking: !alarm.taking,
+      );
+
+      // 서버 반영 성공 시 로컬도 토글
+      setState(() {
+        alarm.taking = !alarm.taking;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('서버 저장 실패: $e')));
     }
   }
 
@@ -187,67 +232,63 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // 인사말 문구
     final greeting = _favoriteMedName != null
         ? '$_favoriteMedName 약 복용 하셨나요?'
         : '좋은 하루 보내세요';
 
     return Scaffold(
-      appBar: MediMainAppBar(
-        onBack: () => Navigator.pop(context),
-        onCalendar: () => Navigator.pushNamed(context, '/calendar'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _medicines.isEmpty
-          ? const Center(child: Text('등록된 약이 없습니다.'))
-          : Column(
-        children: [
-          // 약 리스트
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _medicines.length,
-              itemBuilder: (ctx, i) {
-                final med = _medicines[i];
-                return MedicationCard(
-                  medicine: med,
-                  onToggleFavorite: () => _toggleFavorite(med),
-                  onToggleTaking: (alarm) => _toggleTaking(med, alarm),
-                  onAskConfirm: (alarm) => _askConfirm(ctx, med, alarm),
-
-                  onEdited: (updatedMed) {
-                    setState(() {
-                      final idx = _medicines.indexWhere((m) =>
-                      m.medicineId == updatedMed.medicineId);
-                      if (idx != -1) {
-                        _medicines[idx] = updatedMed;
-                      }
-                    });
-                  },
-                );
-              },
+        appBar: MediMainAppBar(
+          onBack: () => Navigator.pop(context),
+          onCalendar: () => Navigator.pushNamed(context, '/calendar'),
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _medicines.isEmpty
+            ? const Center(child: Text('등록된 약이 없습니다.'))
+            : Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _medicines.length,
+                itemBuilder: (ctx, i) {
+                  final med = _medicines[i];
+                  return MedicationCard(
+                    medicine: med,
+                    onToggleFavorite: () => _toggleFavorite(med),
+                    onToggleTaking: (alarm) => _toggleTaking(med, alarm),
+                    onAskConfirm: (alarm) => _askConfirm(ctx, med, alarm),
+                    onEdited: (updatedMed) {
+                      setState(() {
+                        final idx = _medicines.indexWhere((m) =>
+                        m.medicineId == updatedMed.medicineId);
+                        if (idx != -1) {
+                          _medicines[idx] = updatedMed;
+                        }
+                      });
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: CustomPrimaryButton(
-        label: '알림 받을 약 추가',
-        onPressed: () {
-          Navigator.of(context)
-            .push<bool>(
+          ],
+        ),
+        bottomNavigationBar: CustomPrimaryButton(
+          label: '알림 받을 약 추가',
+          onPressed: () {
+            Navigator.of(context)
+                .push<bool>(
               MaterialPageRoute(
                 builder: (_) => MediStartScreen(initialDate: DateTime.now()),
               ),
             )
-            .then((result) {
+                .then((result) {
               if (result == true) _loadAll();
             });
-        },
-      )
+          },
+        )
     );
   }
 }

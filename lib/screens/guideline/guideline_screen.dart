@@ -1,3 +1,4 @@
+// GuidelineScreen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,11 +22,14 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
 
   Future<void> _setGuidelineSeen(bool neverShowAgain) async {
     final prefs = await SharedPreferences.getInstance();
-
+    print('before saving hasSeenGuideline: $neverShowAgain');
     await prefs.setBool('hasSeenGuideline', neverShowAgain);
+    await prefs.setBool('firstLogin', false);
+    print('hasSeenGuideline saved');
 
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/landing');
+
+    Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
   }
 
 
@@ -51,10 +55,7 @@ class _GuidelineScreenState extends State<GuidelineScreen> {
               });
             },
             itemBuilder: (context, index) {
-              return Image.asset(
-                _images[index],
-                fit: BoxFit.cover,
-              );
+              return Image.asset(_images[index], fit: BoxFit.cover);
             },
           ),
           if (_showButtons)

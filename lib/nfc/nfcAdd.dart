@@ -36,9 +36,9 @@ class CardRegistration extends StatelessWidget {
             onBack: () => Navigator.of(context).pop(),
             onHome: () {
               Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/landing',
-                      (route) => false // 스택을 깨끗하게 비우기
+                context,
+                '/landing',
+                    (route) => false, // 스택 초기화
               );
             },
           ),
@@ -67,7 +67,6 @@ class _MainViewState extends State<_MainView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // 시간 선택 버튼 3개
         Column(
           children: [
             _buildTimeButton('아침'),
@@ -77,7 +76,6 @@ class _MainViewState extends State<_MainView> {
             _buildTimeButton('저녁'),
           ],
         ),
-        // 안내문
         Text(
           '시간을 선택하고 카드를 태그해주세요',
           style: Theme.of(context).textTheme.bodyLarge,
