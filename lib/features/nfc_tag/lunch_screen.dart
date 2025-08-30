@@ -12,11 +12,16 @@ class LunchScreen extends StatefulWidget {
 
 class _LunchScreenState extends State<LunchScreen> {
   bool _loading = true;
-  String? _message;     // 사용자에게 보여줄 메시지
-  bool? _alreadyTaken;  // 이미 복용했는지
+  String? _message; // 사용자에게 보여줄 메시지
+  bool? _alreadyTaken; // 이미 복용했는지
   bool _showButton = false; // 버튼 표시 여부
 
   final String _targetTime = "12:00:00"; // 점심 시간 고정
+
+  // ✅ patch 요청에 필요한 값 저장
+  int? _medicineId;
+  String? _alarmTime;
+  bool? _prescribed;
 
   @override
   void initState() {
@@ -37,14 +42,17 @@ class _LunchScreenState extends State<LunchScreen> {
           "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
 
       // 3. 서버 요청
-      final uri = Uri.parse("http://$ipAddress:8080/api/medicines?date=$dateStr");
-      final response = await http.get(uri, headers: {"Authorization": "Bearer $token"});
+      final uri =
+      Uri.parse("http://$ipAddress:8080/api/medicines?date=$dateStr");
+      final response =
+      await http.get(uri, headers: {"Authorization": "Bearer $token"});
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
         final medicines = data["medicines"] as List<dynamic>;
-        final prescribed = medicines.where((m) => m["prescribed"] == true).toList();
+        final prescribed =
+        medicines.where((m) => m["prescribed"] == true).toList();
 
         if (prescribed.isEmpty) {
           // 처방약 없음
@@ -56,17 +64,17 @@ class _LunchScreenState extends State<LunchScreen> {
           return;
         }
 
-        // 4. 처방약은 1개라고 했으니 첫 번째만 사용
-        final alarms = prescribed.first["alarms"] as List<dynamic>;
+        // 4. 첫 번째 처방약만 사용
+        final medicine = prescribed.first;
+        final alarms = medicine["alarms"] as List<dynamic>;
 
-        // 5. targetTime에 해당하는 알람 찾기 (점심 == 12:00:00)
+        // 5. 점심(12:00:00) 알람 찾기
         final alarm = alarms.firstWhere(
               (a) => a["alarmTime"].toString().contains(_targetTime),
           orElse: () => null,
         );
 
         if (alarm == null) {
-          // 해당 시간대 약 없음
           setState(() {
             _message = "처방약에 점심약이 없습니다.";
             _showButton = false;
@@ -76,6 +84,11 @@ class _LunchScreenState extends State<LunchScreen> {
         }
 
         final taking = alarm["taking"] as bool;
+
+        // ✅ patch 요청용 값 저장
+        _medicineId = medicine["medicineId"];
+        _alarmTime = alarm["alarmTime"];
+        _prescribed = medicine["prescribed"];
 
         setState(() {
           if (taking) {
@@ -101,6 +114,33 @@ class _LunchScreenState extends State<LunchScreen> {
     }
   }
 
+  Future<void> _takeMedicine() async {
+    if (_medicineId == null) {
+      print("medicineId 없음");
+      return;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+    if (token == null) return;
+
+    final today = DateTime.now();
+    final dateStr =
+        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+
+    await patchDosageTime(
+      medicineId: _medicineId!,
+      date: dateStr,
+      token: token,
+    );
+
+    setState(() {
+      _alreadyTaken = true;
+      _message = "복용 완료 ✅";
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,12 +157,7 @@ class _LunchScreenState extends State<LunchScreen> {
             ],
             if (_showButton)
               ElevatedButton(
-                onPressed: (_alreadyTaken == true)
-                    ? null
-                    : () {
-                  // TODO: 복용 여부 변경 API 호출 (다음 단계에서)
-                  Navigator.pop(context);
-                },
+                onPressed: (_alreadyTaken == true) ? null : _takeMedicine,
                 child: Text(_alreadyTaken == true
                     ? "이미 복용했습니다 ✅"
                     : "복용했어요 ✅"),
@@ -133,3 +168,38 @@ class _LunchScreenState extends State<LunchScreen> {
     );
   }
 }
+
+// ✅ 복용상태 PATCH 함수
+Future<void> patchDosageTime({
+  required int medicineId,
+  required String date,
+  required String token,
+}) async {
+  final baseUrl = 'http://$ipAddress:8080';
+
+  final uri = Uri.parse('$baseUrl/api/medicines/$medicineId/alarms/taking')
+      .replace(queryParameters: {
+    'dosageTime': '점심',  // ✅ 무조건 점심
+    'date': date,
+  });
+
+  try {
+    final response = await http.patch(
+      uri,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('복용 처리 성공');
+    } else {
+      print('오류 발생: ${response.statusCode}');
+      print('응답 본문: ${response.body}');
+    }
+  } catch (e) {
+    print('요청 실패: $e');
+  }
+}
+
