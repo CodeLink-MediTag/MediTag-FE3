@@ -147,6 +147,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final nfcProvider = context.watch<NfcProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final textSizeProvider = context.watch<TextSizeProvider>();
     final double textSize = (textSizeProvider.textSize != null && textSizeProvider.textSize > 0)
@@ -279,15 +280,31 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkInitialRoute();
+    _handleNavigation();
   }
 
-  Future<void> _checkInitialRoute() async {
+  Future<void> _handleNavigation() async {
     await Future.delayed(const Duration(milliseconds: 500));
+
+    final nfcProvider = context.read<NfcProvider>();
+
+    // NFC 우선 처리
+    if (nfcProvider.pendingRoute != null) {
+      final pending = nfcProvider.pendingRoute!;
+      nfcProvider.clearPendingRoute();
+
+      // Navigator가 존재하는 context에서 안전하게 이동
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
+      }
+      return;
+    }
+
+    // NFC 없으면 기존 로직
     if (widget.firstLogin && !widget.hasSeenGuideline) {
-      Navigator.of(context).pushReplacementNamed('/guideline');
+      if (mounted) Navigator.of(context).pushReplacementNamed('/guideline');
     } else {
-      Navigator.of(context).pushReplacementNamed('/landing');
+      if (mounted) Navigator.of(context).pushReplacementNamed('/landing');
     }
   }
 
@@ -298,3 +315,5 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
+
+

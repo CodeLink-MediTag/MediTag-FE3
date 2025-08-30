@@ -90,7 +90,7 @@ class _LunchScreenState extends State<LunchScreen> {
           _loading = false;
         });
       } else {
-        throw Exception("서버 오류: ${response.statusCode}");
+        throw Exception("서버 오류: ${response.body}");
       }
     } catch (e) {
       setState(() {

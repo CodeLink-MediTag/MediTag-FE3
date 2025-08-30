@@ -52,6 +52,7 @@ class _LoginFieldsState extends State<LoginFields> {
     if (!prefs.containsKey('hasSeenGuideline')) {
       await prefs.setBool('hasSeenGuideline', false);
     }
+
     final nfcProvider = context.read<NfcProvider>();
     final pending = nfcProvider.pendingRoute;
 
