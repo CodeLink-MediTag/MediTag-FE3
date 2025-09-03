@@ -2,23 +2,27 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../ip/ip_address.dart';
 
-class LunchScreen extends StatefulWidget {
+class MedicineIntakeScreen extends StatefulWidget {
+  final String timeLabel; // "아침", "점심", "저녁"
+  final String targetTime; // "08:00:00", "12:00:00", "18:00:00"
+
+  MedicineIntakeScreen({
+    required this.timeLabel,
+    required this.targetTime,
+    Key? key,
+  }) : super(key: key);
+
   @override
-  _LunchScreenState createState() => _LunchScreenState();
+  _MedicineIntakeScreenState createState() => _MedicineIntakeScreenState();
 }
 
-class _LunchScreenState extends State<LunchScreen> {
+class _MedicineIntakeScreenState extends State<MedicineIntakeScreen> {
   bool _loading = true;
-  String? _message; // 사용자에게 보여줄 메시지
-  bool? _alreadyTaken; // 이미 복용했는지
-  bool _showButton = false; // 버튼 표시 여부
-
-  final String _targetTime = "12:00:00"; // 점심 시간 고정
-
-  // ✅ patch 요청에 필요한 값 저장
+  String? _message;
+  bool? _alreadyTaken;
+  bool _showButton = false;
   int? _medicineId;
   String? _alarmTime;
   bool? _prescribed;
@@ -31,31 +35,18 @@ class _LunchScreenState extends State<LunchScreen> {
 
   Future<void> _checkPrescription() async {
     try {
-      // 1. 토큰 가져오기
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('accessToken');
       if (token == null) throw Exception("토큰 없음");
-
-      // 2. 오늘 날짜 yyyy-MM-dd
       final today = DateTime.now();
-      final dateStr =
-          "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-
-      // 3. 서버 요청
-      final uri =
-      Uri.parse("http://$ipAddress:8080/api/medicines?date=$dateStr");
-      final response =
-      await http.get(uri, headers: {"Authorization": "Bearer $token"});
-
+      final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
+      final uri = Uri.parse("http://$ipAddress:8080/api/medicines?date=$dateStr");
+      final response = await http.get(uri, headers: {"Authorization": "Bearer $token"});
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         final medicines = data["medicines"] as List<dynamic>;
-        final prescribed =
-        medicines.where((m) => m["prescribed"] == true).toList();
-
+        final prescribed = medicines.where((m) => m["prescribed"] == true).toList();
         if (prescribed.isEmpty) {
-          // 처방약 없음
           setState(() {
             _message = "처방약이 없습니다.";
             _showButton = false;
@@ -63,40 +54,31 @@ class _LunchScreenState extends State<LunchScreen> {
           });
           return;
         }
-
-        // 4. 첫 번째 처방약만 사용
         final medicine = prescribed.first;
         final alarms = medicine["alarms"] as List<dynamic>;
-
-        // 5. 점심(12:00:00) 알람 찾기
         final alarm = alarms.firstWhere(
-              (a) => a["alarmTime"].toString().contains(_targetTime),
+              (a) => a["alarmTime"].toString().contains(widget.targetTime),
           orElse: () => null,
         );
-
         if (alarm == null) {
           setState(() {
-            _message = "처방약에 점심약이 없습니다.";
+            _message = "처방약에 ${widget.timeLabel}약이 없습니다.";
             _showButton = false;
             _loading = false;
           });
           return;
         }
-
         final taking = alarm["taking"] as bool;
-
-        // ✅ patch 요청용 값 저장
         _medicineId = medicine["medicineId"];
         _alarmTime = alarm["alarmTime"];
         _prescribed = medicine["prescribed"];
-
         setState(() {
           if (taking) {
             _message = "이미 복용했습니다 ✅";
             _alreadyTaken = true;
-            _showButton = true; // 버튼은 보이지만 disable
+            _showButton = true;
           } else {
-            _message = null; // 메시지 대신 버튼만 보여줌
+            _message = null;
             _alreadyTaken = false;
             _showButton = true;
           }
@@ -115,36 +97,28 @@ class _LunchScreenState extends State<LunchScreen> {
   }
 
   Future<void> _takeMedicine() async {
-    if (_medicineId == null) {
-      print("medicineId 없음");
-      return;
-    }
-
+    if (_medicineId == null) return;
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
     if (token == null) return;
-
     final today = DateTime.now();
-    final dateStr =
-        "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-
+    final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
     await patchDosageTime(
       medicineId: _medicineId!,
       date: dateStr,
       token: token,
+      timeLabel: widget.timeLabel, // 필수로 전달!
     );
-
     setState(() {
       _alreadyTaken = true;
       _message = "복용 완료 ✅";
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("점심 약 복용")),
+      appBar: AppBar(title: Text("${widget.timeLabel} 약 복용")),
       body: Center(
         child: _loading
             ? CircularProgressIndicator()
@@ -169,20 +143,19 @@ class _LunchScreenState extends State<LunchScreen> {
   }
 }
 
-// ✅ 복용상태 PATCH 함수
+// PATCH 함수: 복용시간을 매번 전달
 Future<void> patchDosageTime({
   required int medicineId,
   required String date,
   required String token,
+  required String timeLabel, // "아침", "점심", "저녁"
 }) async {
   final baseUrl = 'http://$ipAddress:8080';
-
   final uri = Uri.parse('$baseUrl/api/medicines/$medicineId/alarms/taking')
       .replace(queryParameters: {
-    'dosageTime': '점심',  // ✅ 무조건 점심
+    'dosageTime': timeLabel,
     'date': date,
   });
-
   try {
     final response = await http.patch(
       uri,
@@ -191,7 +164,6 @@ Future<void> patchDosageTime({
         'Authorization': 'Bearer $token',
       },
     );
-
     if (response.statusCode == 200) {
       print('복용 처리 성공');
     } else {
@@ -202,4 +174,3 @@ Future<void> patchDosageTime({
     print('요청 실패: $e');
   }
 }
-

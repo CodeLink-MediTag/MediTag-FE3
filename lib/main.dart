@@ -11,8 +11,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'features/login/screen/login_screen.dart';
-import 'features/nfc_tag/lunch_screen.dart';
-import 'features/nfc_tag/nfc_app.dart';
+import 'features/nfc_tag/medicine_intake_screen.dart';
 import 'features/signup/screen/signup_screen.dart';
 import 'screens/landing.dart';
 import 'screens/guideline/guideline_screen.dart';
@@ -258,9 +257,9 @@ class _MyAppState extends State<MyApp> {
         '/ocr': (context) => OcrScreen(),
         '/guideline': (context) => const GuidelineScreen(),
         // 카드별로 화면 이동
-        '/morning': (context) => MorningScreen(),
-        '/lunch': (context) => LunchScreen(),
-        '/dinner': (context) => DinnerScreen(),
+        '/morning': (context) => MedicineIntakeScreen(timeLabel: '아침', targetTime: '08:00:00',),
+        '/lunch': (context) => MedicineIntakeScreen(timeLabel: '점심', targetTime: '12:00:00',),
+        '/dinner': (context) => MedicineIntakeScreen(timeLabel: '저녁', targetTime: '18:00:00',),
       },
       debugShowCheckedModeBanner: false,
     );
