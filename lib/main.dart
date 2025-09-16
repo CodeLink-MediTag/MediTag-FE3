@@ -18,17 +18,29 @@ import 'screens/guideline/guideline_screen.dart';
 import 'firebase_options.dart';
 import 'package:medife/features/mypage/mode/mode.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'fcm_tts_service.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   await initializeDateFormatting('ko_KR', null);
   // KakaoSdk는 앱 초기화 시 한 번만 호출하면 됩니다.
   KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');
+// 백그라운드 핸들러 등록 (중복 등록 방지 위해 FcmTtsService 내부에서 호출해도 무방)
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   runApp(const MyAppInitializer());
+
+  // runApp 이후에 초기화해도 되고, 앱 Context를 사용하지 않는 초기화라면 여기서 호출 가능
+  await FcmTtsService().initialize();
 }
 
 class MyAppInitializer extends StatefulWidget {
@@ -115,12 +127,79 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // TTS 인스턴스
+  final FlutterTts _flutterTts = FlutterTts();
 
 
   @override
   void initState() {
     super.initState();
     _checkInitialNfcLaunch();
+    _setupFcmAndTts(); // <-- FCM + TTS 초기화 호출
+  }
+
+  /// FCM 초기화 및 TTS 연동
+  Future<void> _setupFcmAndTts() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+
+      // (Optional) Android 13 등에서 알림 권한 요청 (iOS/Android 공통)
+      // 권한 요청은 필요하면 활성화하세요. 여기선 시도만 함.
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+      debugPrint('🔔 Notification permission: ${settings.authorizationStatus}');
+
+      // FCM 토큰 가져오기 (로그로 확인)
+      final String? token = await messaging.getToken();
+      debugPrint('🔥 FCM token: $token');
+
+      // TTS 기본 세팅
+      try {
+        await _flutterTts.setLanguage('ko-KR');
+        await _flutterTts.setSpeechRate(0.45);
+        await _flutterTts.setVolume(1.0);
+      } catch (e) {
+        debugPrint('TTS init warning: $e');
+      }
+
+      // 포그라운드 메시지 수신 시 처리 -> 여기서 TTS로 읽음
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+        debugPrint('📝 onMessage: data=${message.data} notification=${message.notification}');
+
+        final title = message.notification?.title ?? '';
+        final body = message.notification?.body ?? message.data['body'] ?? '';
+        final speakText = body.isNotEmpty ? body : (title.isNotEmpty ? title : '새 알림이 도착했습니다.');
+
+        try {
+          await _flutterTts.stop(); // 이전 재생 중이면 중단
+          await _flutterTts.speak(speakText);
+          debugPrint('🔊 TTS spoke: $speakText');
+        } catch (e) {
+          debugPrint('TTS error: $e');
+        }
+      });
+
+      // 알림을 통해 앱이 열렸을 때
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        debugPrint('📝 onMessageOpenedApp: data=${message.data}');
+        // TODO: 필요 시 네비게이션 처리
+      });
+
+      // 앱이 완전히 종료된 상태에서 시작될 때 전달된 메시지 확인
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        debugPrint('📝 getInitialMessage: data=${initialMessage.data}');
+      }
+    } catch (e) {
+      debugPrint('FCM+TTS setup error: $e');
+    }
   }
 
   Future<void> _checkInitialNfcLaunch() async {
@@ -146,7 +225,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final nfcProvider = context.watch<NfcProvider>();
     final themeProvider = context.watch<ThemeProvider>();
     final textSizeProvider = context.watch<TextSizeProvider>();
     final double textSize = (textSizeProvider.textSize != null && textSizeProvider.textSize > 0)
@@ -250,6 +328,7 @@ class _MyAppState extends State<MyApp> {
       },
       initialRoute: initialRoute,
       routes: {
+        '/' : (context) => widget.isLoggedIn ? SplashScreen(hasSeenGuideline: widget.hasSeenGuideline, firstLogin: widget.firstLogin) : LoginScreen(),
         '/splash': (context) => SplashScreen(hasSeenGuideline: widget.hasSeenGuideline, firstLogin: widget.firstLogin),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
@@ -314,5 +393,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-
-

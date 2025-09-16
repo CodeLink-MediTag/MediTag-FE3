@@ -56,11 +56,31 @@ class _LoginFieldsState extends State<LoginFields> {
     final nfcProvider = context.read<NfcProvider>();
     final pending = nfcProvider.pendingRoute;
 
-// 1) NFC 보류 라우트가 있으면 최우선 처리
-    if (pending != null) {
+    // 디버그 로그: pending 값 확인 (나중에 삭제 가능)
+    debugPrint('[Login] pending route from NfcProvider: $pending');
+
+    // === 허용되는 라우트 목록을 명시적으로 정의 ===
+    // 프로젝트에서 사용하는 실제 라우트들만 넣으세요.
+    final Set<String> allowedRoutes = {
+      '/morning',
+      '/lunch',
+      '/dinner',
+      RouteName.landing,    // '/landing'
+      RouteName.guideline,  // '/guideline'
+      // 필요하면 추가...
+    };
+
+// 1) NFC 보류 라우트가 있으면 안전성 검증 후 최우선 처리
+    if (pending != null && pending.isNotEmpty && pending != '/' && allowedRoutes.contains(pending)) {
+      // 안전한 값이면 이동
       Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
       nfcProvider.clearPendingRoute();
       return;
+    } else {
+      // 안전하지 않은 pending이면 무시하고 로그 남김
+      if (pending != null && pending.isNotEmpty) {
+        debugPrint('[Login] Ignoring unsafe pending route: $pending');
+      }
     }
 
 // 2) NFC 보류 라우트가 없을 때만 가이드라인/랜딩 분기

@@ -110,12 +110,19 @@ class _SettingsPageState extends State<SettingScreen> {
 
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    // 팝업 재출현 여부 상태 유지 (초기화 금지)
-    // await prefs.setBool('hasSeenGuideline', false); // 주석 처리 또는 삭제
-    // await prefs.setBool('firstLogin', true); // 필요 시, 사용자 경험에 맞게 설정
+
+    // 로그인 상태 false 로 설정
+    await prefs.setBool('isLoggedIn', false);
+
+
+    // (선택) 로그인 토큰이 있다면 제거
+    // await prefs.remove('accessToken');
+    // await prefs.remove('refreshToken');
+
+    // 네비게이션: 로그인 화면으로 가면서 이전 스택 모두 제거
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
+
 
   @override
   Widget build(BuildContext context) {
