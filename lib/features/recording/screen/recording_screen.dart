@@ -10,8 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:dio/dio.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-
-
+import 'package:http_parser/http_parser.dart';
 
 class RecordingScreen extends StatefulWidget {
   const RecordingScreen({super.key});
@@ -24,9 +23,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
   final Record _record = Record();
   bool _isRecording = false;
   String _recordFilePath = '';
-
-  String _title = ''; // 약 이름 저장용
-
+  String _title = '';
 
   Future<void> _startRecording() async {
     if (await Permission.microphone.request().isGranted) {
@@ -42,24 +39,19 @@ class _RecordingScreenState extends State<RecordingScreen> {
   }
 
   Future<void> _stopRecording() async {
-    final path = await _record.stop(); // 경로 반환됨
-
+    final path = await _record.stop();
     setState(() {
       _isRecording = false;
       _recordFilePath = path ?? '';
     });
-
     if (path != null) {
       await _sendToServer(path);
     }
   }
 
   Future<void> _sendToServer(String filePath) async {
-    String url = 'http://$ipAddress:8080/api/records';
-
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
-
     if (token == null) {
       _showMessage("❌ 토큰이 없습니다. 로그인 상태를 확인해주세요.");
       return;
@@ -77,20 +69,19 @@ class _RecordingScreenState extends State<RecordingScreen> {
         "file": await MultipartFile.fromFile(
           filePath,
           filename: p.basename(filePath),
+          contentType: MediaType('audio', 'mpeg'),
         ),
       });
 
       final dio = Dio();
-
+      final url = 'http://$ipAddress:8080/api/records';
       final response = await dio.post(
         url,
         data: formData,
-        options: Options(
-          headers: {
-            HttpHeaders.authorizationHeader: "Bearer $token",
-            "Content-Type": "multipart/form-data",
-          },
-        ),
+        options: Options(headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'multipart/form-data',
+        }),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -99,7 +90,6 @@ class _RecordingScreenState extends State<RecordingScreen> {
         _showMessage("⚠️ 서버 오류: ${response.statusCode}");
       }
     } catch (e) {
-      print('❌ 오류 발생: $e');
       _showMessage("❌ 전송 중 오류가 발생했습니다");
     }
   }
@@ -113,9 +103,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   String _formattedTime() {
@@ -125,14 +113,18 @@ class _RecordingScreenState extends State<RecordingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final startTime = _formattedTime();
 
+    // container color: primaryContainer 선호, 없으면 primary의 투명 색 사용
+    final bigPanelColor = cs.primaryContainer ?? cs.primary.withOpacity(0.12);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
-          const CustomAppBar(title: '주의사항 녹음'),
-
+          CustomAppBar(title: '주의사항 녹음'),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -144,15 +136,9 @@ class _RecordingScreenState extends State<RecordingScreen> {
                     height: 220,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFA5C7FA),
+                      color: bigPanelColor,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: Colors.black26.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 3))],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -160,11 +146,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
                         Text(
                           _isRecording ? '🎙️ 녹음중' : startTime,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                          style: theme.textTheme.headlineSmall?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -173,20 +155,17 @@ class _RecordingScreenState extends State<RecordingScreen> {
                   TextField(
                     decoration: InputDecoration(
                       labelText: '약 이름을 입력하세요',
-                      labelStyle: const TextStyle(
-                        color: Color(0xFF547EE8), // 라벨 색상
-                        fontWeight: FontWeight.bold,
-                      ),
+                      labelStyle: theme.textTheme.labelLarge?.copyWith(color: cs.primary, fontWeight: FontWeight.bold),
                       filled: true,
-                      fillColor: Colors.white, // 배경 흰색
-                      prefixIcon: const Icon(Icons.medication, color: Color(0xFF547EE8)),
+                      fillColor: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
+                      prefixIcon: Icon(Icons.medication, color: cs.primary),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFF547EE8), width: 1.5),
+                        borderSide: BorderSide(color: cs.primary, width: 1.5),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFF7D8FF7), width: 2),
+                        borderSide: BorderSide(color: cs.primary, width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                     ),
@@ -195,47 +174,40 @@ class _RecordingScreenState extends State<RecordingScreen> {
                         _title = value;
                       });
                     },
+                    style: theme.textTheme.bodyLarge,
                   ),
-
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _toggleRecording,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isRecording ? Colors.red : const Color(0xFF547EE8),
-                      foregroundColor: Colors.white,
+                      backgroundColor: _isRecording ? Colors.red : cs.primary,
+                      foregroundColor: cs.onPrimary,
                       minimumSize: const Size(double.infinity, 80),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      textStyle: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      textStyle: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    child: Text(_isRecording ? '녹음 끝내기' : '녹음 시작'),
+                    child: Text(_isRecording ? '녹음 끝내기' : '녹음 시작', style: theme.textTheme.titleLarge?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        // MaterialPageRoute(builder: (context) => const RecordList()),
                         MaterialPageRoute(builder: (context) => const RecordingListScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7D8FF7),
-                      foregroundColor: Colors.white,
+                      backgroundColor: cs.secondary,
+                      foregroundColor: cs.onSecondary,
                       minimumSize: const Size(double.infinity, 60),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      textStyle: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    child: const Text('녹음 파일 목록'),
+                    child: Text('녹음 파일 목록', style: theme.textTheme.titleMedium?.copyWith(color: cs.onSecondary, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

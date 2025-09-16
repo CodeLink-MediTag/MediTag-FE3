@@ -96,13 +96,13 @@ class _EatListState extends State<EatList> {
       void Function(int medicineId, String time, bool prescribed) onTaken,
       ) {
     return medicines.map((pill) {
-      final times = takenStatus[pill.medicineId]!.keys.toList();
+      final times = (takenStatus[pill.medicineId] ?? {}).keys.toList();
 
       return EatCard(
         prescribed: pill.prescribed,
         pillName: pill.name,
         times: times,
-        takenMap: takenStatus[pill.medicineId]!,
+        takenMap: takenStatus[pill.medicineId] ?? {},
         onTaken: (time) => onTaken(pill.medicineId, time, pill.prescribed),
       );
     }).toList();
@@ -110,21 +110,28 @@ class _EatListState extends State<EatList> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        // 테마의 scaffoldBackgroundColor 사용 (라이트/다크 자동)
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: CustomAppBar(
           title: '복용 기록',
           onBack: () {
             Navigator.pop(context);
           },
-          // 필요하다면 onHome 콜백도 추가 가능
-          height: 60, // 앱바 높이 명시적으로 고정 가능
+          height: 60,
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 30), // 앱바 아래 간격
-          child: ListView(
+          child: medicines.isEmpty
+              ? Center(
+            child: CircularProgressIndicator(color: cs.primary),
+          )
+              : ListView(
             children: buildEatCards(medicines, takenStatus, onTaken),
           ),
         ),

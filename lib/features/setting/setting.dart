@@ -1,3 +1,4 @@
+// lib/features/setting/setting.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -6,8 +7,11 @@ import 'package:medife/features/setting/alert_sound.dart';
 import 'package:medife/nfc/nfcAdd.dart';
 import '../../components/custom_app_bar.dart';
 import 'package:medife/providers/text_size_provider.dart';
+import '../../components/custom_primary_button.dart'; // 커스텀 버튼
 
 class SettingScreen extends StatefulWidget {
+  const SettingScreen({Key? key}) : super(key: key);
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -15,7 +19,7 @@ class SettingScreen extends StatefulWidget {
 class _SettingsPageState extends State<SettingScreen> {
   bool notifications = true;
   String notificationMode = '소리만';
-  List<String> notificationOptions = ['소리만', '진동', '소리 + 진동'];
+  final List<String> notificationOptions = ['소리만', '진동', '소리 + 진동'];
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -27,28 +31,28 @@ class _SettingsPageState extends State<SettingScreen> {
   }
 
   Future<void> _initializeNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings =
+    InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
   Future<void> _loadSettings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
       notifications = prefs.getBool('notifications') ?? true;
       notificationMode = prefs.getString('notification_mode') ?? '소리만';
     });
-
-    // 텍스트 크기는 Provider에서 불러오므로 여기선 따로 불러올 필요 없음
   }
 
   Future<void> _saveNotifications(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notifications', value);
   }
 
   Future<void> _saveNotificationMode(String mode) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setString('notification_mode', mode);
   }
 
@@ -99,7 +103,8 @@ class _SettingsPageState extends State<SettingScreen> {
         androidDetails = androidDetailsSound;
     }
 
-    final NotificationDetails notificationDetails = NotificationDetails(android: androidDetails);
+    final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails);
     await flutterLocalNotificationsPlugin.show(
       0,
       '알림 테스트',
@@ -110,174 +115,202 @@ class _SettingsPageState extends State<SettingScreen> {
 
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-
-    // 로그인 상태 false 로 설정
     await prefs.setBool('isLoggedIn', false);
-
-
-    // (선택) 로그인 토큰이 있다면 제거
-    // await prefs.remove('accessToken');
-    // await prefs.remove('refreshToken');
-
-    // 네비게이션: 로그인 화면으로 가면서 이전 스택 모두 제거
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
-
 
   @override
   Widget build(BuildContext context) {
     final textSizeProvider = Provider.of<TextSizeProvider>(context);
     final double textSize = textSizeProvider.textSize;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF6F6F6),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
-          CustomAppBar(
-            title: '환경설정',
-          ),
+          // 상단 커스텀 앱바 (기존 코드 유지)
+          const CustomAppBar(title: '환경설정'),
+
+          // 컨텐츠 영역 (스크롤 가능)
           Expanded(
-            child: Container(
-              color: Color(0xFFF6F6F6),
-              child: Column(
+            child: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: ListView(
+                padding: EdgeInsets.only(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  // 키보드가 올라오면 viewInsets.bottom 만큼 추가 여백을 줘서
+                  // 리스트 내용이 키보드에 가려지지 않도록 함
+                  bottom: MediaQuery
+                      .of(context)
+                      .viewInsets
+                      .bottom + 24,
+                ),
                 children: [
-                  _buildSettingTile('알림', Switch(
-                    value: notifications,
-                    onChanged: (value) {
-                      setState(() {
-                        notifications = value;
-                        _saveNotifications(notifications);
-                        if (!notifications) {
-                          flutterLocalNotificationsPlugin.cancelAll();
-                        }
-                      });
-                    },
-                    activeColor: Colors.blue,
-                  ), textSize),
-                  _buildDivider(),
-                  if (notifications)
-                    Container(
-                      color: Color(0xFFFDFDFD),
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: ListTile(
-                        title: Text(
-                          '알림 설정',
-                          style: TextStyle(fontSize: textSize, fontWeight: FontWeight.w400),
-                        ),
-                        trailing: DropdownButton<String>(
-                          value: notificationMode,
-                          items: notificationOptions.map((String option) {
-                            return DropdownMenuItem<String>(
-                              value: option,
-                              child: Text(option, style: TextStyle(fontSize: textSize)),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              notificationMode = newValue!;
-                              _saveNotificationMode(notificationMode);
-                              _updateNotificationSettings(notificationMode);
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                  if (notifications) _buildDivider(),
-                  if (notifications)
-                    _buildNavigationButton('알림음', () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AlertSound()),
-                      );
-                    }, textSize),
-                  if (notifications) _buildDivider(),
+                  // (예시) 알림 토글 행
                   Container(
-                    padding: EdgeInsets.all(16),
-                    color: Color(0xFFFDFDFD),
+                    color: theme.cardColor,
                     child: Column(
                       children: [
-                        Text('글자 크기', style: TextStyle(fontSize: textSize, fontWeight: FontWeight.w400)),
-                        Slider(
-                          value: textSize,
-                          min: 14,
-                          max: 18,
-                          divisions: 7,
-                          label: textSize.toStringAsFixed(1),
+                        _buildSettingTile('알림', Switch(
+                          value: notifications,
                           onChanged: (value) {
-                            textSizeProvider.setTextSize(value);
+                            setState(() {
+                              notifications = value;
+                              _saveNotifications(notifications);
+                              if (!notifications) {
+                                flutterLocalNotificationsPlugin.cancelAll();
+                              }
+                            });
                           },
+                          activeColor: cs.primary,
+                        ), textSize),
+                        _buildDivider(),
+                        if (notifications)
+                          Container(
+                            color: theme.cardColor,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: ListTile(
+                              title: Text(
+                                '알림 설정',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontSize: textSize),
+                              ),
+                              trailing: DropdownButton<String>(
+                                value: notificationMode,
+                                items: notificationOptions.map((String option) {
+                                  return DropdownMenuItem<String>(
+                                    value: option,
+                                    child: Text(option,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(fontSize: textSize)),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    notificationMode = newValue!;
+                                    _saveNotificationMode(notificationMode);
+                                    _updateNotificationSettings(
+                                        notificationMode);
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        if (notifications) _buildDivider(),
+                        if (notifications)
+                          _buildNavigationButton('알림음', () {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => AlertSound()));
+                          }, textSize),
+                        if (notifications) _buildDivider(),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          color: theme.cardColor,
+                          child: Column(
+                            children: [
+                              Text('글자 크기',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontSize: textSize)),
+                              Slider(
+                                value: textSize,
+                                min: 14,
+                                max: 18,
+                                divisions: 7,
+                                label: textSize.toStringAsFixed(1),
+                                activeColor: cs.primary,
+                                onChanged: (value) {
+                                  textSizeProvider.setTextSize(value);
+                                },
+                              ),
+                            ],
+                          ),
                         ),
+                        _buildDivider(),
+                        _buildNavigationButton('NFC 등록', () {
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => CardRegistration()));
+                        }, textSize),
+                        _buildDivider(),
+                        const SizedBox(height: 8),
+                        // 필요하면 여기에 추가 설정 항목들...
                       ],
                     ),
                   ),
-                  _buildDivider(),
-                  _buildNavigationButton('NFC 등록', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CardRegistration()),
-                    );
-                  }, textSize),
-                  _buildDivider(),
-                  Spacer(),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 20),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await _logout(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF547EE8),
-                        minimumSize: Size(300, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Text(
-                        '로그아웃',
-                        style: TextStyle(fontSize: textSize, fontWeight: FontWeight.w400, color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 90), // 리스트 끝에서 버튼이 가리는 걸 방지하기 위한 여유
                 ],
               ),
             ),
           ),
         ],
       ),
+
+      // <- 핵심: 버튼을 bottomNavigationBar로 넣어서 항상 화면 하단에 고정
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+          child: CustomPrimaryButton(
+            label: '로그아웃', // 혹시 '로그인' 버튼을 원하면 라벨/콜백만 바꿔
+            onPressed: () async {
+              await _logout(context);
+            },
+            margin: EdgeInsets.zero,
+            height: 52,
+          ),
+        ),
+      ),
     );
   }
 
+// helper 함수들 (기존 것을 context 참조형으로 바꿔 사용)
   Widget _buildSettingTile(String title, Widget trailing, double fontSize) {
     return Container(
-      color: Color(0xFFFDFDFD),
+      color: Theme
+          .of(context)
+          .cardColor,
       child: ListTile(
         title: Text(
           title,
-          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w400),
+          style: Theme
+              .of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(fontSize: fontSize),
         ),
         trailing: trailing,
       ),
     );
   }
 
-  Widget _buildNavigationButton(String title, VoidCallback onPressed, double fontSize) {
+  Widget _buildNavigationButton(String title, VoidCallback onPressed,
+      double fontSize) {
     return Container(
-      color: Color(0xFFFDFDFD),
+      color: Theme
+          .of(context)
+          .cardColor,
       child: ListTile(
-        title: Text(
-          title,
-          style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w400),
-        ),
-        trailing: Icon(Icons.arrow_forward_ios, color: Colors.black, size: 20),
+        title: Text(title, style: Theme
+            .of(context)
+            .textTheme
+            .bodyMedium
+            ?.copyWith(fontSize: fontSize)),
+        trailing: Icon(Icons.arrow_forward_ios, color: Theme
+            .of(context)
+            .iconTheme
+            .color, size: 20),
         onTap: onPressed,
       ),
     );
   }
 
   Widget _buildDivider() {
-    return Container(
-      height: 2,
-      color: Color(0xFFDADADA),
-    );
+    return Container(height: 2, color: Theme
+        .of(context)
+        .dividerColor);
   }
 }

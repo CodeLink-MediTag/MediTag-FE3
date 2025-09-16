@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-
-import '../../../components/custom_app_bar.dart';
+import 'package:medife/components/custom_app_bar.dart';
 import '../model/recording.dart';
 import '../repository/fetch_recordings.dart';
 
@@ -15,7 +14,7 @@ class RecordingListScreen extends StatefulWidget {
 class _RecordingListScreenState extends State<RecordingListScreen> {
   late Future<List<Recording>> recordingsFuture;
   final AudioPlayer _audioPlayer = AudioPlayer();
-  int? playingIndex; // 현재 재생중인 인덱스
+  int? playingIndex;
 
   @override
   void initState() {
@@ -28,7 +27,7 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
       await _audioPlayer.pause();
       setState(() => playingIndex = null);
     } else {
-      await _audioPlayer.stop(); // 다른 재생 중인 거 멈춤
+      await _audioPlayer.stop();
       await _audioPlayer.play(UrlSource(url));
       setState(() => playingIndex = index);
     }
@@ -42,33 +41,51 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Scaffold(
       appBar: CustomAppBar(title: '주의사항 녹음'),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: FutureBuilder<List<Recording>>(
         future: recordingsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: cs.primary));
           }
           if (snapshot.hasError) {
-            return Center(child: Text("오류: ${snapshot.error}"));
+            return Center(child: Text("오류: ${snapshot.error}", style: theme.textTheme.bodyLarge));
           }
-          final recordings = snapshot.data!;
-          return ListView.builder(
+          final recordings = snapshot.data ?? [];
+          if (recordings.isEmpty) {
+            return Center(child: Text('등록된 녹음이 없습니다.', style: theme.textTheme.bodyLarge));
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
             itemCount: recordings.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              final recording = recordings[index];
-              return ListTile(
-                title: Text(recording.title),
-                subtitle: Text(
-                  recording.recordingTime.toLocal().toString(),
-                  style: const TextStyle(fontSize: 12),
+              final rec = recordings[index];
+              return Container(
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.black26.withOpacity(0.02), blurRadius: 4)],
                 ),
-                trailing: IconButton(
-                  icon: Icon(
-                    playingIndex == index ? Icons.pause : Icons.play_arrow,
+                child: ListTile(
+                  title: Text(rec.title, style: theme.textTheme.titleMedium),
+                  subtitle: Text(
+                    rec.recordingTime.toLocal().toString(),
+                    style: theme.textTheme.bodySmall,
                   ),
-                  onPressed: () => _togglePlay(recording.recordingFile, index),
+                  trailing: IconButton(
+                    icon: Icon(
+                      playingIndex == index ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                      color: cs.primary,
+                      size: 28,
+                    ),
+                    onPressed: () => _togglePlay(rec.recordingFile, index),
+                  ),
                 ),
               );
             },

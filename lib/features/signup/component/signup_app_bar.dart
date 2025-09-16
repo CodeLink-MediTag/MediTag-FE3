@@ -8,13 +8,23 @@ class SignupAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appBarTheme = Theme.of(context).appBarTheme;
+    final cs = Theme.of(context).colorScheme;
+
+    final bg = appBarTheme.backgroundColor ?? cs.primary;
+    final fg = appBarTheme.foregroundColor ?? cs.onPrimary;
+    final titleStyle = appBarTheme.titleTextStyle ??
+        Theme.of(context).textTheme.titleLarge?.copyWith(color: fg, fontWeight: FontWeight.w600);
+
     return AppBar(
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back, color: fg),
         onPressed: () => Navigator.of(context).pop(),
       ),
-      backgroundColor: Colors.white,
-      elevation: 0,
+      backgroundColor: bg,
+      elevation: appBarTheme.elevation ?? 0,
+      centerTitle: appBarTheme.centerTitle ?? true,
+      title: Text('', style: titleStyle),
     );
   }
 }

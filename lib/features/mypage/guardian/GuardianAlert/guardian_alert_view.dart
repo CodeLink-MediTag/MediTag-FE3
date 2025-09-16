@@ -19,51 +19,68 @@ class GuardianAlertView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final tt = theme.textTheme;
+
     if (loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        appBar: const PreferredSize(
+          preferredSize: Size.fromHeight(60),
+          child: CustomAppBar(title: '보호자 알림'),
+        ),
+        body: Center(child: CircularProgressIndicator(color: cs.primary)),
       );
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: CustomAppBar(
         title: '보호자 알림',
         onBack: () => Navigator.of(context).pop(),
-        onHome: () => Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/landing',
-              (_) => false,
-        ),
+        onHome: () => Navigator.pushNamedAndRemoveUntil(context, '/landing', (_) => false),
       ),
-
-      // ★ 항상 목록 화면
       body: guards.isEmpty
-      // 데이터가 없으면 '등록된 보호자가 없습니다.' 텍스트만
-          ? const Center(child: Text('등록된 보호자가 없습니다.'))
-      // 한 건이라도 있으면 카드 리스트
+          ? Center(
+        child: Text(
+          '등록된 보호자가 없습니다.',
+          style: tt.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+      )
           : ListView.builder(
         padding: const EdgeInsets.all(24),
         itemCount: guards.length,
         itemBuilder: (ctx, i) {
           final g = guards[i];
           return Card(
+            color: theme.cardColor,
             margin: const EdgeInsets.symmetric(vertical: 8),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: ListTile(
-              title: Text('${g.relationship} • ${g.phoneNumber}'),
+              title: Text(
+                '${g.relationship} • ${g.phoneNumber}',
+                style: tt.titleMedium,
+              ),
               trailing: IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: Icon(Icons.delete, color: cs.error),
                 onPressed: () => onDelete(g.id),
+                tooltip: '삭제',
               ),
             ),
           );
         },
       ),
-
-      // ★ 항상 “추가” 버튼 노출
-      bottomNavigationBar: CustomPrimaryButton(
-        label: '보호자 알림 대상 추가',
-        onPressed: onAddPressed,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: CustomPrimaryButton(
+          label: '보호자 알림 대상 추가',
+          onPressed: onAddPressed,
+          margin: EdgeInsets.zero,
+          backgroundColor: cs.primary,
+          textStyle: tt.titleMedium?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }

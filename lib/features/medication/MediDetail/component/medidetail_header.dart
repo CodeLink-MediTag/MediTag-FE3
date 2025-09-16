@@ -1,6 +1,6 @@
+// lib/features/medication/MediDetail/component/medidetail_header.dart
 import 'package:flutter/material.dart';
 
-/// [medicine]의 이미지, 이름, 특징(Characteristic)을 카드 형태로 보여줌
 class MediDetailHeader extends StatelessWidget {
   final String imageUrl;
   final String medicineName;
@@ -15,6 +15,18 @@ class MediDetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    // placeholder / image container background
+    final Color imageBg = cs.surfaceVariant;
+    // placeholder icon color (아이콘은 theme.iconTheme 이용)
+    final Color placeholderIconColor = theme.iconTheme.color?.withOpacity(0.7) ?? cs.onSurface.withOpacity(0.7);
+    // title color
+    final Color titleColor = cs.onSurface;
+    // prescription badge color: error (red) or secondary (green-ish) — theme에 맞추기
+    final Color badgeColor = isPrescription ? cs.error : cs.secondary;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -24,7 +36,7 @@ class MediDetailHeader extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: imageBg,
               borderRadius: BorderRadius.circular(12),
             ),
             child: (imageUrl.isNotEmpty)
@@ -35,7 +47,7 @@ class MediDetailHeader extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             )
-                : const Icon(Icons.image, size: 35, color: Colors.grey),
+                : Icon(Icons.image, size: 35, color: placeholderIconColor),
           ),
 
           const SizedBox(width: 16),
@@ -47,15 +59,18 @@ class MediDetailHeader extends StatelessWidget {
               children: [
                 Text(
                   medicineName,
-                  style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: titleColor,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isPrescription ? '처방약입니다' : '일반약입니다',  // ← show here
-                  style: TextStyle(
+                  isPrescription ? '처방약입니다' : '일반약입니다',
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
-                    color: isPrescription ? Colors.redAccent : Colors.green,
+                    color: badgeColor,
                   ),
                 ),
               ],

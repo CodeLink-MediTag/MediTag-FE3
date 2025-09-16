@@ -8,29 +8,28 @@ class ChatTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Container(
-      color: Color(0xFF547EE8),
-      padding: EdgeInsets.only(top: 37, bottom: 12),
+      color: cs.primary, // 테마의 primary 사용
+      padding: const EdgeInsets.only(top: 37, bottom: 12),
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: cs.onPrimary),
             onPressed: onBack,
           ),
           Expanded(
             child: Center(
               child: Text(
                 '챗봇',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: theme.textTheme.titleLarge?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold),
               ),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.home, color: Colors.white),
+            icon: Icon(Icons.home, color: cs.onPrimary),
             onPressed: onHome,
           ),
         ],

@@ -5,18 +5,20 @@ class SignupTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
-      color: Colors.white, // 배경 흰색
-      alignment: Alignment.center, // 가운데 정렬
+      // 배경은 스크린 배경을 따르도록 하지 않습니다. (ListView의 배경과 자연스럽게 어우러짐)
+      alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(vertical: 24),
-      child: const Text(
+      child: Text(
         '회원가입',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: Colors.black, // 텍스트 색상
-        ),
         textAlign: TextAlign.center,
+        style: t.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: cs.onBackground,
+        ),
       ),
     );
   }

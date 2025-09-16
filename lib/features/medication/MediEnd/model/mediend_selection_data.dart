@@ -1,6 +1,3 @@
-
-
-
 class MediEndSelectionData {
   final String? name;
   final String? characteristic;

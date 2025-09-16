@@ -22,7 +22,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(height);
 
-  Widget? _buildLeading(BuildContext context, Color? fgColor) {
+  Widget? _buildLeading(BuildContext context, Color fgColor) {
     if (onBack != null) {
       return IconButton(
         icon: Icon(Icons.arrow_back, color: fgColor),
@@ -57,26 +57,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final appBarTheme = Theme.of(context).appBarTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final bg = appBarTheme.backgroundColor ?? colorScheme.primary;
-    final fg = appBarTheme.foregroundColor ?? colorScheme.onPrimary;
-    final overlay = appBarTheme.systemOverlayStyle;
+    final Color bg = appBarTheme.backgroundColor ?? colorScheme.primary;
+    final Color fg = appBarTheme.foregroundColor ?? colorScheme.onPrimary;
+
+    // if appBarTheme.systemOverlayStyle provided, use it, otherwise compute by bg brightness
+    final SystemUiOverlayStyle overlay = appBarTheme.systemOverlayStyle ??
+        (ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
+            ? SystemUiOverlayStyle.light.copyWith(statusBarColor: bg)
+            : SystemUiOverlayStyle.dark.copyWith(statusBarColor: bg));
+
+    final TextStyle titleStyle = (appBarTheme.titleTextStyle ?? Theme.of(context).textTheme.titleLarge!)
+        .copyWith(color: fg, fontWeight: FontWeight.w600);
+
+    final IconThemeData iconTheme = appBarTheme.iconTheme ?? IconThemeData(color: fg);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: overlay ?? SystemUiOverlayStyle.dark,
+      value: overlay,
       child: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: bg,
         foregroundColor: fg,
         centerTitle: appBarTheme.centerTitle ?? true,
-        elevation: appBarTheme.elevation,
+        elevation: appBarTheme.elevation ?? 0,
         title: Text(
           title,
-          style: TextStyle(
-            fontFamily: 'SEBANG', // 폰트명 고정
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: fg,
-          ),
+          style: titleStyle.copyWith(fontFamily: 'SEBANG'),
         ),
         leading: _buildLeading(context, fg),
         actions: [
@@ -94,6 +99,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           if (actions != null) ...actions!,
         ],
+        iconTheme: iconTheme,
+        systemOverlayStyle: overlay,
       ),
     );
   }

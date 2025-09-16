@@ -33,10 +33,17 @@ class _SignupTextFieldState extends State<SignupTextField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final inputTheme = theme.inputDecorationTheme;
+    final cs = theme.colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+        Text(
+          widget.label,
+          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w600, color: cs.onBackground),
+        ),
         const SizedBox(height: 6),
         TextFormField(
           controller: widget.controller,
@@ -45,28 +52,18 @@ class _SignupTextFieldState extends State<SignupTextField> {
           obscureText: _obscure,
           keyboardType: widget.keyboardType,
           obscuringCharacter: '*',
+          style: theme.textTheme.bodyMedium,
           decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xFFF5F7FA),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
             hintText: widget.label,
-            hintStyle: const TextStyle(color: Colors.grey),
-            // 👇 비밀번호 필드일 때만 눈 아이콘 추가
+            hintStyle: inputTheme.hintStyle ?? theme.textTheme.bodyMedium?.copyWith(color: cs.onSurface.withOpacity(0.6)),
+            filled: true,
+            fillColor: inputTheme.fillColor ?? (theme.brightness == Brightness.dark ? cs.surface : cs.surfaceVariant),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             suffixIcon: widget.obscureText
                 ? IconButton(
-              icon: Icon(
-                _obscure ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey,
-              ),
-              onPressed: () {
-                setState(() {
-                  _obscure = !_obscure;
-                });
-              },
+              icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, color: theme.iconTheme.color),
+              onPressed: () => setState(() => _obscure = !_obscure),
             )
                 : null,
           ),

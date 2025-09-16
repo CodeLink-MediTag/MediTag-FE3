@@ -1,3 +1,4 @@
+// lib/features/medication/MediEnd/screen/mediend_screen.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -18,15 +19,6 @@ String _labelFor(TimeOfDay t) {
   if (t.hour < 12) return '아침';
   if (t.hour < 18) return '점심';
   return '저녁';
-}
-
-class MediEndScreen extends StatefulWidget {
-  final MediEndSelectionData selectionData;
-  const MediEndScreen({Key? key, required this.selectionData})
-      : super(key: key);
-
-  @override
-  State<MediEndScreen> createState() => _MediEndScreenState();
 }
 
 List<TimeOfDay> _makeDefaultTimes(int count) {
@@ -56,10 +48,19 @@ List<TimeOfDay> _makeDefaultTimes(int count) {
   }
 }
 
+class MediEndScreen extends StatefulWidget {
+  final MediEndSelectionData selectionData;
+  const MediEndScreen({Key? key, required this.selectionData})
+      : super(key: key);
+
+  @override
+  State<MediEndScreen> createState() => _MediEndScreenState();
+}
+
 class _MediEndScreenState extends State<MediEndScreen> {
   late List<TimeOfDay> _alarmTimes;
-  late List<String>   _dosageTimes;
-  late int            _frequency;
+  late List<String> _dosageTimes;
+  late int _frequency;
 
   @override
   void initState() {
@@ -67,22 +68,17 @@ class _MediEndScreenState extends State<MediEndScreen> {
     final sel = widget.selectionData;
 
     if (sel.prescribed) {
-      // ▶ 처방약: 사용자가 넘겨준 dosageTimes 라벨 목록 그대로 가져오기
+      // 처방약: 전달된 라벨 사용
       _dosageTimes = List.from(sel.dosageTimes);
-      _frequency   = _dosageTimes.length;
-      // “dosageTimes = [‘아침’,‘저녁’]”이라면, 여기에 매핑되는 알람 시간 생성
-      _alarmTimes  = _dosageTimes.map(_defaultTimeForLabel).toList();
+      _frequency = _dosageTimes.length;
+      _alarmTimes = _dosageTimes.map(_defaultTimeForLabel).toList();
     } else {
-      // ▶ 일반약: frequency 만큼 아무 값 없이 초기화해두고
       _dosageTimes = [];
-      _frequency   = sel.frequency;
-      // 일반약은 나중에 FrequencySelector를 통해 변경하므로, 기본 예시로 오후 8시 하나만 넣어둘 수도 있고,
-      // 그냥 빈 리스트로 두고, FrequencySelector 콜백에서 채워도 됩니다.
+      _frequency = sel.frequency;
       _alarmTimes = List.generate(_frequency, (_) => const TimeOfDay(hour: 8, minute: 0));
     }
   }
 
-  /// “아침/점심/저녁” 라벨을 → 기본 시간으로 매핑해 주는 헬퍼 함수
   TimeOfDay _defaultTimeForLabel(String label) {
     switch (label) {
       case '아침':
@@ -99,17 +95,16 @@ class _MediEndScreenState extends State<MediEndScreen> {
   void _onDosageChanged(List<String> newList) {
     setState(() {
       _dosageTimes = newList;
-      _frequency   = newList.length;
-      _alarmTimes  = _dosageTimes.map(_defaultTimeForLabel).toList();
+      _frequency = newList.length;
+      _alarmTimes = _dosageTimes.map(_defaultTimeForLabel).toList();
     });
   }
 
-  /// 사용자가 “1회,2회,3회,4회” 중 하나를 선택했을 때 불리는 콜백
   void _onFrequencyChanged(int newFreq) {
     setState(() {
-      _frequency   = newFreq;
-      _dosageTimes = [];  // 일반약에선 라벨 비우고
-      _alarmTimes  = _makeDefaultTimes(newFreq);
+      _frequency = newFreq;
+      _dosageTimes = [];
+      _alarmTimes = _makeDefaultTimes(newFreq);
     });
   }
 
@@ -126,7 +121,6 @@ class _MediEndScreenState extends State<MediEndScreen> {
     });
   }
 
-
   Future<void> _upload() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
@@ -134,25 +128,20 @@ class _MediEndScreenState extends State<MediEndScreen> {
 
     final sel = widget.selectionData;
     final body = <String, dynamic>{
-      'name'          : sel.name,
+      'name': sel.name,
       'characteristic': sel.characteristic,
-      'startDate'     : sel.startDate,
-      'duration'      : sel.duration,
-      'prescribed'    : sel.prescribed,
-      // 언제나 frequency 보내기
-      'frequency'     : _frequency,
-      // 언제나 dosageTimes 보내기 (처방약엔 실제 값, 일반약엔 빈 배열)
-      'dosageTimes'   : sel.prescribed ? _dosageTimes : <String>[],
-      // 언제나 alarmTimes 보내기
-      'alarmTimes'    : _alarmTimes.map((t) {
+      'startDate': sel.startDate,
+      'duration': sel.duration,
+      'prescribed': sel.prescribed,
+      'frequency': _frequency,
+      'dosageTimes': sel.prescribed ? _dosageTimes : <String>[],
+      'alarmTimes': _alarmTimes.map((t) {
         final base = DateTime.parse(sel.startDate);
-        return DateFormat('HH:mm:ss').format(
-          DateTime(base.year, base.month, base.day, t.hour, t.minute),
-        );
+        return DateFormat('HH:mm:ss').format(DateTime(base.year, base.month, base.day, t.hour, t.minute));
       }).toList(),
     };
 
-    // 디버깅: 실제 보내는 페이로드를 로그로 확인
+    // debug
     print('📤 REQUEST BODY → ${jsonEncode(body)}');
 
     final uri = Uri.parse('http://$ipAddress:8080/api/medicines');
@@ -167,7 +156,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
       );
 
     final streamed = await req.send();
-    final res      = await http.Response.fromStream(streamed);
+    final res = await http.Response.fromStream(streamed);
     if (res.statusCode == 200) {
       Navigator.of(context).pop(true);
     } else {
@@ -179,77 +168,87 @@ class _MediEndScreenState extends State<MediEndScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final pres = widget.selectionData.prescribed;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      // 테마 기반 배경색 사용
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: CustomAppBar(
           title: '등록 마무리',
           onBack: () => Navigator.of(context).pop(),
           onHome: () {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/landing',
-                    (route) => false // 스택을 깨끗하게 비우기
-            );
+            Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ListView(
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              pres
-                  ? '마지막이에요! 복용 시간대를 선택하고, 알림 받을 시간도 골라주세요.'
-                  : '마지막이에요! 하루에 몇 번 드실까요? 알림 받을 시간을 선택해주세요.',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
 
-            // 복용 시간대 또는 횟수 선택
-            if (pres) ...[
-              const Text('복용 시간대',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              DosageSelector(
-                options: const ['아침', '점심', '저녁'],
-                selected: _dosageTimes,
-                onChanged: _onDosageChanged,
+      // SafeArea + ListView 로 스크롤/키보드 안전 보장
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ListView(
+            children: [
+              const SizedBox(height: 20),
+              Text(
+                pres
+                    ? '마지막이에요! 복용 시간대를 선택하고, 알림 받을 시간도 골라주세요.'
+                    : '마지막이에요! 하루에 몇 번 드실까요? 알림 받을 시간을 선택해주세요.',
+                style: theme.textTheme.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-            ] else ...[
-              const Text('복용 주기',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+
+              // 복용 시간대 또는 횟수 선택
+              if (pres) ...[
+                Text('복용 시간대', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                // DosageSelector 내부가 테마를 따르도록 구현되어 있어야 함
+                DosageSelector(
+                  options: const ['아침', '점심', '저녁'],
+                  selected: _dosageTimes,
+                  onChanged: _onDosageChanged,
+                ),
+              ] else ...[
+                Text('복용 주기', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                FrequencySelector(
+                  value: _frequency,
+                  onChanged: _onFrequencyChanged,
+                ),
+              ],
+
+              const SizedBox(height: 24),
+
+              // 공통: 알림 시간 선택
+              Text('알림 시간', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              FrequencySelector(
-                value: _frequency,
-                onChanged: _onFrequencyChanged,
+              TimeListPicker(
+                times: _alarmTimes,
+                onTimeChanged: _onTimeChanged,
+              ),
+
+              const SizedBox(height: 40),
+
+              // 버튼은 테마 색을 강제로 넘겨서 일관성 유지
+              // (CustomPrimaryButton 기본값이 하드코딩 돼 있으면
+              //  backgroundColor: cs.primary 로 덮어쓰면 됨)
+              CustomPrimaryButton(
+                label: '등록',
+                onPressed: _upload,
+                // margin: padding은 ListView 안이므로 좌우 여백은 이미 고려됨.
+                margin: const EdgeInsets.only(bottom: 20, top: 0),
+                height: 48,
+                borderRadius: 10,
+                // 테마 기반 색 전달
+                backgroundColor: cs.primary,
+                // 버튼 텍스트 스타일을 테마의 onPrimary로 맞춤
+                textStyle: theme.textTheme.titleMedium?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold),
               ),
             ],
-
-            const SizedBox(height: 24),
-
-            // **공통으로 알림 시간 고르는 UI**
-            const Text('알림 시간',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TimeListPicker(
-              times: _alarmTimes,
-              onTimeChanged: _onTimeChanged,
-            ),
-
-            const SizedBox(height: 40),
-            CustomPrimaryButton(
-              label: '등록',
-              onPressed: _upload,
-              margin: const EdgeInsets.only(bottom: 20, top: 0, left: 16, right: 16),
-              height: 48,
-              borderRadius: 10,
-            ),
-          ],
+          ),
         ),
       ),
     );
