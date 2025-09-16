@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.codelink.medife">
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -7,11 +8,31 @@
 <!--    AndroidManifest.xml에 NFC 관련 권한과 intent-filter 추가:-->
     <uses-permission android:name="android.permission.NFC"/>
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Android 13 이상: 알림 권한 (런타임 요청 필요) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:label="medife"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- Foreground TTS Service -->
+        <service
+            android:name=".ForegroundTtsService"
+            android:exported="false" />
+
+        <!-- Firebase 메시징 서비스: 필요 intent-filter 포함 -->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <!-- MainActivity: 기존 내용 유지 (여기에 이미 있는 인텐트 필터들 포함) -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
