@@ -2,30 +2,34 @@ import 'package:flutter/material.dart';
 
 class SignupButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final String label;
+  final double? height;
 
-  const SignupButton({Key? key, required this.onPressed}) : super(key: key);
+  const SignupButton({
+    Key? key,
+    required this.onPressed,
+    this.label = '회원가입',
+    this.height,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final textStyle = theme.textTheme.titleMedium?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.w600);
+
     return SizedBox(
       width: double.infinity,
+      height: height ?? 52,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF547EE8),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: textStyle,
         ),
-        child: const Text(
-          '회원가입',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
+        child: Text(label),
       ),
     );
   }

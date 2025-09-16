@@ -1,3 +1,4 @@
+// lib/features/medication/MediMiddle/screen/medimiddle_screen.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -42,7 +43,7 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
   Future<void> _onNext() async {
     if (selectedPeriod == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('복용 기간을 선택해주세요.')),
+        SnackBar(content: Text('복용 기간을 선택해주세요.', style: Theme.of(context).textTheme.bodyMedium)),
       );
       return;
     }
@@ -52,7 +53,7 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
       final parsed = int.tryParse(customDaysController.text);
       if (parsed == null || parsed <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('복용 기간을 올바르게 입력해주세요.')),
+          SnackBar(content: Text('복용 기간을 올바르게 입력해주세요.', style: Theme.of(context).textTheme.bodyMedium)),
         );
         return;
       }
@@ -93,35 +94,39 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      // 테마 기반 배경
+      backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: CustomAppBar(
           title: '복용 기간/시작일 설정',
           onBack: () => Navigator.of(context).pop(),
           onHome: () {
-            Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/landing',
-                    (route) => false // 스택을 깨끗하게 비우기
-            );
+            Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
           },
         ),
       ),
+
+      // body: ListView (스크롤 가능)
       body: Column(
         children: [
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(24),
               children: [
-                const Text(
+                // 헤딩 텍스트들: theme 사용
+                Text(
                   '복용 기간, 시작 날짜를 입력해주세요!',
-                  style: TextStyle(fontSize: 16),
+                  style: theme.textTheme.titleMedium?.copyWith(fontSize: 16),
                 ),
                 const SizedBox(height: 20),
 
-                const Text('복용 기간', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('복용 기간', style: theme.textTheme.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 MediMiddlePeriodSelector(
                   selectedPeriod: selectedPeriod,
@@ -129,7 +134,7 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
                 ),
 
                 const SizedBox(height: 20),
-                const Text('복용 시작 날짜', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('복용 시작 날짜', style: theme.textTheme.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 MediMiddleDatePicker(selectedDate: selectedDate, onTap: _selectDate),
 
@@ -140,23 +145,33 @@ class _MediMiddleScreenState extends State<MediMiddleScreen> {
                 ),
 
                 const SizedBox(height: 20),
+                // 체크박스 항목: 텍스트 스타일과 체크 색상 theme 기반
                 CheckboxListTile(
-                  title: const Text('처방약인가요?'),
+                  title: Text('처방약인가요?', style: theme.textTheme.bodyLarge),
                   value: _isPrescribed,
                   onChanged: (v) => setState(() => _isPrescribed = v ?? false),
                   controlAffinity: ListTileControlAffinity.leading,
+                  activeColor: cs.primary,
+                  checkColor: cs.onPrimary,
                 ),
               ],
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: CustomPrimaryButton(
-              label: '다음',
-              onPressed: _onNext,
-              margin: EdgeInsets.zero,        // 외부 margin 은 여기서
-              padding: const EdgeInsets.all(0),// 버튼 내부 패딩만 남겨도 됨
+          // 하단 버튼: SafeArea로 감싸기 (홈바 충돌 방지)
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: CustomPrimaryButton(
+                label: '다음',
+                onPressed: _onNext,
+                margin: EdgeInsets.zero,        // 외부 margin 은 여기서
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                // backgroundColor은 CustomPrimaryButton 내부에서 theme로 받도록 구현되었다면 생략 가능.
+                // 만약 CustomPrimaryButton이 기본색을 하드코딩하고 있다면,
+                // backgroundColor: cs.primary, 를 추가해서 테마 색을 쓸 수 있음.
+              ),
             ),
           ),
         ],

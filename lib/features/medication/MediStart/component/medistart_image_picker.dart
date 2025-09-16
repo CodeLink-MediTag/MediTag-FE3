@@ -8,12 +8,16 @@ class MediStartImagePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final bool hasImage = selectedImage != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '사진',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: theme.textTheme.labelLarge?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         GestureDetector(
@@ -23,16 +27,20 @@ class MediStartImagePicker extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-              border: Border.all(color: Colors.grey.shade400),
+              color: theme.cardColor, // 카드 색(라이트/다크에 안전)
+              border: Border.all(color: theme.dividerColor),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                selectedImage == null
-                    ? const Text('사진이 있다면 등록해주세요!', style: TextStyle(fontSize: 16, color: Colors.grey))
-                    : const Text('사진 선택됨', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const Icon(Icons.image, color: Colors.grey),
+                // 텍스트 색은 onSurface 계열로
+                Text(
+                  hasImage ? '사진 선택됨' : '사진이 있다면 등록해주세요!',
+                  style: hasImage
+                      ? theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)
+                      : theme.textTheme.bodyLarge?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7)),
+                ),
+                Icon(Icons.image, color: theme.iconTheme.color),
               ],
             ),
           ),

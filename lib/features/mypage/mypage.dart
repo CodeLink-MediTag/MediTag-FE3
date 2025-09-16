@@ -9,6 +9,8 @@ import 'package:medife/features/mypage/guardian/GuardianEdit/guardian_edit_conta
 import 'package:medife/features/mypage/unregister/unregister_screen.dart';
 import 'package:medife/features/mypage/mode/mode.dart';
 import 'package:provider/provider.dart';
+import 'package:medife/features/mypage/mode/fancy_toggle_switch.dart';
+
 
 class MyPage extends StatefulWidget {
   const MyPage({super.key});
@@ -126,34 +128,6 @@ class _MyPageState extends State<MyPage> {
             ),
           ),
 
-          const SizedBox(height: 12),
-
-          // summary card
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.cardColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [BoxShadow(color: isDark ? Colors.black54 : Colors.black12, blurRadius: 4)],
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.medication, color: cs.secondary),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("오늘 복용한 약", style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    Text("3번 중 2번", style: theme.textTheme.bodyMedium),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
           // menu list
           Expanded(
             child: ListView(
@@ -170,34 +144,53 @@ class _MyPageState extends State<MyPage> {
                     builder: (ctx) {
                       final themeProv = ctx.read<ThemeProvider>();
 
-                      AppThemeMode current;
+                      // 현재 라이트인지 여부를 bool로 계산 (system이면 플랫폼 밝기 기준)
+                      bool currentIsLight;
                       if (themeProv.mode == AppThemeMode.system) {
-                        final platformIsDark = MediaQuery.of(ctx).platformBrightness == Brightness.dark;
-                        current = platformIsDark ? AppThemeMode.dark : AppThemeMode.light;
+                        currentIsLight = MediaQuery.of(ctx).platformBrightness == Brightness.light;
                       } else {
-                        current = themeProv.mode;
+                        currentIsLight = themeProv.mode == AppThemeMode.light;
                       }
-
-                      final options = <AppThemeMode>[AppThemeMode.light, AppThemeMode.dark];
 
                       return StatefulBuilder(builder: (c, localSetState) {
                         return AlertDialog(
                           title: const Text('보기 방식 변경'),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: options.map((m) {
-                              final label = m == AppThemeMode.light ? '라이트 모드' : '다크 모드';
-                              return RadioListTile<AppThemeMode>(
-                                value: m,
-                                groupValue: current,
-                                title: Text(label),
-                                onChanged: (val) {
-                                  if (val == null) return;
-                                  localSetState(() => current = val);
-                                  themeProv.setMode(val);
+                            children: [
+                              const SizedBox(height: 6),
+                              Center(
+                                child: FancyToggleSwitch(
+                                  value: currentIsLight, // true = 라이트, false = 다크
+                                  width: 160,
+                                  height: 46,
+                                  onLabel: '라이트',
+                                  offLabel: '다크',
+                                  onChanged: (val) async {
+                                    // UI 즉시 반영
+                                    localSetState(() => currentIsLight = val);
+                                    // Provider에 저장 (persist)
+                                    final newMode = val ? AppThemeMode.light : AppThemeMode.dark;
+                                    await themeProv.setMode(newMode);
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '시스템 설정과 동기화하려면 앱 설정에서 시스템 모드를 선택하세요.',
+                                style: Theme.of(ctx).textTheme.bodySmall,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 6),
+                              // 시스템 모드로 되돌리는 버튼 (선택 기능)
+                              TextButton(
+                                onPressed: () async {
+                                  await themeProv.setMode(AppThemeMode.system);
+                                  Navigator.of(ctx).pop();
                                 },
-                              );
-                            }).toList(),
+                                child: const Text('시스템 모드로 변경'),
+                              ),
+                            ],
                           ),
                           actions: [
                             TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('닫기')),
@@ -207,7 +200,6 @@ class _MyPageState extends State<MyPage> {
                     },
                   );
                 }),
-                _buildMenuItem(context, "로그아웃", () {}),
                 _buildMenuItem(context, "회원탈퇴", () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const UnregisterScreen()));
                 }),

@@ -3,27 +3,29 @@ import 'package:flutter/material.dart';
 class VoiceRecordButton extends StatelessWidget {
   final bool isListening;
   final VoidCallback onPressed;
+  final double? size; // 선택적 크기 지정
 
   const VoiceRecordButton({
     required this.isListening,
     required this.onPressed,
+    this.size,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      bottom: 70,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: FloatingActionButton(
-          backgroundColor: Color(0xFF547EE8),
-          onPressed: onPressed,
-          child: Icon(
-            isListening ? Icons.mic_off : Icons.mic,
-            color: Colors.white,
-          ),
+    final cs = Theme.of(context).colorScheme;
+    final double btnSize = size ?? 56.0;
+
+    return SizedBox(
+      width: btnSize,
+      height: btnSize,
+      child: FloatingActionButton(
+        onPressed: onPressed,
+        backgroundColor: cs.primary,
+        child: Icon(
+          isListening ? Icons.mic_off : Icons.mic,
+          color: cs.onPrimary,
         ),
       ),
     );

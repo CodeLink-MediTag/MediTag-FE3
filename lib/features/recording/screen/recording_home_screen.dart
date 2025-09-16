@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:medife/components/custom_app_bar.dart';
 import 'package:medife/features/recording/screen/recording_list_screen.dart';
@@ -9,14 +8,19 @@ class RecordingHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         top: false,
         bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const CustomAppBar(title: '주의사항 녹음'),
+            // CustomAppBar는 내부에서 Theme을 사용하므로 const 제거
+            CustomAppBar(title: '주의사항 녹음'),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -31,19 +35,15 @@ class RecordingHomeScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF547EE8),
+                        backgroundColor: cs.primary,
+                        foregroundColor: cs.onPrimary,
                         minimumSize: const Size(double.infinity, 200),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        textStyle: const TextStyle(
-                          fontFamily: 'SEBANG',        // 폰트 적용
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        foregroundColor: Colors.white,
+                        textStyle: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      child: const Text('🎙 녹음 하기'),
+                      child: Text('🎙 녹음 하기', style: theme.textTheme.headlineSmall?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(
@@ -54,19 +54,15 @@ class RecordingHomeScreen extends StatelessWidget {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF547EE8),
+                        backgroundColor: cs.primary,
+                        foregroundColor: cs.onPrimary,
                         minimumSize: const Size(double.infinity, 200),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        textStyle: const TextStyle(
-                          fontFamily: 'SEBANG',        // 폰트 적용
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        foregroundColor: Colors.white,
+                        textStyle: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      child: const Text('📁 녹음 목록 가기'),
+                      child: Text('📁 녹음 목록 가기', style: theme.textTheme.headlineSmall?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),

@@ -22,63 +22,84 @@ class MedicationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    // card background: theme.cardColor (main.dart에서 설정한 값)
+    final Color cardBg = theme.cardColor;
+    // border uses primary color for emphasis (brand)
+    final Color borderColor = cs.primary;
+    // shadow color: theme.shadowColor with small opacity
+    final Color shadowColor = theme.shadowColor.withOpacity(0.08);
+    // placeholder/icon color
+    final Color placeholderIconColor = theme.iconTheme.color?.withOpacity(0.7) ?? cs.onSurface.withOpacity(0.7);
+    // subtitle color
+    final Color subtitleColor = cs.onSurface.withOpacity(0.75);
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFF547EE8), width: 2),
+        color: cardBg,
+        border: Border.all(color: borderColor, width: 2),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        boxShadow: [BoxShadow(color: shadowColor, blurRadius: 4, offset: const Offset(0, 1))],
       ),
       child: Column(
         children: [
           Row(
             children: [
-              // 이미지
+              // 이미지 박스: surfaceVariant 사용 -> 다크/라이트 자동 대응
               Container(
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: cs.surfaceVariant,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: medicine.imageUrl != null && medicine.imageUrl!.isNotEmpty
+                child: (medicine.imageUrl != null && medicine.imageUrl!.isNotEmpty)
                     ? ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(medicine.imageUrl!, fit: BoxFit.cover),
                 )
-                    : const Icon(Icons.image, size: 32, color: Colors.grey),
+                    : Icon(Icons.image, size: 32, color: placeholderIconColor),
               ),
               const SizedBox(width: 12),
-              // 텍스트
+              // 타이틀 + 서브타이틀
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // 이름: theme 텍스트 스타일 기반으로 덮어쓰기
                     Text(
                       medicine.medicineName,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       medicine.prescribed ? '처방약' : '일반약',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        color: subtitleColor,
+                      ),
                     ),
                   ],
                 ),
               ),
-              // 즐겨찾기
+              // 즐겨찾기 (star)
               IconButton(
                 icon: Icon(
                   medicine.isFavorite ? Icons.star : Icons.star_border,
-                  color: medicine.isFavorite ? Colors.amber : Colors.grey,
+                  color: medicine.isFavorite ? Colors.amber : theme.iconTheme.color,
                 ),
                 onPressed: onToggleFavorite,
               ),
               // 상세페이지 이동
               IconButton(
-                icon: const Icon(Icons.arrow_forward_ios),
+                icon: Icon(Icons.arrow_forward_ios, color: theme.iconTheme.color),
                 onPressed: () {
                   Navigator.push<Medicine>(
                     context,
@@ -91,7 +112,7 @@ class MedicationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          // 알람 시간: 캡슐 모양 라벨(버튼처럼 보이지만 클릭 동작 없음)
+          // 알람 시간 캡슐(태그)
           Align(
             alignment: Alignment.centerLeft,
             child: Wrap(
@@ -102,16 +123,18 @@ class MedicationCard extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: cs.surfaceVariant, // 다크/라이트 대응
                     borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
-                      // 아주 약간의 입체감 (선택사항)
-                      BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+                    boxShadow: [
+                      BoxShadow(color: shadowColor, blurRadius: 2, offset: const Offset(0, 1)),
                     ],
                   ),
                   child: Text(
                     formatted,
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 14,
+                      color: cs.onSurface,
+                    ),
                   ),
                 );
               }).toList(),

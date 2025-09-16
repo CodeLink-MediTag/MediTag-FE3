@@ -245,72 +245,211 @@ class _MyAppState extends State<MyApp> {
       primaryContainer: brandColor,
     );
 
+    // ======== LIGHT THEME (colorScheme 기반으로 생성) ========
     final ThemeData lightTheme = ThemeData(
-      useMaterial3: true,
       colorScheme: lightScheme,
-      fontFamily: 'SEBANG',
+
       brightness: Brightness.light,
       primaryColor: brandColor,
-      appBarTheme: AppBarTheme(
-        backgroundColor: brandColor,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        centerTitle: true,
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20),
+
+      useMaterial3: true,
+      fontFamily: 'SEBANG',
+
+      // 텍스트 기본 색을 colorScheme.onBackground로 적용 — 대부분 텍스트 색 통일
+      textTheme: ThemeData.light().textTheme.apply(
+        bodyColor: lightScheme.onBackground,
+        displayColor: lightScheme.onBackground,
+        fontFamily: 'SEBANG',
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ButtonStyle(
-          backgroundColor: MaterialStatePropertyAll(brandColor),
-          foregroundColor: const MaterialStatePropertyAll(Colors.white),
-          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: lightScheme.primary,      // 앱바 배경(라이트에서는 브랜드색)
+        foregroundColor: lightScheme.onPrimary,    // 앱바의 텍스트/아이콘 색 (primary 위의 색)
+        elevation: 2,                               // 앱바 그림자 높이
+        centerTitle: true,                          // 제목 가운데 정렬
+        // 상태바 아이콘 색: 라이트 배경이면 'dark' (검은 아이콘) 이 정상적임
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        titleTextStyle: TextStyle(
+            color: lightScheme.onPrimary,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          fontFamily: 'SEBANG',
         ),
       ),
+
+    //여기서
+      // TextButton (플랫 버튼) 기본 스타일 (필요 시 사용)
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: lightScheme.primary),
+      ),
+
+      // FAB 테마
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: lightScheme.primary,
+        foregroundColor: lightScheme.onPrimary,
+      ),
+
+      // 입력필드(텍스트필드) 스타일 — 다크/라이트에서 배경/테두리를 자동으로 맞춤
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: lightScheme.surfaceVariant, // 입력필드 배경
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: lightScheme.outline.withOpacity(0.6)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: lightScheme.primary, width: 2),
+        ),
+        hintStyle: TextStyle(color: lightScheme.onSurface.withOpacity(0.6)),
+      ),
+
+      //여기까지
+
+      // Scaffold(화면) 배경 — 전체 화면의 기본 배경색
       scaffoldBackgroundColor: lightScheme.background,
+
+      // 카드(표면)색 — Card, ListTile 등에서 사용
       cardColor: lightScheme.surface,
+
+      // 구분선 색
       dividerColor: Colors.grey.shade300,
+
+      // ListTile의 기본 색상 설정
       listTileTheme: ListTileThemeData(
         textColor: lightScheme.onBackground,
         iconColor: lightScheme.onBackground.withOpacity(0.8),
         tileColor: lightScheme.surface,
       ),
-      iconTheme: IconThemeData(color: lightScheme.onBackground.withOpacity(0.8)),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.black87),
-        bodyMedium: TextStyle(color: Colors.black87),
+
+      // 아이콘 기본 색(보통 앱 내 많은 Icon 위젯이 이 색을 사용)
+      iconTheme: IconThemeData(color: lightScheme.onBackground.withOpacity(0.9)),
+
+      //여기
+      // 칩(Chip / FilterChip) 기본 스타일: 라이트에서 칩 배경/선택 색 통일
+      chipTheme: ChipThemeData(
+        backgroundColor: lightScheme.surfaceVariant,
+        selectedColor: lightScheme.primaryContainer ?? lightScheme.primary.withOpacity(0.12),
+        labelStyle: TextStyle(color: lightScheme.onSurface),
+        secondaryLabelStyle: TextStyle(color: lightScheme.onPrimary),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        brightness: Brightness.light,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      //여기
+
+      // 하단 네비게이션 바 기본 스타일
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: lightScheme.surface,
+        selectedItemColor: lightScheme.primary,
+        unselectedItemColor: lightScheme.onBackground.withOpacity(0.6),
       ),
     );
+
+    // ======== DARK THEME ========
 
     final ColorScheme darkScheme = baseDarkScheme;
 
     final ThemeData darkTheme = ThemeData(
-      useMaterial3: true,
       colorScheme: darkScheme,
-      fontFamily: 'SEBANG',
+
       brightness: Brightness.dark,
       primaryColor: darkScheme.primary,
-      scaffoldBackgroundColor: const Color(0xFF0F1115),
-      appBarTheme: AppBarTheme(
-        backgroundColor: darkScheme.surface,
-        foregroundColor: darkScheme.onSurface,
-        elevation: 0,
-        centerTitle: true,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        titleTextStyle: TextStyle(color: darkScheme.onSurface, fontWeight: FontWeight.w600, fontSize: 20),
+
+      useMaterial3: true,
+      fontFamily: 'SEBANG',
+
+      // 텍스트 색을 colorScheme.onBackground로 적용해서 대비를 맞춤
+      textTheme: ThemeData.dark().textTheme.apply(
+        bodyColor: darkScheme.onBackground,
+        displayColor: darkScheme.onBackground,
+        fontFamily: 'SEBANG',
       ),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: darkScheme.surface,   // 다크 환경에서 앱바는 surface(어두운 회색)으로
+        foregroundColor: darkScheme.onSurface, // 앱바 텍스트/아이콘 색(밝은 색)
+        elevation: 0,                           // 플랫한 느낌
+        centerTitle: true,
+        // 상태바 아이콘 색: 다크 배경이면 'light' (하얀 아이콘) 이 정상적임
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        titleTextStyle: TextStyle(
+          color: darkScheme.onSurface,
+          fontWeight: FontWeight.w600,
+          fontSize: 20,
+          fontFamily: 'SEBANG',
+        ),
+      ),
+
+      //여기서
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: darkScheme.primary),
+      ),
+
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: darkScheme.primary,
+        foregroundColor: darkScheme.onPrimary,
+      ),
+
+      // 입력필드 테마 (다크)
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkScheme.surface, // 다크에서는 surface 기반
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: darkScheme.onSurface.withOpacity(0.06)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: darkScheme.primary, width: 2),
+        ),
+        hintStyle: TextStyle(color: darkScheme.onSurface.withOpacity(0.6)),
+      ),
+      //여기까지
+
+      // 전체 화면 배경을 더 어둡게 하드코딩(선택사항)
+      scaffoldBackgroundColor: const Color(0xFF0F1115),
+
+      // 카드 표면 색(다크 모드 전용)
       cardColor: const Color(0xFF131417),
+
+      // 구분선 색(다크에 맞춰 더 진한 회색)
       dividerColor: Colors.grey.shade800,
+
+      // ListTile 기본 스타일(다크용)
       listTileTheme: ListTileThemeData(
         textColor: darkScheme.onBackground.withOpacity(0.95),
         iconColor: darkScheme.onBackground.withOpacity(0.85),
         tileColor: const Color(0xFF131417),
       ),
-      iconTheme: IconThemeData(color: darkScheme.onBackground.withOpacity(0.85)),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white70),
-        bodyMedium: TextStyle(color: Colors.white70),
+
+      // 아이콘 기본 색(다크에서 잘 보이도록)
+      iconTheme: IconThemeData(color: darkScheme.onBackground.withOpacity(0.95)),
+
+      //여기서
+      chipTheme: ChipThemeData(
+        backgroundColor: const Color(0xFF1A1B1E),
+        selectedColor: darkScheme.primaryContainer ?? darkScheme.primary.withOpacity(0.12),
+        labelStyle: TextStyle(color: darkScheme.onSurface),
+        secondaryLabelStyle: TextStyle(color: darkScheme.onPrimary),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        brightness: Brightness.dark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      //여기까지
+
+      // 하단바 테마(다크용)
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: darkScheme.surface,
+        selectedItemColor: darkScheme.primary,
+        unselectedItemColor: darkScheme.onBackground.withOpacity(0.6),
       ),
     );
+
 
     // 초기 라우트: 이미 로그인 되어 있으면 스플래시를 거쳐서 guideline/landing으로 보냄
     final String initialRoute = widget.isLoggedIn ? '/splash' : '/login';

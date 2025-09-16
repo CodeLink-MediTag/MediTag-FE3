@@ -3,7 +3,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:medife/common/common_dialog.dart';
 import 'package:medife/features/signup/component/signup_button.dart';
 import 'package:medife/features/signup/component/signup_text_field.dart';
-
 import '../model/signup_request_model.dart';
 import '../repository/signup_auth_repository.dart';
 
@@ -23,7 +22,6 @@ class _SignupFieldsState extends State<SignupFields> {
   String _name = '';
   String _phoneNumber = '';
 
-  // 👇 비밀번호 보이기/숨기기 상태 변수 추가
   bool _obscurePassword = true;
 
   Future<String> getFCMToken() async {
@@ -40,6 +38,7 @@ class _SignupFieldsState extends State<SignupFields> {
 
   @override
   Widget build(BuildContext context) {
+    final gap = const SizedBox(height: 20);
     return Form(
       key: _formKey,
       child: Column(
@@ -50,14 +49,14 @@ class _SignupFieldsState extends State<SignupFields> {
             validator: (v) => v!.isEmpty ? '아이디를 입력해주세요' : null,
             onSaved: (v) => _username = v!,
           ),
-          const SizedBox(height: 20),
+          gap,
           SignupTextField(
             label: '이름',
             controller: TextEditingController(text: "회원1"),
             validator: (v) => v!.isEmpty ? '이름을 입력해주세요' : null,
             onSaved: (v) => _name = v!,
           ),
-          const SizedBox(height: 20),
+          gap,
           SignupTextField(
             label: '전화번호',
             controller: TextEditingController(text: "010-1234-5678"),
@@ -65,12 +64,11 @@ class _SignupFieldsState extends State<SignupFields> {
             validator: (v) => v!.isEmpty ? '전화번호를 입력해주세요' : null,
             onSaved: (v) => _phoneNumber = v!,
           ),
-          const SizedBox(height: 20),
-          // 👇 비밀번호 필드에 눈 아이콘 토글 기능 추가
+          gap,
           SignupTextField(
             label: '비밀번호',
             controller: TextEditingController(text: "test12345"),
-            obscureText: true, // 여기를 true로 고정
+            obscureText: true, // 기본 숨김
             validator: (v) => v!.isEmpty ? '비밀번호를 입력해주세요' : null,
             onSaved: (v) => _password = v!,
           ),
@@ -80,12 +78,11 @@ class _SignupFieldsState extends State<SignupFields> {
               if (!_formKey.currentState!.validate()) return;
               _formKey.currentState!.save();
 
-              // 1) FCM 토큰 얻기 시도
               String fcmToken;
               try {
                 fcmToken = await getFCMToken();
               } catch (e) {
-                print('❌ FCM 토큰 획득 실패, 빈 문자열로 대체: $e');
+                // FCM 토큰 실패해도 가입은 진행되도록 빈 스트링 대체
                 fcmToken = '';
               }
 

@@ -12,22 +12,28 @@ class MediMiddlePeriodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
     return Row(
       children: [
         Expanded(
           child: RadioListTile<int>(
-            title: const Text('특정일', style: TextStyle(fontSize: 16)),
+            title: Text('특정일', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16)),
             value: 1,
             groupValue: selectedPeriod,
             onChanged: onChanged,
+            activeColor: cs.primary,
+            // 이게 체크/라디오 아이콘 색을 바꿔줌
           ),
         ),
         Expanded(
           child: RadioListTile<int>(
-            title: const Text('매일', style: TextStyle(fontSize: 16)),
+            title: Text('매일', style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16)),
             value: 2,
             groupValue: selectedPeriod,
             onChanged: onChanged,
+            activeColor: cs.primary,
           ),
         ),
       ],

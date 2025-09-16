@@ -1,20 +1,15 @@
-// lib/features/login/component/login_fields.dart
+// login_fields.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:medife/screens/landing.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-
+import 'package:medife/providers/nfc_provider.dart';
 import '../../../routes/route_names.dart';
 import 'login_custom_button.dart';
 import 'login_custom_text_field.dart';
 import '../model/login_request_model.dart';
 import '../model/kakao_login_request_model.dart';
 import '../repository/login_auth_repository.dart';
-
 import 'package:provider/provider.dart';
-import 'package:medife/providers/nfc_provider.dart'; // ✅ NFC Provider도 import
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class LoginFields extends StatefulWidget {
   const LoginFields({super.key});
@@ -42,10 +37,8 @@ class _LoginFieldsState extends State<LoginFields> {
 
   Future<void> _handleLoginSuccess() async {
     final prefs = await SharedPreferences.getInstance();
-// 로그인 상태 저장
     await prefs.setBool('isLoggedIn', true);
 
-// firstLogin/hasSeenGuideline 기본값(안전장치)
     if (!prefs.containsKey('firstLogin')) {
       await prefs.setBool('firstLogin', true);
     }
@@ -55,35 +48,26 @@ class _LoginFieldsState extends State<LoginFields> {
 
     final nfcProvider = context.read<NfcProvider>();
     final pending = nfcProvider.pendingRoute;
-
-    // 디버그 로그: pending 값 확인 (나중에 삭제 가능)
     debugPrint('[Login] pending route from NfcProvider: $pending');
 
-    // === 허용되는 라우트 목록을 명시적으로 정의 ===
-    // 프로젝트에서 사용하는 실제 라우트들만 넣으세요.
     final Set<String> allowedRoutes = {
       '/morning',
       '/lunch',
       '/dinner',
-      RouteName.landing,    // '/landing'
-      RouteName.guideline,  // '/guideline'
-      // 필요하면 추가...
+      RouteName.landing,
+      RouteName.guideline,
     };
 
-// 1) NFC 보류 라우트가 있으면 안전성 검증 후 최우선 처리
     if (pending != null && pending.isNotEmpty && pending != '/' && allowedRoutes.contains(pending)) {
-      // 안전한 값이면 이동
       Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
       nfcProvider.clearPendingRoute();
       return;
     } else {
-      // 안전하지 않은 pending이면 무시하고 로그 남김
       if (pending != null && pending.isNotEmpty) {
         debugPrint('[Login] Ignoring unsafe pending route: $pending');
       }
     }
 
-// 2) NFC 보류 라우트가 없을 때만 가이드라인/랜딩 분기
     final hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
 
     if (!hasSeenGuideline) {
@@ -91,18 +75,40 @@ class _LoginFieldsState extends State<LoginFields> {
     } else {
       Navigator.of(context).pushNamedAndRemoveUntil(RouteName.landing, (route) => false);
     }
+  }
 
+  Future<String?> handleKakaoLogin(BuildContext context) async {
+    try {
+      bool isInstalled = await isKakaoTalkInstalled();
+      OAuthToken token;
+      if (isInstalled) {
+        try {
+          token = await UserApi.instance.loginWithKakaoTalk();
+        } catch (_) {
+          token = await UserApi.instance.loginWithKakaoAccount();
+        }
+      } else {
+        token = await UserApi.instance.loginWithKakaoAccount();
+      }
+      return token.accessToken;
+    } catch (e) {
+      debugPrint('카카오 로그인 실패: $e');
+      return null;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final tt = theme.textTheme;
+
     return Form(
       key: formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 32),
-          const Text('아이디', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text('아이디', style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           LoginCustomTextField(
             controller: _usernameController,
@@ -112,7 +118,7 @@ class _LoginFieldsState extends State<LoginFields> {
             icon: Icons.person_outline,
           ),
           const SizedBox(height: 16),
-          const Text('비밀번호', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Text('비밀번호', style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           LoginCustomTextField(
             controller: _passwordController,
@@ -124,7 +130,7 @@ class _LoginFieldsState extends State<LoginFields> {
             suffixIcon: IconButton(
               icon: Icon(
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                color: Colors.grey,
+                color: theme.iconTheme.color,
               ),
               onPressed: () {
                 setState(() {
@@ -132,6 +138,7 @@ class _LoginFieldsState extends State<LoginFields> {
                 });
               },
             ),
+            inputFormatters: [], // 필요 시 숫자 전용 등 추가
           ),
           const SizedBox(height: 24),
           LoginCustomButton(
@@ -158,7 +165,6 @@ class _LoginFieldsState extends State<LoginFields> {
             onPressed: () async {
               final token = await handleKakaoLogin(context);
               if (token == null) return;
-
               final request = KakaoLoginRequestModel(accessToken: token);
               try {
                 final response = await repository.kakaoLogin(request);
@@ -179,26 +185,5 @@ class _LoginFieldsState extends State<LoginFields> {
         ],
       ),
     );
-  }
-
-  Future<String?> handleKakaoLogin(BuildContext context) async {
-    // (앱 전체에서 KakaoSdk.init을 이미 main에서 했으면 중복 불필요)
-    try {
-      bool isInstalled = await isKakaoTalkInstalled();
-      OAuthToken token;
-      if (isInstalled) {
-        try {
-          token = await UserApi.instance.loginWithKakaoTalk();
-        } catch (_) {
-          token = await UserApi.instance.loginWithKakaoAccount();
-        }
-      } else {
-        token = await UserApi.instance.loginWithKakaoAccount();
-      }
-      return token.accessToken;
-    } catch (e) {
-      debugPrint('카카오 로그인 실패: $e');
-      return null;
-    }
   }
 }
