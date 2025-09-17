@@ -234,61 +234,62 @@ class _MediMainScreenState extends State<MediMainScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final greeting = _favoriteMedName != null
-        ? '$_favoriteMedName 약 복용 하셨나요?'
-        : '좋은 하루 보내세요';
-
-    return Scaffold(
-        appBar: MediMainAppBar(
-          onBack: () => Navigator.pop(context),
-          onCalendar: () => Navigator.pushNamed(context, '/calendar'),
-        ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _medicines.isEmpty
-            ? const Center(child: Text('등록된 약이 없습니다.'))
-            : Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: _medicines.length,
-                itemBuilder: (ctx, i) {
-                  final med = _medicines[i];
-                  return MedicationCard(
-                    medicine: med,
-                    onToggleFavorite: () => _toggleFavorite(med),
-                    onToggleTaking: (alarm) => _toggleTaking(med, alarm),
-                    onAskConfirm: (alarm) => _askConfirm(ctx, med, alarm),
-                    onEdited: (updatedMed) {
-                      setState(() {
-                        final idx = _medicines.indexWhere((m) =>
-                        m.medicineId == updatedMed.medicineId);
-                        if (idx != -1) {
-                          _medicines[idx] = updatedMed;
-                        }
-                      });
-                    },
-                  );
-                },
-              ),
+    return WillPopScope(
+      // ✅ MediMain에서 "뒤로가기" 누르면 항상 랜딩으로
+        onWillPop: () async {
+          Navigator.of(context).pushNamedAndRemoveUntil('/landing', (route) => false);
+          return false;
+        },
+        child: Scaffold(
+          appBar: MediMainAppBar(
+            // ✅ 상단 뒤로가기 버튼도 랜딩으로
+            onBack: () => Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false),
+            onCalendar: () => Navigator.pushNamed(context, '/calendar'),
+          ),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _medicines.isEmpty
+              ? const Center(child: Text('등록된 약이 없습니다.'))
+              : RefreshIndicator(                       // ✅ 당겨서 새로고침
+            onRefresh: _fetchMedicines,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _medicines.length,
+              itemBuilder: (ctx, i) {
+                final med = _medicines[i];
+                return MedicationCard(
+                  medicine: med,
+                  onToggleFavorite: () => _toggleFavorite(med),
+                  onToggleTaking: (alarm) => _toggleTaking(med, alarm),
+                  onAskConfirm: (alarm) => _askConfirm(ctx, med, alarm),
+                  onEdited: (updatedMed) {
+                    setState(() {
+                      final idx = _medicines.indexWhere(
+                            (m) => m.medicineId == updatedMed.medicineId,
+                      );
+                      if (idx != -1) _medicines[idx] = updatedMed;
+                    });
+                  },
+                  // (옵션) 카드 내에서 삭제 발생 시를 대비한 콜백이 있다면 여기서 _fetchMedicines() 호출
+                );
+              },
             ),
-          ],
+          ),
+          bottomNavigationBar: CustomPrimaryButton(
+            label: '알림 받을 약 추가',
+              onPressed: () {
+                Navigator.of(context)
+                    .push<bool>(
+                  MaterialPageRoute(
+                    builder: (_) => MediStartScreen(initialDate: DateTime.now()),
+                  ),
+                )
+                    .then((result) {
+                  if (result == true) _loadAll(); // ✅ 추가 후 자동 새로고침
+                });
+              },
+          ),
         ),
-        bottomNavigationBar: CustomPrimaryButton(
-          label: '알림 받을 약 추가',
-          onPressed: () {
-            Navigator.of(context)
-                .push<bool>(
-              MaterialPageRoute(
-                builder: (_) => MediStartScreen(initialDate: DateTime.now()),
-              ),
-            )
-                .then((result) {
-              if (result == true) _loadAll();
-            });
-          },
-        )
     );
   }
 }

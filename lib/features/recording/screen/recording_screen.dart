@@ -128,88 +128,90 @@ class _RecordingScreenState extends State<RecordingScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    height: 220,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: bigPanelColor,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black26.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 3))],
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      height: 220,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: bigPanelColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: Colors.black26.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 3))],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _isRecording ? '🎙️ 녹음중' : startTime,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.headlineSmall?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          _isRecording ? '🎙️ 녹음중' : startTime,
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.headlineSmall?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold),
+                    const SizedBox(height: 32),
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: '약 이름을 입력하세요',
+                        labelStyle: theme.textTheme.labelLarge?.copyWith(color: cs.primary, fontWeight: FontWeight.bold),
+                        filled: true,
+                        fillColor: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
+                        prefixIcon: Icon(Icons.medication, color: cs.primary),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: cs.primary, width: 1.5),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: '약 이름을 입력하세요',
-                      labelStyle: theme.textTheme.labelLarge?.copyWith(color: cs.primary, fontWeight: FontWeight.bold),
-                      filled: true,
-                      fillColor: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
-                      prefixIcon: Icon(Icons.medication, color: cs.primary),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: cs.primary, width: 1.5),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(color: cs.primary, width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: cs.primary, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                      onChanged: (value) {
+                        setState(() {
+                          _title = value;
+                        });
+                      },
+                      style: theme.textTheme.bodyLarge,
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _title = value;
-                      });
-                    },
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _toggleRecording,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isRecording ? Colors.red : cs.primary,
-                      foregroundColor: cs.onPrimary,
-                      minimumSize: const Size(double.infinity, 80),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _toggleRecording,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isRecording ? Colors.red : cs.primary,
+                        foregroundColor: cs.onPrimary,
+                        minimumSize: const Size(double.infinity, 80),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        textStyle: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      textStyle: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      child: Text(_isRecording ? '녹음 끝내기' : '녹음 시작', style: theme.textTheme.titleLarge?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold)),
                     ),
-                    child: Text(_isRecording ? '녹음 끝내기' : '녹음 시작', style: theme.textTheme.titleLarge?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RecordingListScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.secondary,
-                      foregroundColor: cs.onSecondary,
-                      minimumSize: const Size(double.infinity, 60),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RecordingListScreen()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: cs.secondary,
+                        foregroundColor: cs.onSecondary,
+                        minimumSize: const Size(double.infinity, 60),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      child: Text('녹음 파일 목록', style: theme.textTheme.titleMedium?.copyWith(color: cs.onSecondary, fontWeight: FontWeight.bold)),
                     ),
-                    child: Text('녹음 파일 목록', style: theme.textTheme.titleMedium?.copyWith(color: cs.onSecondary, fontWeight: FontWeight.bold)),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -19,6 +19,9 @@ import '../../MediMain/model/medimain_alarm.dart';
 import '../../MediMain/model/medimain_medicine.dart';
 import 'package:medife/ip/ip_address.dart';
 import 'package:medife/components/custom_app_bar.dart';
+import 'package:medife/components/custom_primary_button.dart';
+import 'package:medife/features/medication/MediMain/screen/medimain_screen.dart';
+
 
 /// “아침/점심/저녁” 라벨을 기본 시간으로 매핑해 주는 헬퍼 함수
 TimeOfDay _defaultTimeForLabel(String label) {
@@ -188,7 +191,31 @@ class _MediEditScreenState extends State<MediEditScreen> {
     }
   }
 
-  /// 저장 (PATCH 요청)
+  /// 즐겨찾기 갱신 유틸
+  Future<void> _updateFavoriteIfThisMedicine(List<Alarm> alarms) async {
+    final prefs = await SharedPreferences.getInstance();
+    final favId = prefs.getInt('favoriteMedicineId');
+    if (favId != widget.medicine.medicineId) return;
+
+    final now = DateTime.now();
+    Alarm? nextAlarm;
+    final future = alarms.where((a) => a.alarmTime.isAfter(now)).toList()
+      ..sort((a, b) => a.alarmTime.compareTo(b.alarmTime));
+    if (future.isNotEmpty) {
+      nextAlarm = future.first;
+    } else if (alarms.isNotEmpty) {
+      final sorted = [...alarms]..sort((a, b) => a.alarmTime.compareTo(b.alarmTime));
+      nextAlarm = sorted.first;
+    }
+
+    if (nextAlarm != null) {
+      await prefs.setString('favoriteAlarmIso', nextAlarm.alarmTime.toIso8601String());
+    } else {
+      await prefs.remove('favoriteAlarmIso');
+    }
+  }
+
+  /// ---------------- 저장 (PATCH) ----------------
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
@@ -292,6 +319,9 @@ class _MediEditScreenState extends State<MediEditScreen> {
           alarms: newAlarms,
           isFavorite: widget.medicine.isFavorite,
         );
+
+        await _updateFavoriteIfThisMedicine(updatedMedicine.alarms);
+
         Navigator.pop(context, updatedMedicine);
       } else {
         // HTTP 200 이외 → 에러
@@ -315,8 +345,91 @@ class _MediEditScreenState extends State<MediEditScreen> {
     }
   }
 
+  /// ---------------- 삭제 (DELETE) ----------------
+  Future<void> _confirmAndDelete() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('약 삭제'),
+        content: const Text('정말 삭제할까요? 이 작업은 되돌릴 수 없습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+
+    if (ok != true) return;
+
+    final success = await _deleteMedicine();
+    if (!mounted || !success) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    // ✅ 현재 화면을 MediMain으로 "교체"
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => const MediMainScreen(),
+        settings: const RouteSettings(name: '/medimain'),
+      ),
+    );
+  }
+
+
+
+
+  Future<bool> _deleteMedicine() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('accessToken');
+      if (token == null) return false;
+
+      final uri = Uri.parse('http://$ipAddress:8080/api/medicines/${widget.medicine.medicineId}');
+      final res = await http.delete(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (res.statusCode == 200 || res.statusCode == 204) {
+        // 즐겨찾기 초기화
+        final favId = prefs.getInt('favoriteMedicineId');
+        if (favId == widget.medicine.medicineId) {
+          await prefs.remove('favoriteMedicine');
+          await prefs.remove('favoriteMedicineId');
+          await prefs.remove('favoriteAlarmIso');
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('삭제되었습니다.')),
+        );
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('삭제 실패: ${res.statusCode}\n${res.body}')),
+        );
+        return false;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('삭제 중 오류: $e')),
+      );
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(56),
@@ -443,6 +556,30 @@ class _MediEditScreenState extends State<MediEditScreen> {
 
             // 7) 저장 버튼
             SubmitButton(onPressed: _save),
+
+            const SizedBox(height: 12),
+
+            // 삭제 버튼 (보조, Outlined)
+            Semantics(
+              label: '약 삭제',
+              button: true,
+              child: CustomPrimaryButton(
+                label: '삭제',
+                onPressed: _confirmAndDelete,
+                height: 48,
+                borderRadius: 16,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+
+                // ✅ 테마 대응 파괴 색상 (라이트/다크 자동 반영)
+                backgroundColor: cs.error, // 라이트에선 선명한 레드, 다크에선 톤 다운된 레드
+                textStyle: theme.textTheme.labelLarge?.copyWith(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onError, // 배경 대비되는 텍스트 색
+                ),
+              ),
+            ),
 
             const SizedBox(height: 20),
           ],
