@@ -7,7 +7,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onHome;
   final bool showHome;
   final List<Widget>? actions;
-  final double height;
+  final double height; // 높이 옵션 추가
 
   const CustomAppBar({
     Key? key,
@@ -16,11 +16,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onHome,
     this.showHome = true,
     this.actions,
-    this.height = kToolbarHeight + 16,
+    this.height = kToolbarHeight + 16, // 기본 높이
   }) : super(key: key);
 
   @override
-  Size get preferredSize => Size.fromHeight(height);
+  Size get preferredSize => Size.fromHeight(height); // height 사용
 
   Widget? _buildLeading(BuildContext context, Color fgColor) {
     if (onBack != null) {
@@ -60,7 +60,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final Color bg = appBarTheme.backgroundColor ?? colorScheme.primary;
     final Color fg = appBarTheme.foregroundColor ?? colorScheme.onPrimary;
 
-    // if appBarTheme.systemOverlayStyle provided, use it, otherwise compute by bg brightness
     final SystemUiOverlayStyle overlay = appBarTheme.systemOverlayStyle ??
         (ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
             ? SystemUiOverlayStyle.light.copyWith(statusBarColor: bg)

@@ -1,4 +1,4 @@
-// lib/features/mypage/mypage/nickname.dart  (파일 경로는 프로젝트에 맞게)
+// lib/features/mypage/mypage/nickname.dart
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -65,36 +65,41 @@ class _NicknameState extends State<Nickname> {
         const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
     final fieldTextStyle = t.bodyMedium;
     final buttonTextStyle = t.titleMedium?.copyWith(
-        color: cs.onPrimary, fontWeight: FontWeight.w600);
+      color: cs.onPrimary,
+      fontWeight: FontWeight.w600,
+    );
 
     return Scaffold(
-      // 키보드 올라올 때 Scaffold가 자동으로 조절하게 (기본 true 이지만 명시)
       resizeToAvoidBottomInset: true,
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
+        top: false, // ✅ 앱바 위 흰 여백 제거
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // 키보드(=viewInsets.bottom) 만큼 하단 패딩을 주어 오버플로우 방지
-              final bottomInset = MediaQuery
-                  .of(context)
-                  .viewInsets
-                  .bottom;
+              final bottomInset = MediaQuery.of(context).viewInsets.bottom;
               return SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
                 padding: EdgeInsets.only(bottom: bottomInset),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    // 화면 높이보다 작아지면 스크롤 가능, 같으면 전체 채움
                     minHeight: constraints.maxHeight,
                   ),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
-                        const CustomAppBar(title: '내 정보 수정'),
+                        // ✅ CustomAppBar 적용 + 높이 줄임
+                        CustomAppBar(
+                          title: '내 정보 수정',
+                          onBack: () => Navigator.of(context).pop(),
+                          onHome: () => Navigator.pushNamedAndRemoveUntil(
+                              context, '/landing', (r) => false),
+                          height: kToolbarHeight,
+                        ),
                         const SizedBox(height: 24),
-                        // 내용 영역: 중앙 정렬
+
+                        // 내용 영역
                         Center(
                           child: Column(
                             children: [
@@ -102,14 +107,17 @@ class _NicknameState extends State<Nickname> {
                                 onTap: _pickImage,
                                 child: CircleAvatar(
                                   radius: 50,
-                                  backgroundColor: cs.surfaceVariant ??
-                                      cs.surface,
+                                  backgroundColor:
+                                  cs.surfaceVariant ?? cs.surface,
                                   backgroundImage: _imageBytes != null
                                       ? MemoryImage(_imageBytes!)
                                       : null,
                                   child: _imageBytes == null
-                                      ? Icon(Icons.account_circle, size: 80,
-                                      color: cs.onSurface.withOpacity(0.6))
+                                      ? Icon(
+                                    Icons.account_circle,
+                                    size: 80,
+                                    color: cs.onSurface.withOpacity(0.6),
+                                  )
                                       : null,
                                 ),
                               ),
@@ -128,20 +136,24 @@ class _NicknameState extends State<Nickname> {
                                       decoration: InputDecoration(
                                         filled: true,
                                         fillColor: theme.inputDecorationTheme
-                                            .fillColor ?? cs.surfaceVariant ??
+                                            .fillColor ??
+                                            cs.surfaceVariant ??
                                             cs.surface,
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              12),
+                                          borderRadius:
+                                          BorderRadius.circular(12),
                                           borderSide: BorderSide.none,
                                         ),
-                                        contentPadding: const EdgeInsets
-                                            .symmetric(
-                                            horizontal: 16, vertical: 14),
+                                        contentPadding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 14,
+                                        ),
                                         hintText: '닉네임을 입력하세요',
                                         hintStyle: t.bodySmall?.copyWith(
-                                            color: cs.onSurface.withOpacity(
-                                                0.5)),
+                                          color:
+                                          cs.onSurface.withOpacity(0.5),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
@@ -149,8 +161,9 @@ class _NicknameState extends State<Nickname> {
                                       Text(
                                         '프로필 이미지가 선택되었습니다.',
                                         style: t.bodySmall?.copyWith(
-                                            color: cs.onSurface.withOpacity(
-                                                0.7)),
+                                          color:
+                                          cs.onSurface.withOpacity(0.7),
+                                        ),
                                       ),
                                   ],
                                 ),
@@ -159,10 +172,8 @@ class _NicknameState extends State<Nickname> {
                           ),
                         ),
 
-                        // Spacer 역할: IntrinsicHeight + Expanded 대체.
                         const Spacer(),
 
-                        // 하단 버튼: 충분한 바닥 여백이 필요하므로 외부 패딩 사용
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 24.0, vertical: 18.0),

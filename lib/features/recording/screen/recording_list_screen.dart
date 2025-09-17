@@ -45,7 +45,17 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      appBar: CustomAppBar(title: '주의사항 녹음'),
+      // ✅ 얇은 앱바 적용
+      appBar: CustomAppBar(
+        title: '주의사항 녹음',
+        height: kToolbarHeight, // ← 기본 앱바 높이만큼 (챗봇처럼 얇게)
+        onBack: () => Navigator.of(context).pop(),
+        onHome: () => Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/landing',
+              (r) => false,
+        ),
+      ),
       backgroundColor: theme.scaffoldBackgroundColor,
       body: FutureBuilder<List<Recording>>(
         future: recordingsFuture,
@@ -54,11 +64,15 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
             return Center(child: CircularProgressIndicator(color: cs.primary));
           }
           if (snapshot.hasError) {
-            return Center(child: Text("오류: ${snapshot.error}", style: theme.textTheme.bodyLarge));
+            return Center(
+              child: Text("오류: ${snapshot.error}", style: theme.textTheme.bodyLarge),
+            );
           }
           final recordings = snapshot.data ?? [];
           if (recordings.isEmpty) {
-            return Center(child: Text('등록된 녹음이 없습니다.', style: theme.textTheme.bodyLarge));
+            return Center(
+              child: Text('등록된 녹음이 없습니다.', style: theme.textTheme.bodyLarge),
+            );
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -70,7 +84,12 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
                 decoration: BoxDecoration(
                   color: theme.cardColor,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [BoxShadow(color: Colors.black26.withOpacity(0.02), blurRadius: 4)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26.withOpacity(0.02),
+                      blurRadius: 4,
+                    )
+                  ],
                 ),
                 child: ListTile(
                   title: Text(rec.title, style: theme.textTheme.titleMedium),
@@ -80,7 +99,9 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
                   ),
                   trailing: IconButton(
                     icon: Icon(
-                      playingIndex == index ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                      playingIndex == index
+                          ? Icons.pause_circle_filled
+                          : Icons.play_circle_fill,
                       color: cs.primary,
                       size: 28,
                     ),
