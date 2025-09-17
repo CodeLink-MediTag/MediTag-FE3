@@ -12,7 +12,6 @@ import 'package:medife/features/medication/MediMiddle/MediMiddle.dart';
 import 'package:medife/features/medication/MediStart/MediStart.dart';
 import 'package:medife/features/ocr/ocr.dart';
 import 'package:medife/features/recording/screen/recording_home_screen.dart';
-import 'package:medife/features/setting/alert_sound.dart';
 import 'package:medife/features/mypage/mypage.dart';
 import 'package:medife/features/setting/setting.dart';
 import 'package:medife/features/mypage/nickname.dart';
@@ -33,8 +32,6 @@ class AppRoute {
         return MaterialPageRoute(builder: (_) => const RecordingHomeScreen());
       case RouteName.recordlist:
         return MaterialPageRoute(builder: (_) => const RecordingListScreen());
-      case RouteName.alertsound:
-        return MaterialPageRoute(builder: (_) => AlertSound());
       case RouteName.mypage:
         return MaterialPageRoute(builder: (_) => const MyPage());
       case RouteName.setting:
