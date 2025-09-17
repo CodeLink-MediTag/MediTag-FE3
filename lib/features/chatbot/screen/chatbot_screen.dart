@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medife/components/custom_app_bar.dart'; // 경로 네가 맞게 사용
+import 'package:medife/components/custom_app_bar.dart';
 import 'package:medife/features/chatbot/component/chat_input_field.dart';
 import 'package:medife/features/chatbot/component/chat_message.dart';
 import 'package:medife/features/chatbot/component/chat_voice_record_button.dart';
@@ -17,13 +17,12 @@ class ChatBotScreen extends StatefulWidget {
 
 class _ChatBotScreenState extends State<ChatBotScreen> {
   final ChatRepository chatRepository = ChatRepository();
-  late final FlutterTts _tts; // TTS 인스턴스
+  late final FlutterTts _tts;
 
   final TextEditingController controller = TextEditingController();
   final List<Map<String, String>> messages = [];
   final ScrollController scrollController = ScrollController();
 
-  // 음성인식
   late stt.SpeechToText speech;
   bool isListening = false;
   String? accessToken;
@@ -33,15 +32,12 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   void initState() {
     super.initState();
-    // TTS 기본 세팅
     _tts = FlutterTts();
     _tts.setLanguage("ko-KR");
     _tts.setSpeechRate(0.5);
     _tts.setVolume(1.0);
 
     speech = stt.SpeechToText();
-
-    // 세션 생성
     chatStart();
   }
 
@@ -55,72 +51,61 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // 키보드 높이에 따라 마이크가 올라가게 계산
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    // 입력창 높이/마진 고려해서 offset 설정 (필요하면 값 조정)
-    final double baseOffset = 92.0; // 입력창 위에 띄울 기본 거리 (원하면 조절)
+    final double baseOffset = 92.0;
     final double bottomOffset = keyboardHeight + baseOffset;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                // 앱바 (CustomAppBar는 theme-aware로 만들어져 있어야 함)
-                CustomAppBar(
-                  title: '챗봇',
-                  onBack: () => Navigator.of(context).pop(),
-                  onHome: () => Navigator.pushNamedAndRemoveUntil(context, '/landing', (r) => false),
-                ),
-
-                // 메시지 리스트
-                Expanded(
-                  child: AnimatedList(
-                    key: _listKey,
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    initialItemCount: messages.length,
-                    itemBuilder: (context, index, animation) {
-                      final msg = messages[index];
-                      return SizeTransition(
-                        sizeFactor: animation,
-                        child: msg['type'] == 'user'
-                            ? Message(message: msg['text']!, alignLeft: false)
-                            : Message(message: msg['text']!),
-                      );
-                    },
-                  ),
-                ),
-
-                // 입력창: ChatInputField가 하드코딩 색을 쓰지 않고 Theme을 따르도록 수정되어 있어야 함
-                ChatInputField(controller: controller, onSend: sendMessageToServer),
-              ],
-            ),
-
-            // 마이크 버튼: 화면 하단 중앙에 위치시키고 키보드 있을 때는 위로 올라오게 함
-            // left/right 0 + Center로 중앙정렬
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: bottomOffset,
-              child: Center(
-                child: VoiceRecordButton(
-                  isListening: isListening,
-                  onPressed: listen,
+      extendBodyBehindAppBar: true,
+      appBar: CustomAppBar(
+        title: '챗봇',
+        onBack: () => Navigator.of(context).pop(),
+        onHome: () => Navigator.pushNamedAndRemoveUntil(context, '/landing', (r) => false),
+        height: kToolbarHeight, // 챗봇 전용 짧은 높이
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                child: AnimatedList(
+                  key: _listKey,
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  initialItemCount: messages.length,
+                  itemBuilder: (context, index, animation) {
+                    final msg = messages[index];
+                    return SizeTransition(
+                      sizeFactor: animation,
+                      child: msg['type'] == 'user'
+                          ? Message(message: msg['text']!, alignLeft: false)
+                          : Message(message: msg['text']!),
+                    );
+                  },
                 ),
               ),
+              SafeArea(
+                top: false,
+                child: ChatInputField(controller: controller, onSend: sendMessageToServer),
+              ),
+            ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: bottomOffset,
+            child: Center(
+              child: VoiceRecordButton(
+                isListening: isListening,
+                onPressed: listen,
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  // 채팅 세션 생성
   Future<void> chatStart() async {
     final prefs = await SharedPreferences.getInstance();
     accessToken = prefs.getString('accessToken');
@@ -134,7 +119,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     }
   }
 
-  // 서버로 보내고 리스트에 추가
   Future<void> sendMessageToServer(String userMessage) async {
     if (sessionId == null || accessToken == null) return;
 
@@ -190,7 +174,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     });
   }
 
-  // 음성 녹음 토글
   void listen() async {
     if (!isListening) {
       bool available = await speech.initialize();
