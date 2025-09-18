@@ -222,7 +222,7 @@ class _SettingsPageState extends State<SettingScreen> {
                               Slider(
                                 value: textSize,
                                 min: 14,
-                                max: 18,
+                                max: 17,
                                 divisions: 7,
                                 label: textSize.toStringAsFixed(1),
                                 activeColor: cs.primary,
@@ -240,7 +240,6 @@ class _SettingsPageState extends State<SettingScreen> {
                         }, textSize),
                         _buildDivider(),
                         const SizedBox(height: 8),
-                        // 필요하면 여기에 추가 설정 항목들...
                       ],
                     ),
                   ),

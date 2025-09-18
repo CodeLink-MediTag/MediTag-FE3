@@ -15,7 +15,11 @@ class UnregisterButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
         ),
         onPressed: onPressed,
-        child: const Text('계정 삭제(탈퇴)', style: TextStyle(fontSize: 18)),
+        // ✅ 수정된 부분: TextStyle에 color: Colors.white 추가
+        child: const Text(
+          '계정 삭제(탈퇴)',
+          style: TextStyle(fontSize: 18, color: Colors.white), // <-- 여기 추가
+        ),
       ),
     );
   }
