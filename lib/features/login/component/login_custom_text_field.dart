@@ -1,11 +1,12 @@
-// login_custom_text_field.dart
+// lib/screens/login/component/login_custom_text_field.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class LoginCustomTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
-  final FormFieldSetter<String> onSaved;
+  // ✅ 수정: onSaved 속성 제거
+  // final FormFieldSetter<String> onSaved;
   final FormFieldValidator<String> validator;
   final TextEditingController? controller;
   final IconData? icon;
@@ -16,7 +17,8 @@ class LoginCustomTextField extends StatelessWidget {
     super.key,
     required this.hintText,
     required this.validator,
-    required this.onSaved,
+    // ✅ 수정: onSaved 속성 제거
+    // required this.onSaved,
     this.obscureText = false,
     this.controller,
     this.icon,
@@ -32,7 +34,8 @@ class LoginCustomTextField extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
-      onSaved: onSaved,
+      // ✅ 수정: onSaved 속성 제거
+      // onSaved: onSaved,
       validator: validator,
       obscureText: obscureText,
       obscuringCharacter: '*',

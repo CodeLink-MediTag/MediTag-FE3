@@ -29,6 +29,7 @@ void main() async {
   );
 
   await initializeDateFormatting('ko_KR', null);
+  // ❗️ 실제 카카오 네이티브 앱 키로 변경해야 합니다.
   KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -60,6 +61,10 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
   Future<void> _initializeApp() async {
     prefs = await SharedPreferences.getInstance();
 
+    // ✅ 수정된 부분: isLoggedIn 키가 없을 경우 false로 초기화합니다.
+    if (!prefs.containsKey('isLoggedIn')) {
+      await prefs.setBool('isLoggedIn', false);
+    }
     if (!prefs.containsKey('firstLogin')) {
       await prefs.setBool('firstLogin', true);
     }
@@ -307,6 +312,7 @@ class _MyAppState extends State<MyApp> {
       ),
     );
 
+    // ✅ 로그인 상태 따라 initialRoute 분기
     final String initialRoute = widget.isLoggedIn ? '/splash' : '/login';
 
     return MaterialApp(
@@ -385,6 +391,7 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
+    // ✅ 첫 로그인 + 가이드라인 안봤으면 가이드라인으로
     if (widget.firstLogin && !widget.hasSeenGuideline) {
       if (mounted) Navigator.of(context).pushReplacementNamed('/guideline');
     } else {

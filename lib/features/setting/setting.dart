@@ -112,10 +112,20 @@ class _SettingsPageState extends State<SettingScreen> {
     );
   }
 
+  // ✅ 수정된 부분: 완전한 로그아웃 로직 적용
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
+
+    // 1. 로그인 상태 초기화
     await prefs.setBool('isLoggedIn', false);
-    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+
+    // 2. 가이드라인 확인 여부 초기화 (새 계정 로그인 시 다시 볼 수 있도록)
+    await prefs.setBool('hasSeenGuideline', false);
+
+    // 3. 로그인 화면으로 이동
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    }
   }
 
   @override
