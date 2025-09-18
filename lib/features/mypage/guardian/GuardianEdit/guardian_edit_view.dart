@@ -25,15 +25,15 @@ class GuardianEditView extends StatelessWidget {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      // 키보드 올라올 때 자동으로 화면 크기 재계산 (기본 true이지만 명시)
       resizeToAvoidBottomInset: true,
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: CustomAppBar(
+
+      // ✅ 앱바 높이 줄이기
+      appBar: const CustomAppBar(
         title: '보호자 알림 등록',
-        onBack: () => Navigator.pop(context),
+        height: 48,
       ),
 
-      // body 를 스크롤 가능하게 하고, viewInsets.bottom(=키보드 높이) 만큼 패딩 추가
       body: SafeArea(
         child: LayoutBuilder(builder: (context, constraints) {
           return SingleChildScrollView(
@@ -55,7 +55,6 @@ class GuardianEditView extends StatelessWidget {
                       Text('전화번호', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
 
-                      // 전화번호 입력 필드
                       TextField(
                         controller: phoneController,
                         keyboardType: TextInputType.phone,
@@ -77,7 +76,6 @@ class GuardianEditView extends StatelessWidget {
                       Text('보호자', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                       const SizedBox(height: 12),
 
-                      // 선택칩
                       Wrap(
                         spacing: 12,
                         runSpacing: 12,
@@ -99,7 +97,6 @@ class GuardianEditView extends StatelessWidget {
                         }).toList(),
                       ),
 
-                      // 빈 공간을 채워서 버튼이 바닥에 붙게 만듦 (IntrinsicHeight + Expanded 유사 동작)
                       const SizedBox(height: 16),
                       const Spacer(),
                     ],
@@ -111,7 +108,6 @@ class GuardianEditView extends StatelessWidget {
         }),
       ),
 
-      // 저장 버튼은 bottomNavigationBar에 두어 키보드 위로 표시되게 함
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
@@ -120,7 +116,6 @@ class GuardianEditView extends StatelessWidget {
             label: '저장',
             onPressed: onSave,
             margin: EdgeInsets.zero,
-            // CustomPrimaryButton이 textStyle/backgroundColor 파라미터를 받는다면 theme 값 전달
             backgroundColor: cs.primary,
             textStyle: tt.titleMedium?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.w600),
           ),

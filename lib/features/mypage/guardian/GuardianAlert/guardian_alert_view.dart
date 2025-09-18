@@ -36,10 +36,9 @@ class GuardianAlertView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         title: '보호자 알림',
-        onBack: () => Navigator.of(context).pop(),
-        onHome: () => Navigator.pushNamedAndRemoveUntil(context, '/landing', (_) => false),
+        height: 48, // <-- 여기서 높이 조절 (챗봇처럼 얇게)
       ),
       body: guards.isEmpty
           ? Center(
@@ -57,7 +56,8 @@ class GuardianAlertView extends StatelessWidget {
           return Card(
             color: theme.cardColor,
             margin: const EdgeInsets.symmetric(vertical: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
             child: ListTile(
               title: Text(
                 '${g.relationship} • ${g.phoneNumber}',
@@ -79,7 +79,8 @@ class GuardianAlertView extends StatelessWidget {
           onPressed: onAddPressed,
           margin: EdgeInsets.zero,
           backgroundColor: cs.primary,
-          textStyle: tt.titleMedium?.copyWith(color: cs.onPrimary, fontWeight: FontWeight.w600),
+          textStyle: tt.titleMedium?.copyWith(
+              color: cs.onPrimary, fontWeight: FontWeight.w600),
         ),
       ),
     );

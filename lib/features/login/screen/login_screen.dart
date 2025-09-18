@@ -1,4 +1,4 @@
-// login_screen.dart
+// lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import '../component/login_fields.dart';
 import '../component/login_logo.dart';
@@ -18,7 +18,7 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 32),
-              const LoginLogo(), // 앱 로고
+              const LoginLogo(),
               const SizedBox(height: 16),
               Expanded(
                 child: SingleChildScrollView(
@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      LoginFields(), // 폼 입력 및 버튼
+                      LoginFields(), // 내부에서 로그인 후 이동 처리
                     ],
                   ),
                 ),

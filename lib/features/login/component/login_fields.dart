@@ -1,4 +1,4 @@
-// login_fields.dart
+// lib/screens/login/component/login_fields.dart
 import 'package:flutter/material.dart';
 import 'package:medife/providers/nfc_provider.dart';
 import '../../../routes/route_names.dart';
@@ -21,12 +21,17 @@ class LoginFields extends StatefulWidget {
 class _LoginFieldsState extends State<LoginFields> {
   final repository = LoginAuthRepository();
   final formKey = GlobalKey<FormState>();
-  String username = '';
-  String password = '';
   bool _obscurePassword = true;
 
-  final TextEditingController _usernameController = TextEditingController(text: "test@gmail.com");
-  final TextEditingController _passwordController = TextEditingController(text: "test12345");
+  // ✅ 수정: onSaved를 사용하지 않으므로 username, password 상태 변수 제거
+  // String username = '';
+  // String password = '';
+
+  // 개발 편의를 위한 초기값은 그대로 둡니다.
+  final TextEditingController _usernameController =
+  TextEditingController(text: "test@gmail.com");
+  final TextEditingController _passwordController =
+  TextEditingController(text: "test12345");
 
   @override
   void dispose() {
@@ -36,48 +41,49 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<void> _handleLoginSuccess() async {
+    // ✅ 수정: 비동기 작업 전 context 관련 변수 미리 가져오기
+    final nfcProvider = context.read<NfcProvider>();
+    final navigator = Navigator.of(context); // Navigator도 미리 가져오기
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
 
+    // ✅ 수정: 위젯이 화면에 없을 경우 context를 사용하지 않도록 방어 코드 추가 (안정성 향상)
+    if (!mounted) return;
+
+    // ✅ 수정: main.dart에서 처리하므로 중복되는 초기화 로직 제거
+    /*
     if (!prefs.containsKey('firstLogin')) {
       await prefs.setBool('firstLogin', true);
     }
     if (!prefs.containsKey('hasSeenGuideline')) {
       await prefs.setBool('hasSeenGuideline', false);
     }
+    */
 
-    final nfcProvider = context.read<NfcProvider>();
     final pending = nfcProvider.pendingRoute;
-    debugPrint('[Login] pending route from NfcProvider: $pending');
-
     final Set<String> allowedRoutes = {
       '/morning',
       '/lunch',
       '/dinner',
-      RouteName.landing,
-      RouteName.guideline,
     };
 
-    if (pending != null && pending.isNotEmpty && pending != '/' && allowedRoutes.contains(pending)) {
-      Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
+    if (pending != null && allowedRoutes.contains(pending)) {
       nfcProvider.clearPendingRoute();
+      navigator.pushNamedAndRemoveUntil(pending, (route) => false);
       return;
-    } else {
-      if (pending != null && pending.isNotEmpty) {
-        debugPrint('[Login] Ignoring unsafe pending route: $pending');
-      }
     }
 
     final hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
-
     if (!hasSeenGuideline) {
-      Navigator.of(context).pushNamedAndRemoveUntil(RouteName.guideline, (route) => false);
+      navigator.pushNamedAndRemoveUntil(RouteName.guideline, (route) => false);
     } else {
-      Navigator.of(context).pushNamedAndRemoveUntil(RouteName.landing, (route) => false);
+      navigator.pushNamedAndRemoveUntil(RouteName.landing, (route) => false);
     }
   }
 
-  Future<String?> handleKakaoLogin(BuildContext context) async {
+  // ✅ 수정: 사용하지 않는 BuildContext 파라미터 제거
+  Future<String?> handleKakaoLogin() async {
     try {
       bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
@@ -114,7 +120,7 @@ class _LoginFieldsState extends State<LoginFields> {
             controller: _usernameController,
             hintText: 'ID',
             validator: (value) => value!.isEmpty ? '아이디를 입력해주세요' : null,
-            onSaved: (value) => username = value!,
+            // ✅ 수정: onSaved 제거
             icon: Icons.person_outline,
           ),
           const SizedBox(height: 16),
@@ -125,7 +131,7 @@ class _LoginFieldsState extends State<LoginFields> {
             hintText: 'password',
             obscureText: _obscurePassword,
             validator: (value) => value!.isEmpty ? '비밀번호를 입력해주세요' : null,
-            onSaved: (value) => password = value!,
+            // ✅ 수정: onSaved 제거
             icon: Icons.lock_outline,
             suffixIcon: IconButton(
               icon: Icon(
@@ -138,21 +144,28 @@ class _LoginFieldsState extends State<LoginFields> {
                 });
               },
             ),
-            inputFormatters: [], // 필요 시 숫자 전용 등 추가
           ),
           const SizedBox(height: 24),
           LoginCustomButton(
             text: '로그인',
             onPressed: () async {
               if (formKey.currentState!.validate()) {
-                formKey.currentState!.save();
+                // ✅ 수정: formKey.currentState!.save() 제거
+                // ✅ 수정: 컨트롤러에서 직접 값 가져오기
+                final username = _usernameController.text;
+                final password = _passwordController.text;
+
                 final request = LoginRequestModel(username: username, password: password);
                 try {
                   final token = await repository.login(request);
                   debugPrint('로그인 성공: $token');
                   await _handleLoginSuccess();
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                  // ✅ 수정: 에러 발생 시 mounted 확인 후 스낵바 표시
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('로그인에 실패했습니다. 아이디 또는 비밀번호를 확인해주세요.')),
+                  );
                 }
               }
             },
@@ -163,15 +176,19 @@ class _LoginFieldsState extends State<LoginFields> {
             backgroundColor: const Color(0xFFFEE500),
             textColor: Colors.black,
             onPressed: () async {
-              final token = await handleKakaoLogin(context);
+              final token = await handleKakaoLogin();
               if (token == null) return;
+
               final request = KakaoLoginRequestModel(accessToken: token);
               try {
                 final response = await repository.kakaoLogin(request);
                 debugPrint('카카오 로그인 성공: $response');
                 await _handleLoginSuccess();
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('카카오 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.')),
+                );
               }
             },
           ),

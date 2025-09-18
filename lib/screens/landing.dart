@@ -65,6 +65,7 @@ class _LandingState extends State<Landing> {
   }
 
   Future<void> _onFavoriteButtonPressed() async {
+    if (!mounted) return;
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('accessToken');
 
@@ -120,6 +121,7 @@ class _LandingState extends State<Landing> {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('복용 완료로 저장되었습니다')));
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('서버 저장 실패: $e')));
     }
@@ -138,12 +140,12 @@ class _LandingState extends State<Landing> {
         : '좋은 하루 보내세요';
 
     final buttonLabel = _favoriteAlarmIso != null
-        ? '${DateFormat('hh:mm a').format(
+        ? '${DateFormat('hh:mm a', 'ko_KR').format(
         DateTime.parse(_favoriteAlarmIso!))} ${_taken ? '복용 완료!' : '미복용'}'
         : (_favoriteMedName ?? '00약');
 
-    double cardHeight = (textSize >= 18) ? 110 : 80;
-    double chatbotCardHeight = (textSize >= 18) ? 130 : 100;
+    double cardHeight = (textSize >= 18) ? 100 : 70;
+    double chatbotCardHeight = (textSize >= 18) ? 120 : 90;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -196,7 +198,7 @@ class _LandingState extends State<Landing> {
                         ],
                       ),
                       child: (textSize >= 15)
-                          ? Column(
+                          ? Column( // 큰 글씨 버전 UI
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -209,7 +211,7 @@ class _LandingState extends State<Landing> {
                               backgroundColor: _taken
                                   ? const Color(0xFFF4B7E8)
                                   : cs.primary,
-                              fixedSize: const Size(120, 48),
+                              fixedSize: const Size(100, 40),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                             ),
@@ -217,14 +219,14 @@ class _LandingState extends State<Landing> {
                               buttonLabel,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: textSize * 0.85,
+                                fontSize: textSize * 0.8,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       )
-                          : Row(
+                          : Row( // 기본 버전 UI
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
@@ -247,7 +249,7 @@ class _LandingState extends State<Landing> {
                               backgroundColor: _taken
                                   ? const Color(0xFFF4B7E8)
                                   : cs.primary,
-                              fixedSize: const Size(120, 48),
+                              fixedSize: const Size(100, 40),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                             ),
@@ -255,7 +257,7 @@ class _LandingState extends State<Landing> {
                               buttonLabel,
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: textSize * 0.85,
+                                fontSize: textSize * 0.8,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -317,40 +319,43 @@ class _LandingState extends State<Landing> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: cs.primary,
-        selectedItemColor: cs.onPrimary,
-        unselectedItemColor: cs.onPrimary.withOpacity(0.75),
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const CardRegistration()));
-          }
-          if (index == 1) {
-            Navigator.pushNamed(context, '/ocr');
-          }
-          if (index == 2) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const MyPage())).then((
-                _) {
-              _loadNickname();
-              _loadFavoriteData();
-            });
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 0,
-        unselectedFontSize: 0,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Center(child: Icon(Icons.credit_card, size: 30)),
-              label: ''),
-          BottomNavigationBarItem(
-              icon: Center(child: Icon(Icons.camera_alt, size: 30)), label: ''),
-          BottomNavigationBarItem(
-              icon: Center(child: Icon(Icons.person, size: 30)), label: ''),
-        ],
+      bottomNavigationBar: Container(
+        height: 80,
+        child: BottomNavigationBar(
+          backgroundColor: cs.primary,
+          selectedItemColor: cs.onPrimary,
+          unselectedItemColor: cs.onPrimary.withOpacity(0.75),
+          currentIndex: 0,
+          onTap: (index) {
+            if (index == 0) {
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => const CardRegistration()));
+            }
+            if (index == 1) {
+              Navigator.pushNamed(context, '/ocr');
+            }
+            if (index == 2) {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const MyPage())).then((
+                  _) {
+                _loadNickname();
+                _loadFavoriteData();
+              });
+            }
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 0,
+          unselectedFontSize: 0,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Center(child: Icon(Icons.credit_card, size: 30)),
+                label: ''),
+            BottomNavigationBarItem(
+                icon: Center(child: Icon(Icons.camera_alt, size: 30)), label: ''),
+            BottomNavigationBarItem(
+                icon: Center(child: Icon(Icons.person, size: 30)), label: ''),
+          ],
+        ),
       ),
     );
   }
@@ -361,18 +366,14 @@ class _LandingState extends State<Landing> {
     final cs = theme.colorScheme;
     final bool isDark = theme.brightness == Brightness.dark;
 
-    // 카드 배경 (테마 기반)
     final Color cardColor = theme.cardColor;
-    // 아이콘 색: 라이트 -> accent(primary), 다크 -> onSurface (눈에 띄는 밝은 색)
     final Color iconColor = isDark ? cs.onSurface : cs.primary;
-    // 텍스트 스타일: theme의 textTheme을 기반으로
     final TextStyle titleStyle = (theme.textTheme.bodyLarge ??
         const TextStyle())
         .copyWith(fontSize: textSize * 1.4,
         fontWeight: FontWeight.bold,
         color: theme.textTheme.bodyLarge?.color);
 
-    // 그림자 색을 모드에 맞게 조절
     final Color shadowColor = isDark ? Colors.black54 : Colors.black12;
 
     return InkWell(
@@ -394,7 +395,14 @@ class _LandingState extends State<Landing> {
           children: [
             Align(
               alignment: Alignment.topLeft,
-              child: Text(title, style: titleStyle),
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: title.split(' ').map((word) => Text(
+                  word,
+                  style: titleStyle,
+                )).toList(),
+              ),
             ),
             Align(
               alignment: Alignment.bottomRight,
