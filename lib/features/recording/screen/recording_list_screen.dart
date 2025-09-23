@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:medife/components/custom_app_bar.dart';
 import '../model/recording.dart';
+import '../repository/delete_recording.dart';
 import '../repository/fetch_recordings.dart';
 
 class RecordingListScreen extends StatefulWidget {
@@ -97,16 +98,37 @@ class _RecordingListScreenState extends State<RecordingListScreen> {
                     rec.recordingTime.toLocal().toString(),
                     style: theme.textTheme.bodySmall,
                   ),
-                  trailing: IconButton(
-                    icon: Icon(
-                      playingIndex == index
-                          ? Icons.pause_circle_filled
-                          : Icons.play_circle_fill,
-                      color: cs.primary,
-                      size: 28,
-                    ),
-                    onPressed: () => _togglePlay(rec.recordingFile, index),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          playingIndex == index
+                              ? Icons.pause_circle_filled
+                              : Icons.play_circle_fill,
+                          color: cs.primary,
+                          size: 28,
+                        ),
+                        onPressed: () => _togglePlay(rec.recordingFile, index),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.redAccent),
+                        onPressed: () async {
+                          try {
+                            await deleteRecording(rec.id.toString());
+                            setState(() {
+                              recordingsFuture = fetchRecordings(); // ✅ 새로 목록 불러오기
+                            });
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('삭제 실패: $e')),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
+
                 ),
               );
             },
