@@ -14,15 +14,14 @@ class SignupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // ListView에 키보드 높이만큼 패딩을 추가해서 overflow 경고 제거
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: const SignupAppBar(),
-      body: Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
         child: ListView(
+          padding: const EdgeInsets.all(16),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: [
             const SignupTitle(),
             const SizedBox(height: 24),
