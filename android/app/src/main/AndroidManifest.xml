@@ -18,19 +18,7 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- Foreground TTS Service -->
-        <service
-            android:name=".ForegroundTtsService"
-            android:exported="false" />
 
-        <!-- Firebase 메시징 서비스: 필요 intent-filter 포함 -->
-        <service
-            android:name=".MyFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
         <!-- MainActivity: 기존 내용 유지 (여기에 이미 있는 인텐트 필터들 포함) -->
 
         <activity

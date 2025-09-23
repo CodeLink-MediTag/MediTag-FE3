@@ -61,7 +61,6 @@ class _SettingsPageState extends State<SettingScreen> {
       'channelName',
       channelDescription: '알림 채널',
       importance: Importance.max,
-      priority: Priority.high,
       playSound: true,
       enableVibration: false,
     );
@@ -71,7 +70,6 @@ class _SettingsPageState extends State<SettingScreen> {
       'channelName',
       channelDescription: '알림 채널',
       importance: Importance.max,
-      priority: Priority.high,
       playSound: false,
       enableVibration: true,
     );
@@ -81,7 +79,6 @@ class _SettingsPageState extends State<SettingScreen> {
       'channelName',
       channelDescription: '알림 채널',
       importance: Importance.max,
-      priority: Priority.high,
       playSound: true,
       enableVibration: true,
     );

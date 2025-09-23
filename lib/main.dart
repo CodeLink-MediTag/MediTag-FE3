@@ -32,11 +32,11 @@ void main() async {
   // ❗️ 실제 카카오 네이티브 앱 키로 변경해야 합니다.
   KakaoSdk.init(nativeAppKey: 'YOUR_NATIVE_APP_KEY');
 
+  // ⬇️ runApp 이전에 등록 (중요)
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  await FcmTtsService().initialize(); // ⬅️ 이것도 runApp 이전
 
-  runApp(const MyAppInitializer());
-
-  await FcmTtsService().initialize();
+  runApp(const MyAppInitializer()); // ⬅️ 마지막에 호출
 }
 
 class MyAppInitializer extends StatefulWidget {
@@ -125,63 +125,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final FlutterTts _flutterTts = FlutterTts();
 
   @override
   void initState() {
     super.initState();
     _checkInitialNfcLaunch();
-    _setupFcmAndTts();
   }
 
-  Future<void> _setupFcmAndTts() async {
-    try {
-      final messaging = FirebaseMessaging.instance;
-
-      NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-      debugPrint('🔔 Notification permission: ${settings.authorizationStatus}');
-
-      final String? token = await messaging.getToken();
-      debugPrint('🔥 FCM token: $token');
-
-      try {
-        await _flutterTts.setLanguage('ko-KR');
-        await _flutterTts.setSpeechRate(0.45);
-        await _flutterTts.setVolume(1.0);
-      } catch (e) {
-        debugPrint('TTS init warning: $e');
-      }
-
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-        final title = message.notification?.title ?? '';
-        final body = message.notification?.body ?? message.data['body'] ?? '';
-        final speakText =
-        body.isNotEmpty ? body : (title.isNotEmpty ? title : '새 알림이 도착했습니다.');
-
-        try {
-          await _flutterTts.stop();
-          await _flutterTts.speak(speakText);
-        } catch (e) {
-          debugPrint('TTS error: $e');
-        }
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        debugPrint('📝 onMessageOpenedApp: data=${message.data}');
-      });
-
-      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-      if (initialMessage != null) {
-        debugPrint('📝 getInitialMessage: data=${initialMessage.data}');
-      }
-    } catch (e) {
-      debugPrint('FCM+TTS setup error: $e');
-    }
-  }
 
   Future<void> _checkInitialNfcLaunch() async {
     const platform = MethodChannel('nfc_channel');
