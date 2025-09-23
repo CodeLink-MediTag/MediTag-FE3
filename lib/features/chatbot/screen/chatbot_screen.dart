@@ -52,7 +52,8 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   @override
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final double baseOffset = 92.0;
+    final double topInset = MediaQuery.of(context).padding.top + kToolbarHeight;
+    const double baseOffset = 92.0;
     final double bottomOffset = keyboardHeight + baseOffset;
 
     return Scaffold(
@@ -61,34 +62,40 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
         title: '챗봇',
         onBack: () => Navigator.of(context).pop(),
         onHome: () => Navigator.pushNamedAndRemoveUntil(context, '/landing', (r) => false),
-        height: kToolbarHeight, // 챗봇 전용 짧은 높이
+        height: kToolbarHeight,
       ),
       body: Stack(
         children: [
-          Column(
-            children: [
-              Expanded(
-                child: AnimatedList(
-                  key: _listKey,
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  initialItemCount: messages.length,
-                  itemBuilder: (context, index, animation) {
-                    final msg = messages[index];
-                    return SizeTransition(
-                      sizeFactor: animation,
-                      child: msg['type'] == 'user'
-                          ? Message(message: msg['text']!, alignLeft: false)
-                          : Message(message: msg['text']!),
-                    );
-                  },
+          Padding(
+            padding: EdgeInsets.only(top: topInset),
+            child: Column(
+              children: [
+                Expanded(
+                  child: AnimatedList(
+                    key: _listKey,
+                    controller: scrollController,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12 + 72),
+                    initialItemCount: messages.length,
+                    itemBuilder: (context, index, animation) {
+                      final msg = messages[index];
+                      return SizeTransition(
+                        sizeFactor: animation,
+                        child: msg['type'] == 'user'
+                            ? Message(message: msg['text']!, alignLeft: false)
+                            : Message(message: msg['text']!),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              SafeArea(
-                top: false,
-                child: ChatInputField(controller: controller, onSend: sendMessageToServer),
-              ),
-            ],
+                SafeArea(
+                  top: false,
+                  child: ChatInputField(
+                    controller: controller,
+                    onSend: sendMessageToServer,
+                  ),
+                ),
+              ],
+            ),
           ),
           Positioned(
             left: 0,

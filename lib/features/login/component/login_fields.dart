@@ -29,9 +29,9 @@ class _LoginFieldsState extends State<LoginFields> {
 
   // 개발 편의를 위한 초기값은 그대로 둡니다.
   final TextEditingController _usernameController =
-  TextEditingController(text: "ko7584@naver.com");
+  TextEditingController(text: "test@gmail.com");
   final TextEditingController _passwordController =
-  TextEditingController(text: "@python7584");
+  TextEditingController(text: "test12345");
 
   @override
   void dispose() {
