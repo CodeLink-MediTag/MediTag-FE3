@@ -1,3 +1,5 @@
+// lib/features/medication/medistart/model/medistart_selection_data.dart
+
 class MediStartSelectionData {
   final String? name;
   final String? characteristic;
