@@ -1,3 +1,4 @@
+// lib/features/medication/medistart/screen/medistart_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -149,5 +150,15 @@ class _MediStartScreenState extends State<MediStartScreen> {
         ),
       ),
     );
+  }
+  ImageProvider<Object> resolveImage(String? src) {
+    if (src == null || src.isEmpty) {
+      return const AssetImage('assets/images/placeholder.png');
+    }
+    final s = src.trim();
+    if (s.startsWith('http://') || s.startsWith('https://')) {
+      return NetworkImage(s);
+    }
+    return FileImage(File(s));
   }
 }

@@ -1,3 +1,5 @@
+// lib/features/medication/medistart/component/medistart_image_picker.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 
@@ -33,12 +35,27 @@ class MediStartImagePicker extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // 텍스트 색은 onSurface 계열로
+                // ← 썸네일 추가 (선택된 경우만)
+                if (hasImage)
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image(
+                          image: FileImage(selectedImage!),  // MediStart에선 로컬 파일만 옴
+                          width: 32, height: 32, fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                  ),
+
                 Text(
                   hasImage ? '사진 선택됨' : '사진이 있다면 등록해주세요!',
                   style: hasImage
                       ? theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)
-                      : theme.textTheme.bodyLarge?.copyWith(color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7)),
+                      : theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7)),
                 ),
                 Icon(Icons.image, color: theme.iconTheme.color),
               ],

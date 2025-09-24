@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:medife/features/medication/MediDetail/screen/medidetail_screen.dart';
 import 'package:medife/features/medication/MediMain/model/medimain_medicine.dart';
 import 'package:medife/features/medication/MediMain/model/medimain_alarm.dart';
+import 'dart:io';
 
 class MedicationCard extends StatelessWidget {
   final Medicine medicine;
@@ -59,7 +60,12 @@ class MedicationCard extends StatelessWidget {
                 child: (medicine.imageUrl != null && medicine.imageUrl!.isNotEmpty)
                     ? ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(medicine.imageUrl!, fit: BoxFit.cover),
+                  child: Image(
+                  image: resolveImage(medicine.imageUrl),  // <-- 여기!
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(Icons.broken_image,
+                      size: 32, color: theme.iconTheme.color?.withOpacity(0.7)),
+                ),
                 )
                     : Icon(Icons.image, size: 32, color: placeholderIconColor),
               ),
@@ -143,5 +149,15 @@ class MedicationCard extends StatelessWidget {
         ],
       ),
     );
+  }
+  ImageProvider<Object> resolveImage(String? src) {
+    if (src == null || src.isEmpty) {
+      return const AssetImage('assets/images/placeholder.png'); // 없으면 임시 에셋으로
+    }
+    final s = src.trim();
+    if (s.startsWith('http://') || s.startsWith('https://')) {
+      return NetworkImage(s);        // 서버 URL
+    }
+    return FileImage(File(s));       // 그 외는 로컬 파일 경로
   }
 }

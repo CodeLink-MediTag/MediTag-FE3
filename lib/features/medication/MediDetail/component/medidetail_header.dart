@@ -1,5 +1,6 @@
 // lib/features/medication/MediDetail/component/medidetail_header.dart
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class MediDetailHeader extends StatelessWidget {
   final String imageUrl;
@@ -42,9 +43,14 @@ class MediDetailHeader extends StatelessWidget {
             child: (imageUrl.isNotEmpty)
                 ? ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl,
+              child: Image(
+                image: resolveImage(imageUrl), // ← 로컬/네트워크 자동 분기
                 fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Icon(
+                  Icons.broken_image,
+                  size: 35,
+                  color: placeholderIconColor,
+                ),
               ),
             )
                 : Icon(Icons.image, size: 35, color: placeholderIconColor),
@@ -80,4 +86,14 @@ class MediDetailHeader extends StatelessWidget {
       ),
     );
   }
+}
+ImageProvider<Object> resolveImage(String? src) {
+  if (src == null || src.isEmpty) {
+    return const AssetImage('assets/images/placeholder.png');
+  }
+  final s = src.trim();
+  if (s.startsWith('http://') || s.startsWith('https://')) {
+    return NetworkImage(s);
+  }
+  return FileImage(File(s));
 }
