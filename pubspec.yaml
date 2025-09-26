@@ -66,7 +66,7 @@ dependencies:
   audioplayers: ^6.0.0
 
   # NFC 태그에 필요한 플러그인
-  nfc_manager: ^4.0.2
+  nfc_manager: ^3.5.0
 
 dev_dependencies:
   flutter_test:

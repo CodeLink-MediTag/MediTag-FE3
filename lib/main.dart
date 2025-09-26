@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:medife/features/ocr/ocr.dart';
-import 'package:medife/providers/nfc_provider.dart';
 import 'package:medife/providers/text_size_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +20,12 @@ import 'package:medife/features/mypage/mode/mode.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'fcm_tts_service.dart';
+
+// NFC 테스트를 위한 코드
+import 'package:nfc_manager/nfc_manager.dart';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+// NFC 테스트를 위한 코드
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,7 +101,6 @@ class _MyAppInitializerState extends State<MyAppInitializer> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TextSizeProvider()),
-        ChangeNotifierProvider(create: (_) => NfcProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: MyApp(
@@ -129,28 +133,54 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _checkInitialNfcLaunch();
+
+// NFC 테스트를 위한 코드
+    _startNfc();
+
   }
 
-
-  Future<void> _checkInitialNfcLaunch() async {
-    const platform = MethodChannel('nfc_channel');
-    try {
-      final String? cardInfo = await platform.invokeMethod('getInitialNfcData');
-      if (cardInfo != null && cardInfo.isNotEmpty) {
-        String? route;
-        if (cardInfo == "morning_card") route = '/morning';
-        else if (cardInfo == "lunch_card") route = '/lunch';
-        else if (cardInfo == "dinner_card") route = '/dinner';
-
-        if (route != null) {
-          context.read<NfcProvider>().setPendingRoute(route);
-          print("NFC값:$route");
-        }
-      }
-    } catch (e) {
-      debugPrint("초기 NFC 데이터 없음: $e");
+// NFC 테스트를 위한 코드
+  void _startNfc() async {
+    bool isAvailable = await NfcManager.instance.isAvailable();
+    if (!isAvailable) {
+      debugPrint('NFC 사용 불가');
+      return;
     }
+
+    NfcManager.instance.startSession(
+      onDiscovered: (NfcTag tag) async {
+        final ndef = Ndef.from(tag);
+        if (ndef == null || ndef.cachedMessage == null) return;
+
+        final records = ndef.cachedMessage!.records;
+        if (records.isNotEmpty) {
+          String payload = String.fromCharCodes(records.first.payload);
+          int langCodeLen = records.first.payload[0];
+          String text = payload.substring(1 + langCodeLen);
+
+          debugPrint('읽은 값: $text'); // /morning, /lunch, /dinner
+
+          // NFC 값이 /morning, /lunch, /dinner 라우트면 pushNamed
+          if (['/morning', '/lunch', '/dinner'].contains(text)) {
+            navigatorKey.currentState?.pushNamed(text);
+          } else {
+            // 잘못된 태그값
+            ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+              SnackBar(content: Text('알 수 없는 태그: $text')),
+            );
+          }
+        }
+      },
+    );
+  }
+
+// NFC 테스트를 위한 코드
+
+
+  @override
+  void dispose() {
+    NfcManager.instance.stopSession();
+    super.dispose();
   }
 
   @override
@@ -266,6 +296,10 @@ class _MyAppState extends State<MyApp> {
     final String initialRoute = widget.isLoggedIn ? '/splash' : '/login';
 
     return MaterialApp(
+      // NFC 테스트를 위한 코드
+      navigatorKey: navigatorKey, // ⬅️ 추가
+
+
       title: 'MediTag',
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -325,27 +359,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _handleNavigation();
+    _checkInitialRoute();
   }
 
-  Future<void> _handleNavigation() async {
+  Future<void> _checkInitialRoute() async {
     await Future.delayed(const Duration(milliseconds: 500));
-    final nfcProvider = context.read<NfcProvider>();
-
-    if (nfcProvider.pendingRoute != null) {
-      final pending = nfcProvider.pendingRoute!;
-      nfcProvider.clearPendingRoute();
-      if (mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil(pending, (route) => false);
-      }
-      return;
-    }
-
-    // ✅ 첫 로그인 + 가이드라인 안봤으면 가이드라인으로
     if (widget.firstLogin && !widget.hasSeenGuideline) {
-      if (mounted) Navigator.of(context).pushReplacementNamed('/guideline');
+      Navigator.of(context).pushReplacementNamed('/guideline');
+
     } else {
-      if (mounted) Navigator.of(context).pushReplacementNamed('/landing');
+      Navigator.of(context).pushReplacementNamed('/landing');
+
     }
   }
 
