@@ -1,6 +1,5 @@
 // lib/screens/login/component/login_fields.dart
 import 'package:flutter/material.dart';
-import 'package:medife/providers/nfc_provider.dart';
 import '../../../routes/route_names.dart';
 import 'login_custom_button.dart';
 import 'login_custom_text_field.dart';
@@ -41,8 +40,6 @@ class _LoginFieldsState extends State<LoginFields> {
   }
 
   Future<void> _handleLoginSuccess() async {
-    // ✅ 수정: 비동기 작업 전 context 관련 변수 미리 가져오기
-    final nfcProvider = context.read<NfcProvider>();
     final navigator = Navigator.of(context); // Navigator도 미리 가져오기
 
     final prefs = await SharedPreferences.getInstance();
@@ -61,18 +58,7 @@ class _LoginFieldsState extends State<LoginFields> {
     }
     */
 
-    final pending = nfcProvider.pendingRoute;
-    final Set<String> allowedRoutes = {
-      '/morning',
-      '/lunch',
-      '/dinner',
-    };
 
-    if (pending != null && allowedRoutes.contains(pending)) {
-      nfcProvider.clearPendingRoute();
-      navigator.pushNamedAndRemoveUntil(pending, (route) => false);
-      return;
-    }
 
     final hasSeenGuideline = prefs.getBool('hasSeenGuideline') ?? false;
     if (!hasSeenGuideline) {
