@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../ip/ip_address.dart';
@@ -27,10 +28,28 @@ class _MedicineIntakeScreenState extends State<MedicineIntakeScreen> {
   String? _alarmTime;
   bool? _prescribed;
 
+  // ⬇️ 추가: FlutterTts 인스턴스
+  late FlutterTts flutterTts;
+
   @override
   void initState() {
     super.initState();
+    flutterTts = FlutterTts();
+    _speakTimeLabel(); // 화면 열리자마자 TTS 실행
     _checkPrescription();
+  }
+
+  Future<void> _speakTimeLabel() async {
+    // 한국어 음성 설정 (플랫폼마다 다를 수 있음)
+    await flutterTts.setLanguage("ko-KR");
+    await flutterTts.setSpeechRate(0.5); // 속도 조절
+    await flutterTts.speak("${widget.timeLabel} 약입니다");
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop(); // 화면 닫힐 때 음성 중지
+    super.dispose();
   }
 
   Future<void> _checkPrescription() async {
