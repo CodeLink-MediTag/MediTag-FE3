@@ -47,6 +47,8 @@
             </intent-filter>
 
 
+
+
         </activity>
         <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
         <activity
