@@ -12,6 +12,7 @@ import 'package:medife/features/calendar/screen/calendar_screen.dart';
 import 'package:medife/features/mypage/mypage.dart';
 import '../features/eatlist/component/eat-list.dart';
 import 'package:medife/features/medication/MediMain/repository/medimain_medicine_repository.dart';
+import '../nfc/medicine_screen.dart';
 import '../nfc/nfcAdd.dart';
 
 class Landing extends StatefulWidget {
@@ -329,7 +330,7 @@ class _LandingState extends State<Landing> {
           onTap: (index) {
             if (index == 0) {
               Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const CardRegistration()));
+                  builder: (context) => MedicineScreen()));
             }
             if (index == 1) {
               Navigator.pushNamed(context, '/ocr');

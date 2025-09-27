@@ -128,19 +128,45 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
 
-  @override
-  void initState() {
-    super.initState();
+/// ✅ NFC 전역 제어용 헬퍼 클래스
+class GlobalNfcController {
+  static Future<void> startGlobalNfc() async {
+    bool isAvailable = await NfcManager.instance.isAvailable();
+    if (!isAvailable) {
+      debugPrint('NFC 사용 불가');
+      return;
+    }
 
-// NFC 테스트를 위한 코드
-    _startNfc();
+    NfcManager.instance.startSession(
+      onDiscovered: (NfcTag tag) async {
+        final ndef = Ndef.from(tag);
+        if (ndef == null || ndef.cachedMessage == null) return;
 
+        final records = ndef.cachedMessage!.records;
+        if (records.isNotEmpty) {
+          String payload = String.fromCharCodes(records.first.payload);
+          int langCodeLen = records.first.payload[0];
+          String text = payload.substring(1 + langCodeLen);
+
+          debugPrint('읽은 값: $text');
+
+          if (['/morning', '/lunch', '/dinner'].contains(text)) {
+            navigatorKey.currentState?.pushNamed(text);
+          } else {
+            ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+              SnackBar(content: Text('알 수 없는 태그: $text')),
+            );
+          }
+        }
+      },
+    );
   }
+}
 
-// NFC 테스트를 위한 코드
-  void _startNfc() async {
+class _MyAppState extends State<MyApp> {
+// static으로 선언
+  static void startGlobalNfc() async {
     bool isAvailable = await NfcManager.instance.isAvailable();
     if (!isAvailable) {
       debugPrint('NFC 사용 불가');
@@ -160,11 +186,9 @@ class _MyAppState extends State<MyApp> {
 
           debugPrint('읽은 값: $text'); // /morning, /lunch, /dinner
 
-          // NFC 값이 /morning, /lunch, /dinner 라우트면 pushNamed
           if (['/morning', '/lunch', '/dinner'].contains(text)) {
             navigatorKey.currentState?.pushNamed(text);
           } else {
-            // 잘못된 태그값
             ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
               SnackBar(content: Text('알 수 없는 태그: $text')),
             );
@@ -174,8 +198,11 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-// NFC 테스트를 위한 코드
-
+  @override
+  void initState() {
+    super.initState();
+    GlobalNfcController.startGlobalNfc(); // 전역 NFC 세션 시작
+  }
 
   @override
   void dispose() {
