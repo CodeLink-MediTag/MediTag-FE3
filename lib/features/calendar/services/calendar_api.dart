@@ -16,7 +16,7 @@ class CalendarApi {
     if (_token == null) return [];
     final date = d.toIso8601String().substring(0, 10);
     final res = await http.get(
-      Uri.parse('http://$ipAddress:8080/api/medicines?date=$date'),
+      Uri.parse('http://$ipAddress/api/medicines?date=$date'),
       headers: {'Authorization': 'Bearer $_token'},
     );
     if (res.statusCode != 200) return [];
@@ -27,7 +27,7 @@ class CalendarApi {
   static Future<Set<DateTime>> fetchMedicationDays() async {
     if (_token == null) return {};
     final res = await http.get(
-      Uri.parse('http://$ipAddress:8080/api/calendar'),
+      Uri.parse('http://$ipAddress/api/calendar'),
       headers: {'Authorization': 'Bearer $_token'},
     );
     if (res.statusCode != 200) return {};

@@ -265,7 +265,7 @@ class _MediEditScreenState extends State<MediEditScreen> {
 
     // 4) MultipartRequest 구성
     final uri = Uri.parse(
-      'http://$ipAddress:8080/api/medicines/${widget.medicine.medicineId}',
+      'http://$ipAddress/api/medicines/${widget.medicine.medicineId}',
     );
     final req = http.MultipartRequest('PATCH', uri)
       ..headers['Authorization'] = 'Bearer $token';
@@ -390,7 +390,7 @@ class _MediEditScreenState extends State<MediEditScreen> {
       final token = prefs.getString('accessToken');
       if (token == null) return false;
 
-      final uri = Uri.parse('http://$ipAddress:8080/api/medicines/${widget.medicine.medicineId}');
+      final uri = Uri.parse('http://$ipAddress/api/medicines/${widget.medicine.medicineId}');
       final res = await http.delete(
         uri,
         headers: {

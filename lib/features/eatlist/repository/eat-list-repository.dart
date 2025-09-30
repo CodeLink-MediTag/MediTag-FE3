@@ -6,7 +6,7 @@ import 'package:medife/ip/ip_address.dart';
 
 class EatListRepository{
   Future<List<Medicine>> fetchMedicines(String date, String token) async {
-    final uri = Uri.parse("http://$ipAddress:8080/api/medicines?date=$date");
+    final uri = Uri.parse("http://$ipAddress/api/medicines?date=$date");
     final response = await http.get(
       uri,
       headers: {
@@ -31,7 +31,7 @@ class EatListRepository{
     required String token,
     required bool prescribed, // 처방약 여부
   }) async {
-    final baseUrl = 'http://$ipAddress:8080'; // 실제 서버 주소로 교체하세요
+    final baseUrl = 'http://$ipAddress'; // 실제 서버 주소로 교체하세요
 
     // 시간 파라미터 키 결정
     final timeKey = prescribed ? 'dosageTime' : 'alarmTime';

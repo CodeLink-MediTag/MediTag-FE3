@@ -10,7 +10,7 @@ class SignupAuthRepository {
   Future<bool> signup(SignupRequestModel request) async {
     try {
       final response = await http.post(
-        Uri.parse('http://$ipAddress:8080/api/member/register'), // 회원가입 API 경로  Uri.parse('http://$ipAddress:8080/api/member/register'),
+        Uri.parse('http://$ipAddress/api/member/register'), // 회원가입 API 경로  Uri.parse('http://$ipAddress:8080/api/member/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );

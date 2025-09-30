@@ -14,7 +14,7 @@ Future<void> deleteRecording(String id) async {
   }
 
   // API 호출
-  final url = Uri.parse('http://$ipAddress:8080/api/records/$id');
+  final url = Uri.parse('http://$ipAddress/api/records/$id');
   final response = await http.delete(
     url,
     headers: {

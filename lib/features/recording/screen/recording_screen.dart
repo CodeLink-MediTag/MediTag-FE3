@@ -74,7 +74,7 @@ class _RecordingScreenState extends State<RecordingScreen> {
       });
 
       final dio = Dio();
-      final url = 'http://$ipAddress:8080/api/records';
+      final url = 'http://$ipAddress/api/records';
       final response = await dio.post(
         url,
         data: formData,
@@ -89,9 +89,12 @@ class _RecordingScreenState extends State<RecordingScreen> {
       } else {
         _showMessage("⚠️ 서버 오류: ${response.statusCode}");
       }
-    } catch (e) {
-      _showMessage("❌ 전송 중 오류가 발생했습니다");
+    } catch (e, stack) {
+      debugPrint("❌ 오류 상세: $e");
+      debugPrint("❌ 스택트레이스: $stack");
+      _showMessage("❌ 전송 중 오류가 발생했습니다: $e");
     }
+
   }
 
   void _toggleRecording() async {

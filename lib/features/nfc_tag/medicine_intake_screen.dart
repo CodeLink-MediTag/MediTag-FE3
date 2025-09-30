@@ -59,7 +59,7 @@ class _MedicineIntakeScreenState extends State<MedicineIntakeScreen> {
       if (token == null) throw Exception("토큰 없음");
       final today = DateTime.now();
       final dateStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";
-      final uri = Uri.parse("http://$ipAddress:8080/api/medicines?date=$dateStr");
+      final uri = Uri.parse("http://$ipAddress/api/medicines?date=$dateStr");
       final response = await http.get(uri, headers: {"Authorization": "Bearer $token"});
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -169,7 +169,7 @@ Future<void> patchDosageTime({
   required String token,
   required String timeLabel, // "아침", "점심", "저녁"
 }) async {
-  final baseUrl = 'http://$ipAddress:8080';
+  final baseUrl = 'http://$ipAddress';
   final uri = Uri.parse('$baseUrl/api/medicines/$medicineId/alarms/taking')
       .replace(queryParameters: {
     'dosageTime': timeLabel,
