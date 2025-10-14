@@ -126,7 +126,7 @@ class _MediMainState extends State<MediMain> with RouteAware {
 
       // HTTP GET 요청을 보내 약 정보를 가져옴
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/medicines?date=$today'),
+        Uri.parse('http://localhost/api/medicines?date=$today'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -159,7 +159,7 @@ class _MediMainState extends State<MediMain> with RouteAware {
     try {
       // HTTP POST 요청으로 복용 상태를 서버에 업데이트함
       await http.post(
-        Uri.parse('http://localhost:8080/api/medicines/taking'),
+        Uri.parse('http://localhost/api/medicines/taking'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -185,7 +185,7 @@ class _MediMainState extends State<MediMain> with RouteAware {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/api/medicines/favorite'), // 서버에 맞춰 수정
+        Uri.parse('http://localhost/api/medicines/favorite'), // 서버에 맞춰 수정
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -585,7 +585,7 @@ class _MediMainState extends State<MediMain> with RouteAware {
 
       // HTTP GET 요청을 보내 약 정보를 가져옴
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/medicines?date=$today'),
+        Uri.parse('http://localhost/api/medicines?date=$today'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -618,7 +618,7 @@ class _MediMainState extends State<MediMain> with RouteAware {
     try {
       // HTTP POST 요청으로 복용 상태를 서버에 업데이트함
       await http.post(
-        Uri.parse('http://localhost:8080/api/medicines/taking'),
+        Uri.parse('http://localhost/api/medicines/taking'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -644,7 +644,7 @@ class _MediMainState extends State<MediMain> with RouteAware {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:8080/api/medicines/favorite'), // 서버에 맞춰 수정
+        Uri.parse('http://localhost/api/medicines/favorite'), // 서버에 맞춰 수정
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

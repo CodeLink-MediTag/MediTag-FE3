@@ -11,7 +11,7 @@ class ChatRepository{
 
     try {
       final res = await http.post(
-        Uri.parse('http://$ipAddress:8080/api/chat/session'),
+        Uri.parse('http://$ipAddress/api/chat/session'),
         headers: {
           'Authorization': 'Bearer ${request.accessToken}',
         },
@@ -32,7 +32,7 @@ class ChatRepository{
   Future<String> sendMessage(SendMessageRequestModel request) async {
     try {
       final response = await http.post(
-        Uri.parse('http://$ipAddress:8080/api/chat/message/${request.sessionId}'),
+        Uri.parse('http://$ipAddress/api/chat/message/${request.sessionId}'),
         headers: {
           'Authorization': 'Bearer ${request.accessToken}',
           'Content-Type': 'application/json',
