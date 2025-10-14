@@ -36,7 +36,7 @@ class _ChatBotPageState extends State<ChatBot> {
     _accessToken = prefs.getString('token');
 
     final res = await http.post(
-      Uri.parse('http://$ipAddress:8080/api/chat/session'),
+      Uri.parse('http://$ipAddress/api/chat/session'),
       headers: {'Authorization': 'Bearer $_accessToken'},
     );
 
@@ -83,7 +83,7 @@ class _ChatBotPageState extends State<ChatBot> {
     });
 
     final res = await http.post(
-      Uri.parse('http://$ipAddress:8080/api/chat/message/$_chatSessionId'),
+      Uri.parse('http://$ipAddress/api/chat/message/$_chatSessionId'),
       headers: {
         'Authorization': 'Bearer $_accessToken',
         'Content-Type': 'application/json',

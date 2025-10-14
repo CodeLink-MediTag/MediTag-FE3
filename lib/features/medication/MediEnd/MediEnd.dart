@@ -74,7 +74,7 @@ class _MediEndState extends State<MediEnd> {
 
   Future<void> _upload(BuildContext context) async {
 
-    final uri = Uri.parse('http://localhost:8080/api/medicines'); // ✅ 실제 주소로 수정 final uri = Uri.parse('http://10.0.2.2:8080/api/medicines');
+    final uri = Uri.parse('http://localhost/api/medicines'); // ✅ 실제 주소로 수정 final uri = Uri.parse('http://10.0.2.2/api/medicines');
     var request = http.MultipartRequest("POST", uri);
 
     // ✅ 토큰 유효성검사
