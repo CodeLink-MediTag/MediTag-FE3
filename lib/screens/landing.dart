@@ -385,7 +385,14 @@ class _LandingState extends State<Landing> {
         height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: cardColor,
+          // 테두리
+            color: cardColor,
+            border: Border.all(
+              color: cs.primary.withOpacity(isDark ? 0.55 : 0.35),
+              width: 3,
+            ),
+          // 테두리 추가
+
           boxShadow: [
             BoxShadow(
                 color: shadowColor, blurRadius: 4, offset: const Offset(0, 2)),
