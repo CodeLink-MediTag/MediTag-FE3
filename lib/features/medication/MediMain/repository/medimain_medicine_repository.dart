@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 class MedicineRepository {
-  final String baseUrl = 'http://$ipAddress:8080/api/medicines';
+  final String baseUrl = 'http://$ipAddress/api/medicines';
 
   Future<List<Medicine>> fetchMedicines(String token, String date) async {
     final res = await http.get(
@@ -26,7 +26,7 @@ class MedicineRepository {
 
   /// 즐겨찾기 토글 (기존 방식 유지)
   Future<void> toggleFavorite(String token, Medicine med) async {
-    final uri = Uri.parse('http://$ipAddress:8080/favorite'); // 백엔드가 /favorite 에 매핑돼 있음
+    final uri = Uri.parse('http://$ipAddress/favorite'); // 백엔드가 /favorite 에 매핑돼 있음
     final req = http.Request('PUT', uri)
       ..headers['Content-Type'] = 'application/json'
       ..headers['Authorization'] = 'Bearer $token'

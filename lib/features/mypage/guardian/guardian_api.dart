@@ -29,7 +29,7 @@ class GuardianResponse {
 }
 
 class GuardianApi {
-  final _base = 'http://$ipAddress:8080/api/guardians';
+  final _base = 'http://$ipAddress/api/guardians';
 
   Future<GuardianResponse> register(String token, String phone, String relation) async {
     final res = await http.post(

@@ -53,7 +53,7 @@ class _CalendarState extends State<Calendar> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://$ipAddress:8080/api/medicines?date=$formattedDate'),
+        Uri.parse('http://$ipAddress/api/medicines?date=$formattedDate'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -83,7 +83,7 @@ class _CalendarState extends State<Calendar> {
 
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:8080/api/calendar'),
+        Uri.parse('http://localhost/api/calendar'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

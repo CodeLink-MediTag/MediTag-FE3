@@ -144,7 +144,7 @@ class _MediEndScreenState extends State<MediEndScreen> {
     // debug
     print('📤 REQUEST BODY → ${jsonEncode(body)}');
 
-    final uri = Uri.parse('http://$ipAddress:8080/api/medicines');
+    final uri = Uri.parse('http://$ipAddress/api/medicines');
     final req = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $token'
       ..files.add(

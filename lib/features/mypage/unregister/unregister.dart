@@ -116,7 +116,7 @@ class UnregisterScreen extends StatelessWidget {
         return;
       }
 
-      final uri = Uri.parse('http://$ipAddress:8080/api/member/me');
+      final uri = Uri.parse('http://$ipAddress/api/member/me');
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

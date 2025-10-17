@@ -11,7 +11,7 @@ class LoginAuthRepository {
   Future<String> login(LoginRequestModel req) async {
     try {
       final res = await http.post(
-        Uri.parse('http://$ipAddress:8080/api/auth/login'),
+        Uri.parse('http://$ipAddress/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(req.toJson()),
       );
@@ -34,7 +34,7 @@ class LoginAuthRepository {
   Future<String?> kakaoLogin(KakaoLoginRequestModel request) async {
     try {
       final response = await http.post(
-        Uri.parse('http://$ipAddress:8080/api/auth/kakao-login'),
+        Uri.parse('http://$ipAddress/api/auth/kakao-login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );
