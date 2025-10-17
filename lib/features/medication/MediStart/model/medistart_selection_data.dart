@@ -1,12 +1,14 @@
 // lib/features/medication/medistart/model/medistart_selection_data.dart
 
+import 'dart:io';
+
 class MediStartSelectionData {
   final String? name;
   final String? characteristic;
   final String? startDate;
   final int? duration;
   final int? frequency;
-  final String? imageUrl;
+  final File? imageUrl;
   final bool? prescribed;
   final List<String>? dosageTimes;
   final List<String>? alarmTimes;
@@ -29,7 +31,7 @@ class MediStartSelectionData {
     String? startDate,
     int? duration,
     int? frequency,
-    String? imageUrl,
+    File? imageUrl,
     bool? prescribed,
     List<String>? dosageTimes,
     List<String>? alarmTimes,
