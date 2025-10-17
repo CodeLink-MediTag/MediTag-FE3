@@ -52,7 +52,7 @@ class _MediStartScreenState extends State<MediStartScreen> {
     final data = MediStartSelectionData(
       name: _medicineNameCtrl.text.trim(),
       characteristic: _selectedRecording,
-      imageUrl: _selectedImage?.path,
+      imageUrl: _selectedImage,
     );
 
     Navigator.of(context)

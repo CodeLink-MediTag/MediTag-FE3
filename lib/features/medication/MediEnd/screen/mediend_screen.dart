@@ -154,6 +154,16 @@ class _MediEndScreenState extends State<MediEndScreen> {
           contentType: MediaType('application', 'json'),
         ),
       );
+    // 이미지 파일 추가
+    if (sel.imageUrl != null) {
+      req.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          sel.imageUrl!.path,
+          contentType: MediaType('image', 'jpeg'),
+        ),
+      );
+    }
 
     final streamed = await req.send();
     final res = await http.Response.fromStream(streamed);

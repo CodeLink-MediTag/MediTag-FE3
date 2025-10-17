@@ -1,10 +1,12 @@
+import 'dart:io';
+
 class MediEndSelectionData {
   final String? name;
   final String? characteristic;
   final String  startDate;
   final int     duration;
   final int     frequency;
-  final String? imageUrl;
+  final File? imageUrl;
   final bool    prescribed;
   final List<String> dosageTimes;
   final List<String> alarmTimes;
@@ -27,7 +29,7 @@ class MediEndSelectionData {
     String? startDate,
     int? duration,
     int? frequency,
-    String? imageUrl,
+    File? imageUrl,
     bool? prescribed,
     List<String>? dosageTimes,
     List<String>? alarmTimes,
